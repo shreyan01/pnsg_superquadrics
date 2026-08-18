@@ -25,7 +25,6 @@ YCB_CLASS_NAMES = {
 # our vocabulary word, or None to exclude this class from training entirely
 YCB_TO_VOCAB = {
     '002_master_chef_can': 'can',
-    '004_tomato_soup_can': 'can',
     '007_tuna_fish_can': None,          # too flat/small, poor shape match to our 'can' prior
     '024_bowl': 'bowl',
     '025_mug': 'mug',
@@ -33,6 +32,9 @@ YCB_TO_VOCAB = {
     '006_mustard_bottle': 'bottle',
     '021_bleach_cleanser': 'bottle',
     '003_cracker_box': 'box',
+    '004_sugar_box': 'box',             # was missing/mistyped -- caused sugar boxes to
+                                          # be silently dropped despite belonging here,
+                                          # found via a real frame where it went undetected
     '009_gelatin_box': 'box',
     '008_pudding_box': 'box',
     '061_foam_brick': 'box',

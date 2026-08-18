@@ -226,8 +226,36 @@ class Registry:
             modes.append(new_mode)
             entry['action'] = 'spawned_new_mode'
             entry['mode_id'] = new_mode.mode_id
+            self._maybe_merge(noun)
         self.provenance.append(entry)
         return entry
+
+    def _maybe_merge(self, noun):
+        """If a noun exceeds the mode cap, merge the two closest modes
+        (n-weighted mean, pooled variance) so registry size stays bounded
+        by vocabulary complexity, not by how many training examples were
+        processed."""
+        modes = self.modes[noun]
+        if len(modes) <= MAX_MODES_PER_NOUN:
+            return
+        best_pair, best_dist = None, np.inf
+        for i in range(len(modes)):
+            for j in range(i + 1, len(modes)):
+                d = np.linalg.norm(modes[i].mean - modes[j].mean)
+                if d < best_dist:
+                    best_dist, best_pair = d, (i, j)
+        i, j = best_pair
+        a, b = modes[i], modes[j]
+        n_total = a.n + b.n
+        merged_mean = (a.mean * a.n + b.mean * b.n) / n_total
+        var_a = a.m2 / max(a.n - 1, 1)
+        var_b = b.m2 / max(b.n - 1, 1)
+        pooled_var = ((a.n - 1) * var_a + (b.n - 1) * var_b) / max(n_total - 2, 1)
+        pooled_var += (a.n * b.n / n_total) * ((a.mean - b.mean) ** 2) / n_total
+        merged = Mode(mean=merged_mean, m2=pooled_var * max(n_total - 1, 1), n=n_total)
+        new_modes = [m for k, m in enumerate(modes) if k not in (i, j)]
+        new_modes.append(merged)
+        self.modes[noun] = new_modes
 
     def log_grasp_outcome(self, noun, mode_id, approach, contact_region, success):
         for mode in self.modes.get(noun, []):

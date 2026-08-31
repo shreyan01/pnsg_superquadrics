@@ -1,0 +1,2450 @@
+{
+  "modes": {},
+  "provenance": [
+    {
+      "ts": 1788167785.024173,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "bootstrapped_new_graph_mode",
+      "mode_id": "41936642"
+    },
+    {
+      "ts": 1788167788.335688,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "bootstrapped_new_graph_mode",
+      "mode_id": "626b3bbd"
+    },
+    {
+      "ts": 1788167788.3365395,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "30a7019a"
+    },
+    {
+      "ts": 1788167788.3379729,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "bootstrapped_new_graph_mode",
+      "mode_id": "ce5474fd"
+    },
+    {
+      "ts": 1788167788.3389022,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "dee194b9"
+    },
+    {
+      "ts": 1788167788.3391669,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "bootstrapped_new_graph_mode",
+      "mode_id": "3b52f56a"
+    },
+    {
+      "ts": 1788167788.3392382,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "5502c9cc"
+    },
+    {
+      "ts": 1788167788.3397474,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "659330a2"
+    },
+    {
+      "ts": 1788167788.339943,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "78f0a824"
+    },
+    {
+      "ts": 1788167788.3400555,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "176ffece"
+    },
+    {
+      "ts": 1788167788.3403409,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "fd601c90"
+    },
+    {
+      "ts": 1788167788.3404877,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "a1a4ef28"
+    },
+    {
+      "ts": 1788167788.3414452,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "98000e6f"
+    },
+    {
+      "ts": 1788167788.3439152,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "ce5474fd"
+    },
+    {
+      "ts": 1788167788.344109,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "acb9215c"
+    },
+    {
+      "ts": 1788167788.345488,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "c553db80"
+    },
+    {
+      "ts": 1788167788.3463442,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "1e4efd68"
+    },
+    {
+      "ts": 1788167788.3465025,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "ce5474fd"
+    },
+    {
+      "ts": 1788167788.3466487,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "78f0a824"
+    },
+    {
+      "ts": 1788167801.173745,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "b85c9a31"
+    },
+    {
+      "ts": 1788167801.174333,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "ce5474fd"
+    },
+    {
+      "ts": 1788167801.1744869,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "78f0a824"
+    },
+    {
+      "ts": 1788167801.1746294,
+      "noun": "bowl",
+      "F": 1,
+      "graph": true,
+      "action": "bootstrapped_new_graph_mode",
+      "mode_id": "71313bb6"
+    },
+    {
+      "ts": 1788167801.174802,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "ce5474fd"
+    },
+    {
+      "ts": 1788167801.1749604,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "f4d3c1c3"
+    },
+    {
+      "ts": 1788167802.5583293,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "3b52f56a"
+    },
+    {
+      "ts": 1788167802.5589685,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "4c18f488"
+    },
+    {
+      "ts": 1788167802.5609617,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "a2cf560f"
+    },
+    {
+      "ts": 1788167802.5621526,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "f0f56b53"
+    },
+    {
+      "ts": 1788167802.5624304,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "5606fb05"
+    },
+    {
+      "ts": 1788167802.5629215,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "ce5474fd"
+    },
+    {
+      "ts": 1788167802.5631266,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "11cfc998"
+    },
+    {
+      "ts": 1788167802.5660255,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "78f0a824"
+    },
+    {
+      "ts": 1788167802.5662332,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "78f0a824"
+    },
+    {
+      "ts": 1788167802.5664103,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "1e4efd68"
+    },
+    {
+      "ts": 1788167802.5681505,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "d5df0354"
+    },
+    {
+      "ts": 1788167802.569528,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "78f0a824"
+    },
+    {
+      "ts": 1788167802.5697207,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "ffc56b38"
+    },
+    {
+      "ts": 1788167802.5700197,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "78f0a824"
+    },
+    {
+      "ts": 1788167802.57021,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "23c0893f"
+    },
+    {
+      "ts": 1788167802.5706606,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "626b3bbd"
+    },
+    {
+      "ts": 1788167802.5708432,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "937caffd"
+    },
+    {
+      "ts": 1788167802.6789505,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "626b3bbd"
+    },
+    {
+      "ts": 1788167802.679578,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "ce5474fd"
+    },
+    {
+      "ts": 1788167802.6797829,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "f0f56b53"
+    },
+    {
+      "ts": 1788167805.0962634,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "3b059e55"
+    },
+    {
+      "ts": 1788167805.0984755,
+      "noun": "bowl",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "9c42ff06"
+    },
+    {
+      "ts": 1788167805.0987687,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "cee828dc"
+    },
+    {
+      "ts": 1788167805.0997424,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "2653dbe4"
+    },
+    {
+      "ts": 1788167805.1010427,
+      "noun": "bowl",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "d699a9bf"
+    },
+    {
+      "ts": 1788167805.1012511,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "626b3bbd"
+    },
+    {
+      "ts": 1788167805.101518,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "1c7b231b"
+    },
+    {
+      "ts": 1788167805.1026783,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "0db4320c"
+    },
+    {
+      "ts": 1788167805.1032395,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "049934c0"
+    },
+    {
+      "ts": 1788167805.1042001,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "7b6a64d6"
+    },
+    {
+      "ts": 1788167805.104431,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "f0f56b53"
+    },
+    {
+      "ts": 1788167810.499198,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "6bad5b00"
+    },
+    {
+      "ts": 1788167810.501221,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "24b964fa"
+    },
+    {
+      "ts": 1788167810.501641,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "49b64483"
+    },
+    {
+      "ts": 1788167811.5011775,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "581753b2"
+    },
+    {
+      "ts": 1788167811.502771,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "78f0a824"
+    },
+    {
+      "ts": 1788167811.503103,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "b65b4e39"
+    },
+    {
+      "ts": 1788167811.508779,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "4d157d73"
+    },
+    {
+      "ts": 1788167811.5094595,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "b8501cc8"
+    },
+    {
+      "ts": 1788167811.5099137,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "5c50ddb0"
+    },
+    {
+      "ts": 1788167816.2092614,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "de133801"
+    },
+    {
+      "ts": 1788167816.2096663,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "b65b4e39"
+    },
+    {
+      "ts": 1788167816.2101102,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "a9053526"
+    },
+    {
+      "ts": 1788167816.2112055,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "de133801"
+    },
+    {
+      "ts": 1788167816.2115195,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "44e4f471"
+    },
+    {
+      "ts": 1788167816.8160832,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "626b3bbd"
+    },
+    {
+      "ts": 1788167816.8164253,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "ce5474fd"
+    },
+    {
+      "ts": 1788167816.8166676,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "a8685c74"
+    },
+    {
+      "ts": 1788167816.8168604,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "16137a8d"
+    },
+    {
+      "ts": 1788167816.817119,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "609ce6d4"
+    },
+    {
+      "ts": 1788167816.817684,
+      "noun": "bowl",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "b329d3f7"
+    },
+    {
+      "ts": 1788167816.8179853,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "f911cb56"
+    },
+    {
+      "ts": 1788167816.8182664,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "c8b68f82"
+    },
+    {
+      "ts": 1788167816.8188071,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "b65b4e39"
+    },
+    {
+      "ts": 1788167816.8189857,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "34b1f76b"
+    },
+    {
+      "ts": 1788167816.8195255,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "2b19714d"
+    },
+    {
+      "ts": 1788167816.8200645,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "0df49923"
+    },
+    {
+      "ts": 1788167816.8203075,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "f0f56b53"
+    },
+    {
+      "ts": 1788167816.8204823,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "8e18f576"
+    },
+    {
+      "ts": 1788167816.8210216,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "028861d7"
+    },
+    {
+      "ts": 1788167819.7143655,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "ce5474fd"
+    },
+    {
+      "ts": 1788167819.7147229,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "9b18abd2"
+    },
+    {
+      "ts": 1788167819.7155538,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "de133801"
+    },
+    {
+      "ts": 1788167819.7157984,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "74fd6e43"
+    },
+    {
+      "ts": 1788167819.7165775,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "f0f56b53"
+    },
+    {
+      "ts": 1788167819.7168427,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "78f0a824"
+    },
+    {
+      "ts": 1788167819.7171023,
+      "noun": "bowl",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "d699a9bf"
+    },
+    {
+      "ts": 1788167819.7174559,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "8740e4e2"
+    },
+    {
+      "ts": 1788167819.7183745,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "b65b4e39"
+    },
+    {
+      "ts": 1788167819.718634,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "ce5474fd"
+    },
+    {
+      "ts": 1788167819.7188885,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "cd82313d"
+    },
+    {
+      "ts": 1788167819.7196913,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "78f0a824"
+    },
+    {
+      "ts": 1788167819.7199507,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "706bc05a"
+    },
+    {
+      "ts": 1788167819.7207098,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "7ce2e685"
+    },
+    {
+      "ts": 1788167819.7210155,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "ce5474fd"
+    },
+    {
+      "ts": 1788167819.7212644,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "78f0a824"
+    },
+    {
+      "ts": 1788167819.7215307,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "7133cdd4"
+    },
+    {
+      "ts": 1788167819.722273,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "03bb310a"
+    },
+    {
+      "ts": 1788167819.7230499,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "028861d7"
+    },
+    {
+      "ts": 1788167819.723327,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "d012dbfa"
+    },
+    {
+      "ts": 1788167819.7240834,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "b769eff4"
+    },
+    {
+      "ts": 1788167819.7249296,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "8ffa7264"
+    },
+    {
+      "ts": 1788167819.7257948,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "1fa61ee0"
+    },
+    {
+      "ts": 1788167819.7265642,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "65be3650"
+    },
+    {
+      "ts": 1788167820.7558105,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "a56aa947"
+    },
+    {
+      "ts": 1788167820.7561932,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "a7098243"
+    },
+    {
+      "ts": 1788167820.7568235,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "b0160bd6"
+    },
+    {
+      "ts": 1788167820.757423,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "5e705b61"
+    },
+    {
+      "ts": 1788167820.758001,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "56bf8529"
+    },
+    {
+      "ts": 1788167820.7585652,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "6347d738"
+    },
+    {
+      "ts": 1788167820.7587678,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "f325fdb4"
+    },
+    {
+      "ts": 1788167820.759357,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "38783ca4"
+    },
+    {
+      "ts": 1788167820.7596319,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "df762981"
+    },
+    {
+      "ts": 1788167820.760222,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "b8809434"
+    },
+    {
+      "ts": 1788167820.7604191,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "4b6f0919"
+    },
+    {
+      "ts": 1788167820.7609954,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "56bf8529"
+    },
+    {
+      "ts": 1788167820.7612092,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "8113e7f5"
+    },
+    {
+      "ts": 1788167820.7619135,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "0c9e57d4"
+    },
+    {
+      "ts": 1788167820.7625055,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "3b53f231"
+    },
+    {
+      "ts": 1788167820.7630742,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "1b181a99"
+    },
+    {
+      "ts": 1788167820.7633312,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "38783ca4"
+    },
+    {
+      "ts": 1788167820.7636404,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "d1c30f29"
+    },
+    {
+      "ts": 1788167820.7643528,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "efe2b39a"
+    },
+    {
+      "ts": 1788167820.7649474,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "38783ca4"
+    },
+    {
+      "ts": 1788167820.7652683,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "3b6ab6e3"
+    },
+    {
+      "ts": 1788167820.7658253,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "a29283c7"
+    },
+    {
+      "ts": 1788167820.7663906,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "698edbca"
+    },
+    {
+      "ts": 1788167820.766964,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "c807b153"
+    },
+    {
+      "ts": 1788167820.7676642,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "87673774"
+    },
+    {
+      "ts": 1788167820.7682612,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "e7a2e43a"
+    },
+    {
+      "ts": 1788167820.7685783,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "816cf023"
+    },
+    {
+      "ts": 1788167820.7695184,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "f1f0f74a"
+    },
+    {
+      "ts": 1788167820.770179,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "e7a2e43a"
+    },
+    {
+      "ts": 1788167820.7703798,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "aaa14052"
+    },
+    {
+      "ts": 1788167820.7706287,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "4a1834e5"
+    },
+    {
+      "ts": 1788167823.2062411,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "38d80be5"
+    },
+    {
+      "ts": 1788167823.2065465,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "eb332709"
+    },
+    {
+      "ts": 1788167823.2067523,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "003f02d4"
+    },
+    {
+      "ts": 1788167823.207637,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "ec906d8d"
+    },
+    {
+      "ts": 1788167823.2084205,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "e7a2e43a"
+    },
+    {
+      "ts": 1788167823.2086725,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "44771c02"
+    },
+    {
+      "ts": 1788167823.2094026,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "4905e417"
+    },
+    {
+      "ts": 1788167823.2101736,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "af5c3111"
+    },
+    {
+      "ts": 1788167823.210882,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "4d157d73"
+    },
+    {
+      "ts": 1788167823.2112935,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "a8ae6f80"
+    },
+    {
+      "ts": 1788167823.2115939,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "a4d3afd5"
+    },
+    {
+      "ts": 1788167823.2123356,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "07d7f748"
+    },
+    {
+      "ts": 1788167823.2130594,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "d109062a"
+    },
+    {
+      "ts": 1788167823.2137282,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "ea903dda"
+    },
+    {
+      "ts": 1788167823.2139416,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "b8809434"
+    },
+    {
+      "ts": 1788167823.2141385,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "0b5842fd"
+    },
+    {
+      "ts": 1788167823.214324,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "268437fe"
+    },
+    {
+      "ts": 1788167823.2148542,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "0b5842fd"
+    },
+    {
+      "ts": 1788167825.143559,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "587444f0"
+    },
+    {
+      "ts": 1788167825.1446364,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "63dcbb8d"
+    },
+    {
+      "ts": 1788167825.1456494,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "b8809434"
+    },
+    {
+      "ts": 1788167825.1460059,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "d4c90567"
+    },
+    {
+      "ts": 1788167825.1472077,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "ea903dda"
+    },
+    {
+      "ts": 1788167825.147548,
+      "noun": "bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "e7a2e43a"
+    },
+    {
+      "ts": 1788167825.1478777,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "5490c425"
+    }
+  ],
+  "graph_modes": {
+    "box": [
+      {
+        "mode_id": "f552ab73",
+        "n": 2,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "bd19c8b9",
+            "mean": [
+              0.1980296276516067,
+              0.08845523750457576,
+              0.10000015468518156,
+              0.10875538834641149,
+              0.10754226527116734,
+              26.089255416672415,
+              0.4449014095244387,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              2.1115282831947455e-05,
+              3.055834760706885e-05,
+              2.3927505389812287e-14,
+              7.665682509647792e-05,
+              2.5778419634218596e-07,
+              324.6143932501678,
+              0.039114474185904705,
+              0.0,
+              0.0
+            ],
+            "n": 2,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "e40bda56",
+        "n": 3,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "e0cbd30e",
+            "mean": [
+              0.12381410575760952,
+              0.07092307916075437,
+              0.1019336712472493,
+              0.10481505662230656,
+              0.10080751009778738,
+              133.92523208968876,
+              0.5687693754644562,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              0.00048091193861339387,
+              0.0003707301270778215,
+              2.0564964708412304e-05,
+              0.0001275162365180976,
+              0.0002489434202920526,
+              69257.59114021157,
+              0.0858259506917827,
+              0.0,
+              0.0
+            ],
+            "n": 3,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "c807b153",
+        "n": 1,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "7ba9772f",
+            "mean": [
+              0.20612010397109956,
+              0.03922699186086595,
+              0.9906393121749201,
+              0.10000000000000002,
+              0.058699818178398235,
+              16.702067326245515,
+              0.2071670928231432,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "4905e417",
+        "n": 1,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "045dc6c3",
+            "mean": [
+              0.13083663186791947,
+              0.12135556469859207,
+              0.1000000000000006,
+              1.8999999994726118,
+              0.10696331174786067,
+              51.05187373754085,
+              0.2457344844693442,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "c1dabe9d",
+        "n": 63,
+        "part_modes": {
+          "secondary_0": {
+            "mode_id": "332f5436",
+            "mean": [
+              0.031971682173995285,
+              0.022004641124051063,
+              0.12797219681824362,
+              0.21903677510023936,
+              0.019342561828223668,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              0.0014049687855895057,
+              0.0020658074361652834,
+              0.04574460029099427,
+              1.172465670114327,
+              0.006273619341350696,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 19,
+            "grasp_records": []
+          },
+          "dominant": {
+            "mode_id": "e4d5844f",
+            "mean": [
+              0.056645987442853055,
+              0.03970326166992636,
+              0.1551466338889869,
+              0.33766165317091124,
+              0.054359231796738836,
+              195.50191382781,
+              0.47024533782948025,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              0.04934158738803123,
+              0.014010487765293513,
+              0.5324526957505951,
+              18.011610879290206,
+              0.11948081354057738,
+              3230820.874618426,
+              5.842835401986957,
+              0.0,
+              0.0
+            ],
+            "n": 63,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {
+          "dominant|secondary_0": [
+            0.030879106605239286,
+            0.002076596499272553,
+            11
+          ]
+        }
+      }
+    ],
+    "mug": [
+      {
+        "mode_id": "fd601c90",
+        "n": 1,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "50aa51ca",
+            "mean": [
+              0.0700255596717849,
+              0.03968882926956632,
+              0.9356167919899797,
+              0.10000000000000002,
+              0.040552965444364826,
+              355.5772372329259,
+              0.8938466810960851,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          },
+          "secondary_0": {
+            "mode_id": "2d8f8fdc",
+            "mean": [
+              0.05337285969455988,
+              0.03858938789392387,
+              0.3262520709660412,
+              0.4771587321167182,
+              0.04642330559263388,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {
+          "dominant|secondary_0": [
+            0.004983123463202132,
+            0.0,
+            1
+          ]
+        }
+      },
+      {
+        "mode_id": "4d157d73",
+        "n": 2,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "e90081cd",
+            "mean": [
+              0.037204016044836564,
+              0.03374382357633596,
+              0.1079091081265478,
+              0.17083002380476148,
+              0.03503668596441053,
+              5.694929460391336,
+              0.572310323765505,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              2.8764202984667366e-06,
+              8.155844089113126e-06,
+              0.00012510798271484874,
+              0.010033784544366141,
+              3.827480361006878e-05,
+              193.66985689911382,
+              0.17577052364374207,
+              0.0,
+              0.0
+            ],
+            "n": 2,
+            "grasp_records": []
+          },
+          "secondary_0": {
+            "mode_id": "84adb069",
+            "mean": [
+              0.03886540998919985,
+              0.038591042093443384,
+              0.10000000000000002,
+              0.8191186253750157,
+              0.03722094454569993,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              6.433241218887877e-06,
+              5.862356849068892e-06,
+              0.0,
+              0.018067731781164484,
+              9.736186079881814e-07,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 2,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {
+          "dominant|secondary_0": [
+            0.00914043962475432,
+            0.00013522690352799063,
+            2
+          ]
+        }
+      },
+      {
+        "mode_id": "7ce2e685",
+        "n": 1,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "8986ff0e",
+            "mean": [
+              0.0404630461107352,
+              0.037705131641103805,
+              0.10000000000000002,
+              0.9911160617143463,
+              0.038219531580943565,
+              359.35136295046044,
+              0.9362438618273761,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          },
+          "secondary_0": {
+            "mode_id": "02fd3590",
+            "mean": [
+              0.05605822250873824,
+              0.02256534592520467,
+              0.4089985987313911,
+              0.7382604304438259,
+              0.022598523542092786,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {
+          "dominant|secondary_0": [
+            0.02097322306202653,
+            0.0,
+            1
+          ]
+        }
+      },
+      {
+        "mode_id": "77c9e969",
+        "n": 8,
+        "part_modes": {
+          "secondary_0": {
+            "mode_id": "2ee17a92",
+            "mean": [
+              0.033309007600230464,
+              0.02505842236781896,
+              0.2597143318000313,
+              0.15914681801364386,
+              0.028021083093109807,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              0.0011049487196056233,
+              0.0012053268109922547,
+              0.3045369819628045,
+              0.05671800899212779,
+              0.0003769257273765923,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 7,
+            "grasp_records": []
+          },
+          "dominant": {
+            "mode_id": "c13e5775",
+            "mean": [
+              0.04042482960292269,
+              0.03890689423665421,
+              0.10000000000014778,
+              0.9095379046433791,
+              0.037571488858184975,
+              225.0167377258459,
+              0.6678189674108644,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              8.704951328307322e-06,
+              5.987815167650551e-06,
+              6.092524686239309e-25,
+              0.015005832044060839,
+              1.8087274038539258e-05,
+              193234.26873731057,
+              0.6407269571967242,
+              0.0,
+              0.0
+            ],
+            "n": 8,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {
+          "dominant|secondary_0": [
+            0.02365603522112001,
+            0.0010545363645184033,
+            4
+          ]
+        }
+      },
+      {
+        "mode_id": "7ff81c40",
+        "n": 2,
+        "part_modes": {
+          "secondary_0": {
+            "mode_id": "41d7e3cd",
+            "mean": [
+              0.08224899033503057,
+              0.05132806710675359,
+              0.10000000000000002,
+              0.10000000000000002,
+              0.02998702460017426,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          },
+          "dominant": {
+            "mode_id": "a37708f7",
+            "mean": [
+              0.04754716913780285,
+              0.041567436262882375,
+              0.11271003979879521,
+              0.9162989636258457,
+              0.043762437741956164,
+              7.070304368606582,
+              0.39015623371571145,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              4.5068740226129927e-05,
+              2.204852128320561e-06,
+              0.00016154511168695748,
+              0.0009132609377041089,
+              4.244027213511457e-06,
+              0.09089359791361448,
+              0.0005848816946310606,
+              0.0,
+              0.0
+            ],
+            "n": 2,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {
+          "dominant|secondary_0": [
+            0.04344239947051056,
+            0.0,
+            1
+          ]
+        }
+      }
+    ],
+    "can": [
+      {
+        "mode_id": "7b6a64d6",
+        "n": 1,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "d68909ad",
+            "mean": [
+              0.07158559101293369,
+              0.07158559101293369,
+              0.13777327862953248,
+              1.0,
+              0.14465161006080243,
+              278.35664991289974,
+              0.49785931143337947,
+              0.04048060814670993,
+              0.07100637247483767
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "b8501cc8",
+        "n": 1,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "e5a30e98",
+            "mean": [
+              0.14290758005975515,
+              0.14290758005975515,
+              0.28728350598480756,
+              1.0,
+              0.03492638061229409,
+              342.13323998385266,
+              0.43731902703221803,
+              0.1261266670127492,
+              0.14466025734317148
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "b8809434",
+        "n": 18,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "a8ead3e2",
+            "mean": [
+              0.03407203533454587,
+              0.03407203533454587,
+              0.10521107075196623,
+              1.0,
+              0.046636546758649394,
+              67.97836800119809,
+              0.4362175190560645,
+              0.03330422803536944,
+              0.0327621439085442
+            ],
+            "m2": [
+              4.685316793189374e-05,
+              4.685316793189374e-05,
+              0.003095299815225897,
+              0.0,
+              5.9054580708491555e-05,
+              255731.89868985923,
+              0.5334397507569075,
+              0.00010326130795225673,
+              8.689370196977777e-05
+            ],
+            "n": 18,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "ea903dda",
+        "n": 17,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "f921c053",
+            "mean": [
+              0.04955551924722726,
+              0.04955551924722726,
+              0.10411238761593304,
+              1.0,
+              0.06962804974177914,
+              254.4527156775654,
+              0.4387256881096822,
+              0.04949712960609118,
+              0.04738665869288087
+            ],
+            "m2": [
+              0.0002613964355173277,
+              0.0002613964355173277,
+              0.0038066049926363038,
+              0.0,
+              0.0003421248103915666,
+              74976.62136876394,
+              0.6407333030484721,
+              0.00025625746186377446,
+              0.0005778337341387441
+            ],
+            "n": 17,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "38d80be5",
+        "n": 3,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "315741da",
+            "mean": [
+              0.055487334097111665,
+              0.055487334097111665,
+              0.15913344376965166,
+              1.0,
+              0.041377306482003225,
+              110.15449030375322,
+              0.1581904884610154,
+              0.05563481267803716,
+              0.03933764799465286
+            ],
+            "m2": [
+              5.142683241983909e-05,
+              5.142683241983909e-05,
+              0.00556384980427258,
+              0.0,
+              0.00013946546875636724,
+              4079.399006908518,
+              0.0007401548935814805,
+              5.817281691489919e-05,
+              4.4096370864162466e-06
+            ],
+            "n": 3,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      }
+    ],
+    "bottle": [
+      {
+        "mode_id": "b65b4e39",
+        "n": 7,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "0512174f",
+            "mean": [
+              0.05023646350770206,
+              0.05023646350770206,
+              0.1396576787570129,
+              1.0,
+              0.10655225227848601,
+              359.6007071655231,
+              0.31072990122819244,
+              0.04838463557929335,
+              0.049379966956822154
+            ],
+            "m2": [
+              0.00030150105101396115,
+              0.00030150105101396115,
+              0.01654529741302087,
+              0.0,
+              0.0001436352596863322,
+              2254.109671269901,
+              0.016517681312602162,
+              0.00035903454990003284,
+              0.0004162345191615495
+            ],
+            "n": 7,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "47acb06b",
+        "n": 2,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "126df3a6",
+            "mean": [
+              0.040995559174551464,
+              0.040995559174551464,
+              0.10000000000000002,
+              1.0,
+              0.048847610095796454,
+              33.49067629284851,
+              0.3261447359611687,
+              0.029741230564754653,
+              0.0409745337501939
+            ],
+            "m2": [
+              2.5059415436984762e-05,
+              2.5059415436984762e-05,
+              0.0,
+              0.0,
+              3.0129644646547354e-05,
+              126.18726816912243,
+              0.027219926031224088,
+              8.167635629316116e-07,
+              7.390279250492204e-05
+            ],
+            "n": 2,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "073b2af8",
+        "n": 9,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "85b45108",
+            "mean": [
+              0.04218057330693923,
+              0.04218057330693923,
+              0.4750246809118626,
+              1.0,
+              0.08496612563706502,
+              34.43193460485653,
+              0.7929537550356885,
+              0.04074798055612934,
+              0.03350366608543373
+            ],
+            "m2": [
+              0.00042725609823158025,
+              0.00042725609823158025,
+              0.45903919643064134,
+              0.0,
+              0.0006152049511268642,
+              238.24547885026635,
+              0.018436764476194554,
+              0.00041716056043896967,
+              0.0008605617564540148
+            ],
+            "n": 9,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "e7a2e43a",
+        "n": 11,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "453045ab",
+            "mean": [
+              0.06044821501408935,
+              0.06044821501408935,
+              0.15686558048586707,
+              1.0,
+              0.09936974684024408,
+              113.38549520981734,
+              0.27359413776231245,
+              0.059375965787831816,
+              0.05940843397633867
+            ],
+            "m2": [
+              0.0003510696775772988,
+              0.0003510696775772988,
+              0.10806692470109845,
+              0.0,
+              0.002673017888610959,
+              146966.14483579062,
+              0.524683673161948,
+              0.0003951908225941889,
+              0.00032286541259158474
+            ],
+            "n": 11,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "0b5842fd",
+        "n": 7,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "306990d4",
+            "mean": [
+              0.04090024691963299,
+              0.04090024691963299,
+              0.36406346505305065,
+              1.0,
+              0.09458850387541475,
+              86.84427747987131,
+              0.24967522831928074,
+              0.04002935162881387,
+              0.033635684523016664
+            ],
+            "m2": [
+              0.00022134054046807873,
+              0.00022134054046807873,
+              0.33001662919281416,
+              0.0,
+              0.000538818679913965,
+              76699.19979431803,
+              0.0734177547630108,
+              0.00022484643754248096,
+              0.00033894517204734425
+            ],
+            "n": 7,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      }
+    ],
+    "bowl": [
+      {
+        "mode_id": "71313bb6",
+        "n": 1,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "93f3b795",
+            "mean": [
+              0.05815172821238957,
+              0.056849490795844,
+              0.10000000000000002,
+              0.10000000000000002,
+              0.017770984270825917,
+              357.72409457474237,
+              0.9106063333340473,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          },
+          "secondary_0": {
+            "mode_id": "37d85038",
+            "mean": [
+              0.06362762220024638,
+              0.046061136210541996,
+              0.3422947236340559,
+              1.0266847251529103,
+              0.0748079584660543,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {
+          "dominant|secondary_0": [
+            0.0653037703313714,
+            0.0,
+            1
+          ]
+        }
+      },
+      {
+        "mode_id": "9c42ff06",
+        "n": 1,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "a4cbf2ce",
+            "mean": [
+              0.06826094645793267,
+              0.06789604639179812,
+              0.7756476519465904,
+              0.9465686228683889,
+              0.04858348175745365,
+              355.3145156961882,
+              0.9173514012893346,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          },
+          "secondary_0": {
+            "mode_id": "87d909a0",
+            "mean": [
+              0.10047755305669827,
+              0.07862034700746975,
+              0.10000000000000002,
+              0.8625826354029997,
+              0.003569929269319955,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {
+          "dominant|secondary_0": [
+            0.025592573270038093,
+            0.0,
+            1
+          ]
+        }
+      },
+      {
+        "mode_id": "d699a9bf",
+        "n": 2,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "3132325d",
+            "mean": [
+              0.07204316789893725,
+              0.0711318528638517,
+              0.7083137995317927,
+              0.9560314771279242,
+              0.06529847220800422,
+              353.5288804827626,
+              0.8951668352917777,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              1.361832079538351e-06,
+              4.851650685092452e-08,
+              0.0011037318510155579,
+              2.7820056666007503e-05,
+              1.0002456736603997e-05,
+              4.494760874574335,
+              0.00032962337239988813,
+              0.0,
+              0.0
+            ],
+            "n": 2,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "b329d3f7",
+        "n": 1,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "e2a93d25",
+            "mean": [
+              0.18242469591246124,
+              0.11926355374199094,
+              0.10000000000000002,
+              0.10000000000000002,
+              0.021877467512258268,
+              356.9002953122051,
+              0.8219104979136442,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          },
+          "secondary_0": {
+            "mode_id": "71923764",
+            "mean": [
+              0.06496444616337098,
+              0.06449633389947437,
+              0.30439522474392655,
+              0.7200953050933502,
+              0.029240769598952245,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {
+          "dominant|secondary_0": [
+            0.1875230233771904,
+            0.0,
+            1
+          ]
+        }
+      }
+    ]
+  }
+}

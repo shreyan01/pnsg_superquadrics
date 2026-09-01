@@ -1,0 +1,2967 @@
+{
+  "modes": {},
+  "provenance": [
+    {
+      "ts": 1788180856.9751825,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "bootstrapped_new_graph_mode",
+      "mode_id": "af6484cb"
+    },
+    {
+      "ts": 1788180860.7781556,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "bootstrapped_new_graph_mode",
+      "mode_id": "e4f5bcaf"
+    },
+    {
+      "ts": 1788180860.781532,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "952187a3"
+    },
+    {
+      "ts": 1788180860.7819493,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "bootstrapped_new_graph_mode",
+      "mode_id": "e19444cd"
+    },
+    {
+      "ts": 1788180860.7822478,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "03f1259c"
+    },
+    {
+      "ts": 1788180860.7824292,
+      "noun": "mustard_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "bootstrapped_new_graph_mode",
+      "mode_id": "571519d9"
+    },
+    {
+      "ts": 1788180860.782477,
+      "noun": "mustard_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "e54bd82d"
+    },
+    {
+      "ts": 1788180860.7825909,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "e8cd8b4d"
+    },
+    {
+      "ts": 1788180860.7827804,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "abf119e2"
+    },
+    {
+      "ts": 1788180860.7829528,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "30a79240"
+    },
+    {
+      "ts": 1788180860.783873,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "4bfbbb25"
+    },
+    {
+      "ts": 1788180860.7872748,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "8cf0d87a"
+    },
+    {
+      "ts": 1788180860.7893395,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "4201be01"
+    },
+    {
+      "ts": 1788180860.7934377,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "e19444cd"
+    },
+    {
+      "ts": 1788180860.7936594,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "c3ee8fb0"
+    },
+    {
+      "ts": 1788180860.79946,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "2f5ef206"
+    },
+    {
+      "ts": 1788180860.8004494,
+      "noun": "bleach_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "bootstrapped_new_graph_mode",
+      "mode_id": "de7fbc79"
+    },
+    {
+      "ts": 1788180860.8005075,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "e19444cd"
+    },
+    {
+      "ts": 1788180860.800718,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "abf119e2"
+    },
+    {
+      "ts": 1788180874.591569,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "d35920ec"
+    },
+    {
+      "ts": 1788180874.5923104,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "e19444cd"
+    },
+    {
+      "ts": 1788180874.5924683,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "abf119e2"
+    },
+    {
+      "ts": 1788180874.592615,
+      "noun": "bowl",
+      "F": 1,
+      "graph": true,
+      "action": "bootstrapped_new_graph_mode",
+      "mode_id": "540e00b0"
+    },
+    {
+      "ts": 1788180874.5927465,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "e19444cd"
+    },
+    {
+      "ts": 1788180874.5929232,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "2c15fc1e"
+    },
+    {
+      "ts": 1788180874.5940022,
+      "noun": "mustard_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "2edeccd7"
+    },
+    {
+      "ts": 1788180874.594193,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "48ca6ad4"
+    },
+    {
+      "ts": 1788180874.5950134,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "86fb5ebe"
+    },
+    {
+      "ts": 1788180874.5958545,
+      "noun": "mustard_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "1913457a"
+    },
+    {
+      "ts": 1788180874.5960848,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "8a19b674"
+    },
+    {
+      "ts": 1788180874.5964756,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "e19444cd"
+    },
+    {
+      "ts": 1788180874.5966632,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "7968a64a"
+    },
+    {
+      "ts": 1788180874.597558,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "abf119e2"
+    },
+    {
+      "ts": 1788180874.5977015,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "abf119e2"
+    },
+    {
+      "ts": 1788180874.5978324,
+      "noun": "bleach_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "de7fbc79"
+    },
+    {
+      "ts": 1788180874.5981758,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "ca2b31fa"
+    },
+    {
+      "ts": 1788180874.5991051,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "abf119e2"
+    },
+    {
+      "ts": 1788180874.5992534,
+      "noun": "bleach_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "43453ec7"
+    },
+    {
+      "ts": 1788180874.599366,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "abf119e2"
+    },
+    {
+      "ts": 1788180874.5995219,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "0c31f4ff"
+    },
+    {
+      "ts": 1788180874.5999424,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "e4f5bcaf"
+    },
+    {
+      "ts": 1788180874.6001127,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "8e3c4095"
+    },
+    {
+      "ts": 1788180874.85365,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "75c79398"
+    },
+    {
+      "ts": 1788180874.8543434,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "e19444cd"
+    },
+    {
+      "ts": 1788180874.8545265,
+      "noun": "mustard_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "c285be38"
+    },
+    {
+      "ts": 1788180878.1041713,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "e82f550d"
+    },
+    {
+      "ts": 1788180878.106437,
+      "noun": "bowl",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "41d566b5"
+    },
+    {
+      "ts": 1788180878.1069272,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "ffb48d78"
+    },
+    {
+      "ts": 1788180878.1081846,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "50c1ea10"
+    },
+    {
+      "ts": 1788180878.1092896,
+      "noun": "bowl",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "bd90baa1"
+    },
+    {
+      "ts": 1788180878.1094804,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "75c79398"
+    },
+    {
+      "ts": 1788180878.1098027,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "910098d5"
+    },
+    {
+      "ts": 1788180878.1109583,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "649375b3"
+    },
+    {
+      "ts": 1788180878.1124156,
+      "noun": "mustard_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "97493908"
+    },
+    {
+      "ts": 1788180878.1134093,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "dd4cb96a"
+    },
+    {
+      "ts": 1788180878.1137536,
+      "noun": "mustard_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "39efc8f8"
+    },
+    {
+      "ts": 1788180883.5206206,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "658ff4f0"
+    },
+    {
+      "ts": 1788180883.5226347,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "ae215f74"
+    },
+    {
+      "ts": 1788180883.5244296,
+      "noun": "bleach_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "72edd1b6"
+    },
+    {
+      "ts": 1788180884.1049519,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "32c026d5"
+    },
+    {
+      "ts": 1788180884.1064944,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "abf119e2"
+    },
+    {
+      "ts": 1788180884.1067746,
+      "noun": "bleach_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "de7fbc79"
+    },
+    {
+      "ts": 1788180884.1069586,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "4a0e8a89"
+    },
+    {
+      "ts": 1788180884.1072888,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "f50f5ad1"
+    },
+    {
+      "ts": 1788180884.1074836,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "0672a0e5"
+    },
+    {
+      "ts": 1788180887.0465934,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "4ebfed2b"
+    },
+    {
+      "ts": 1788180887.047112,
+      "noun": "bleach_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "de7fbc79"
+    },
+    {
+      "ts": 1788180888.017123,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "c9313989"
+    },
+    {
+      "ts": 1788180888.0186038,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "4ebfed2b"
+    },
+    {
+      "ts": 1788180888.0189667,
+      "noun": "mustard_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "108b9fe8"
+    },
+    {
+      "ts": 1788180889.7180774,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "75c79398"
+    },
+    {
+      "ts": 1788180889.7185283,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "e19444cd"
+    },
+    {
+      "ts": 1788180889.7187777,
+      "noun": "mustard_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "4141c14f"
+    },
+    {
+      "ts": 1788180889.7194436,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "16f8a169"
+    },
+    {
+      "ts": 1788180889.7197852,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "fccab8a6"
+    },
+    {
+      "ts": 1788180889.720464,
+      "noun": "bowl",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "012f64ff"
+    },
+    {
+      "ts": 1788180889.720862,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "5da5d571"
+    },
+    {
+      "ts": 1788180889.7212324,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "d51c7150"
+    },
+    {
+      "ts": 1788180889.7218928,
+      "noun": "bleach_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "de7fbc79"
+    },
+    {
+      "ts": 1788180889.72206,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "0fd5eb31"
+    },
+    {
+      "ts": 1788180889.7227054,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "981efa9e"
+    },
+    {
+      "ts": 1788180889.723595,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "ba239e21"
+    },
+    {
+      "ts": 1788180889.7239091,
+      "noun": "mustard_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "3d6b45f5"
+    },
+    {
+      "ts": 1788180889.72453,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "3cf5db88"
+    },
+    {
+      "ts": 1788180889.7252183,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "b737fc9a"
+    },
+    {
+      "ts": 1788180890.8096225,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "e19444cd"
+    },
+    {
+      "ts": 1788180890.8099582,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "336ade98"
+    },
+    {
+      "ts": 1788180890.8106465,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "4ebfed2b"
+    },
+    {
+      "ts": 1788180890.810865,
+      "noun": "bleach_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "2bb96a74"
+    },
+    {
+      "ts": 1788180890.811023,
+      "noun": "mustard_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "6d4bf7f6"
+    },
+    {
+      "ts": 1788180890.8112433,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "abf119e2"
+    },
+    {
+      "ts": 1788180890.811451,
+      "noun": "bowl",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "bd90baa1"
+    },
+    {
+      "ts": 1788180890.8117812,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "b8b27919"
+    },
+    {
+      "ts": 1788180890.8124971,
+      "noun": "bleach_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "de7fbc79"
+    },
+    {
+      "ts": 1788180890.8126814,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "e19444cd"
+    },
+    {
+      "ts": 1788180890.8128886,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "eb494591"
+    },
+    {
+      "ts": 1788180890.8135355,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "abf119e2"
+    },
+    {
+      "ts": 1788180890.8137496,
+      "noun": "bleach_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "346d995b"
+    },
+    {
+      "ts": 1788180890.81393,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "5a4d1f3e"
+    },
+    {
+      "ts": 1788180890.814239,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "e19444cd"
+    },
+    {
+      "ts": 1788180890.8144517,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "abf119e2"
+    },
+    {
+      "ts": 1788180890.81465,
+      "noun": "bleach_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "72edd1b6"
+    },
+    {
+      "ts": 1788180890.8148465,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "2aa48f98"
+    },
+    {
+      "ts": 1788180890.8157156,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "b737fc9a"
+    },
+    {
+      "ts": 1788180890.816002,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "f690b8a0"
+    },
+    {
+      "ts": 1788180890.8166382,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "464c373d"
+    },
+    {
+      "ts": 1788180890.8175223,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "77101b34"
+    },
+    {
+      "ts": 1788180890.8187768,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "d1671082"
+    },
+    {
+      "ts": 1788180890.8201096,
+      "noun": "mustard_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "6195887c"
+    },
+    {
+      "ts": 1788180893.348219,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "e2dc9461"
+    },
+    {
+      "ts": 1788180893.3491595,
+      "noun": "bleach_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "086704d6"
+    },
+    {
+      "ts": 1788180893.3497567,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "efa22fbe"
+    },
+    {
+      "ts": 1788180893.3504288,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "77556e7e"
+    },
+    {
+      "ts": 1788180893.3510642,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "cf888b83"
+    },
+    {
+      "ts": 1788180893.3516304,
+      "noun": "mustard_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "fa9fe3ce"
+    },
+    {
+      "ts": 1788180893.3519266,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "e5af9c88"
+    },
+    {
+      "ts": 1788180893.352713,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "d5658020"
+    },
+    {
+      "ts": 1788180893.3536954,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "a0990ad2"
+    },
+    {
+      "ts": 1788180893.3543544,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "c0f6f868"
+    },
+    {
+      "ts": 1788180893.3545651,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "0574b1f6"
+    },
+    {
+      "ts": 1788180893.3551924,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "cf888b83"
+    },
+    {
+      "ts": 1788180893.3553984,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "80c14303"
+    },
+    {
+      "ts": 1788180893.356136,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "916726b2"
+    },
+    {
+      "ts": 1788180893.3567548,
+      "noun": "mustard_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "bdfdcbcb"
+    },
+    {
+      "ts": 1788180893.3573394,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "37465fcf"
+    },
+    {
+      "ts": 1788180893.357635,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "d5658020"
+    },
+    {
+      "ts": 1788180893.3579614,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "abc052a4"
+    },
+    {
+      "ts": 1788180893.3587658,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "5479dfb7"
+    },
+    {
+      "ts": 1788180893.3594453,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "d5658020"
+    },
+    {
+      "ts": 1788180893.359859,
+      "noun": "mustard_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "70a1cda2"
+    },
+    {
+      "ts": 1788180893.3608258,
+      "noun": "bleach_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "086704d6"
+    },
+    {
+      "ts": 1788180893.3611767,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "3aefa7bb"
+    },
+    {
+      "ts": 1788180893.3618078,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "d32206a6"
+    },
+    {
+      "ts": 1788180893.3627493,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "0eaa8de2"
+    },
+    {
+      "ts": 1788180893.3634288,
+      "noun": "bleach_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "19a9a08f"
+    },
+    {
+      "ts": 1788180893.3641672,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "f680d8c2"
+    },
+    {
+      "ts": 1788180893.3651345,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "68f0c35e"
+    },
+    {
+      "ts": 1788180893.3657155,
+      "noun": "mustard_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "1c4986f4"
+    },
+    {
+      "ts": 1788180893.3663042,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "37465fcf"
+    },
+    {
+      "ts": 1788180893.3665986,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "cf625c88"
+    },
+    {
+      "ts": 1788180895.5623248,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "4b15d84b"
+    },
+    {
+      "ts": 1788180895.5626574,
+      "noun": "mustard_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "5b3a344f"
+    },
+    {
+      "ts": 1788180895.563301,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "ad9b6215"
+    },
+    {
+      "ts": 1788180895.5640774,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "27aa7c30"
+    },
+    {
+      "ts": 1788180895.5647824,
+      "noun": "bleach_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "58e99e9e"
+    },
+    {
+      "ts": 1788180895.5653872,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "385675e9"
+    },
+    {
+      "ts": 1788180895.56601,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "4f15d0c8"
+    },
+    {
+      "ts": 1788180895.5666585,
+      "noun": "mustard_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "462703ca"
+    },
+    {
+      "ts": 1788180895.5672503,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "4a0e8a89"
+    },
+    {
+      "ts": 1788180895.567615,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "61f42a8e"
+    },
+    {
+      "ts": 1788180895.567886,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "e90c81b5"
+    },
+    {
+      "ts": 1788180895.568532,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "614ce397"
+    },
+    {
+      "ts": 1788180895.5691369,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "44f58088"
+    },
+    {
+      "ts": 1788180895.8868415,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "89bdd4db"
+    },
+    {
+      "ts": 1788180895.8871784,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "c0f6f868"
+    },
+    {
+      "ts": 1788180895.887394,
+      "noun": "mustard_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "13e20b84"
+    },
+    {
+      "ts": 1788180895.888004,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "9e8f5aa8"
+    },
+    {
+      "ts": 1788180895.8885953,
+      "noun": "bleach_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "d9f71143"
+    },
+    {
+      "ts": 1788180897.8814387,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "fdacbdaa"
+    },
+    {
+      "ts": 1788180897.882697,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "d7efb571"
+    },
+    {
+      "ts": 1788180897.883733,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "c0f6f868"
+    },
+    {
+      "ts": 1788180897.884114,
+      "noun": "mug",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "534dffa2"
+    },
+    {
+      "ts": 1788180897.8853602,
+      "noun": "can",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "89bdd4db"
+    },
+    {
+      "ts": 1788180897.885724,
+      "noun": "bleach_bottle",
+      "F": 1,
+      "graph": true,
+      "action": "updated_existing_graph_mode",
+      "mode_id": "740e8dc0"
+    },
+    {
+      "ts": 1788180897.886104,
+      "noun": "box",
+      "F": 1,
+      "graph": true,
+      "action": "spawned_new_graph_mode",
+      "mode_id": "bc954465"
+    }
+  ],
+  "graph_modes": {
+    "box": [
+      {
+        "mode_id": "72f0cddc",
+        "n": 2,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "76b68bcb",
+            "mean": [
+              0.1980296276516067,
+              0.08845523750457576,
+              0.10000015468518156,
+              0.10875538834641149,
+              0.10754226527116734,
+              26.089255416672415,
+              0.4449014095244387,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.5434135812565066
+            ],
+            "m2": [
+              2.1115282831947455e-05,
+              3.055834760706885e-05,
+              2.3927505389812287e-14,
+              7.665682509647792e-05,
+              2.5778419634218596e-07,
+              324.6143932501678,
+              0.039114474185904705,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.00023023230621954598
+            ],
+            "n": 2,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "d32206a6",
+        "n": 1,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "b6d88d31",
+            "mean": [
+              0.20612010397109956,
+              0.03922699186086595,
+              0.9906393121749201,
+              0.10000000000000002,
+              0.058699818178398235,
+              16.702067326245515,
+              0.2071670928231432,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.2847845360422903
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "4f15d0c8",
+        "n": 1,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "205497d3",
+            "mean": [
+              0.13083663186791947,
+              0.12135556469859207,
+              0.1000000000000006,
+              1.8999999994726118,
+              0.10696331174786067,
+              51.05187373754085,
+              0.2457344844693442,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.8175333637130074
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "d65816d3",
+        "n": 7,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "028b49b3",
+            "mean": [
+              0.06793972667277327,
+              0.06361840778995904,
+              0.2091915122071737,
+              1.7600545677223363,
+              0.04047060606783186,
+              151.09398920491267,
+              0.5070764979496218,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.5981488445394424
+            ],
+            "m2": [
+              0.0004409053753010738,
+              0.0006216728447215844,
+              0.09013502494899894,
+              0.07088359399267555,
+              0.005974789681278467,
+              220451.76279361657,
+              0.13859207067891627,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.337133241680234
+            ],
+            "n": 7,
+            "grasp_records": []
+          },
+          "secondary_0": {
+            "mode_id": "6b34f0a3",
+            "mean": [
+              0.03454678427490372,
+              0.0201861974239204,
+              0.13614820260091354,
+              0.16233952638972157,
+              0.010831008394012378,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.25571761392654885
+            ],
+            "m2": [
+              0.0001800938645460777,
+              8.155336528952906e-05,
+              0.004900097067285744,
+              0.014573312064355321,
+              0.00021541908845683794,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.071851400248053
+            ],
+            "n": 3,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {
+          "dominant|secondary_0": [
+            0.032899850876269274,
+            0.0002124732753573639,
+            2
+          ]
+        }
+      },
+      {
+        "mode_id": "afff0629",
+        "n": 59,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "ee936447",
+            "mean": [
+              0.05872138032988405,
+              0.03845331979928663,
+              0.1460287858186052,
+              0.15706351433182997,
+              0.058368811712086174,
+              185.43624310146959,
+              0.4708852360000553,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0472407944445496
+            ],
+            "m2": [
+              0.08007949084354286,
+              0.01589876545825,
+              0.30752689996767146,
+              0.4597138596319358,
+              0.07719001525639793,
+              3308171.368701567,
+              6.299320866457633,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              29.090958988190696
+            ],
+            "n": 59,
+            "grasp_records": []
+          },
+          "secondary_0": {
+            "mode_id": "556bdb2d",
+            "mean": [
+              0.031488850530074955,
+              0.02234559931782557,
+              0.12643919573399295,
+              0.2296675092334615,
+              0.020938478097138287,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.7271624161156643
+            ],
+            "m2": [
+              0.0009493621152558151,
+              0.0017444263727209887,
+              0.040841263044625764,
+              0.9018164930422539,
+              0.005317058003451502,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              8.935613270987565
+            ],
+            "n": 16,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {
+          "dominant|secondary_0": [
+            0.029516901379752263,
+            0.0015898742206038009,
+            9
+          ]
+        }
+      }
+    ],
+    "mug": [
+      {
+        "mode_id": "4bfbbb25",
+        "n": 1,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "1820264f",
+            "mean": [
+              0.0700255596717849,
+              0.03968882926956632,
+              0.9356167919899797,
+              0.10000000000000002,
+              0.040552965444364826,
+              355.5772372329259,
+              0.8938466810960851,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.5791166201946781
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          },
+          "secondary_0": {
+            "mode_id": "1a1fea96",
+            "mean": [
+              0.05337285969455988,
+              0.03858938789392387,
+              0.3262520709660412,
+              0.4771587321167182,
+              0.04642330559263388,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.8697923599803976
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {
+          "dominant|secondary_0": [
+            0.004983123463202132,
+            0.0,
+            1
+          ]
+        }
+      },
+      {
+        "mode_id": "4a0e8a89",
+        "n": 2,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "91e916a9",
+            "mean": [
+              0.037204016044836564,
+              0.03374382357633596,
+              0.1079091081265478,
+              0.17083002380476148,
+              0.03503668596441053,
+              5.694929460391336,
+              0.572310323765505,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.93893004211502
+            ],
+            "m2": [
+              2.8764202984667366e-06,
+              8.155844089113126e-06,
+              0.00012510798271484874,
+              0.010033784544366141,
+              3.827480361006878e-05,
+              193.66985689911382,
+              0.17577052364374207,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.015249201782078559
+            ],
+            "n": 2,
+            "grasp_records": []
+          },
+          "secondary_0": {
+            "mode_id": "548b7e74",
+            "mean": [
+              0.03886540998919985,
+              0.038591042093443384,
+              0.10000000000000002,
+              0.8191186253750157,
+              0.03722094454569993,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.958901736923306
+            ],
+            "m2": [
+              6.433241218887877e-06,
+              5.862356849068892e-06,
+              0.0,
+              0.018067731781164484,
+              9.736186079881814e-07,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0013831282491314656
+            ],
+            "n": 2,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {
+          "dominant|secondary_0": [
+            0.00914043962475432,
+            0.00013522690352799063,
+            2
+          ]
+        }
+      },
+      {
+        "mode_id": "5a4d1f3e",
+        "n": 1,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "9e4dcd96",
+            "mean": [
+              0.0404630461107352,
+              0.037705131641103805,
+              0.10000000000000002,
+              0.9911160617143463,
+              0.038219531580943565,
+              359.35136295046044,
+              0.9362438618273761,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.9445539882575372
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          },
+          "secondary_0": {
+            "mode_id": "1b1d1f2a",
+            "mean": [
+              0.05605822250873824,
+              0.02256534592520467,
+              0.4089985987313911,
+              0.7382604304438259,
+              0.022598523542092786,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.40312593818989134
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {
+          "dominant|secondary_0": [
+            0.02097322306202653,
+            0.0,
+            1
+          ]
+        }
+      },
+      {
+        "mode_id": "39eedc6a",
+        "n": 8,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "bb10141d",
+            "mean": [
+              0.04042482960292269,
+              0.03890689423665421,
+              0.10000000000014775,
+              0.9095379046433791,
+              0.037571488858184975,
+              225.01673772584587,
+              0.6678189674108643,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.929826452893183
+            ],
+            "m2": [
+              9.528122649370514e-06,
+              6.842592965042554e-06,
+              7.817432631505357e-25,
+              0.01714050481724765,
+              1.989426926247621e-05,
+              193234.41195251577,
+              0.6412028078166361,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.016127722964643678
+            ],
+            "n": 8,
+            "grasp_records": []
+          },
+          "secondary_0": {
+            "mode_id": "26f2cf1f",
+            "mean": [
+              0.03330900760023046,
+              0.02505842236781896,
+              0.2597143318000313,
+              0.15914681801364386,
+              0.028021083093109807,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.9635790946098561
+            ],
+            "m2": [
+              0.0009395319766066078,
+              0.001095443869674275,
+              0.3080751372144972,
+              0.07253989121341474,
+              0.0003963485379461938,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.2234037255571146
+            ],
+            "n": 7,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {
+          "dominant|secondary_0": [
+            0.014400311762251814,
+            2.651536355388699e-05,
+            3
+          ]
+        }
+      },
+      {
+        "mode_id": "e39ea220",
+        "n": 2,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "479901d1",
+            "mean": [
+              0.04754716913780285,
+              0.041567436262882375,
+              0.11271003979879521,
+              0.9162989636258457,
+              0.043762437741956164,
+              7.070304368606582,
+              0.39015623371571145,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.9328803314619897
+            ],
+            "m2": [
+              4.5068740226129927e-05,
+              2.204852128320561e-06,
+              0.00016154511168695748,
+              0.0009132609377041089,
+              4.244027213511457e-06,
+              0.09089359791361448,
+              0.0005848816946310606,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.00781253710015672
+            ],
+            "n": 2,
+            "grasp_records": []
+          },
+          "secondary_0": {
+            "mode_id": "bbd07a00",
+            "mean": [
+              0.08224899033503057,
+              0.05132806710675359,
+              0.10000000000000002,
+              0.10000000000000002,
+              0.02998702460017426,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.3645883612434148
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {
+          "dominant|secondary_0": [
+            0.04344239947051056,
+            0.0,
+            1
+          ]
+        }
+      }
+    ],
+    "can": [
+      {
+        "mode_id": "dd4cb96a",
+        "n": 1,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "989a5099",
+            "mean": [
+              0.07158559101293369,
+              0.07158559101293369,
+              0.13777327862953248,
+              1.0,
+              0.14465161006080243,
+              278.35664991289974,
+              0.49785931143337947,
+              0.041143336220435166,
+              0.04731411307672933,
+              0.06978538171251647,
+              0.07237880518429184,
+              0.07106369727487132,
+              2.020680531011717
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "f50f5ad1",
+        "n": 1,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "5d91caf8",
+            "mean": [
+              0.14290758005975515,
+              0.14290758005975515,
+              0.28728350598480756,
+              1.0,
+              0.03492638061229409,
+              342.13323998385266,
+              0.43731902703221803,
+              0.08516867587529366,
+              0.13073056517540393,
+              0.14409297771219481,
+              0.14582195271271753,
+              0.14387475920337625,
+              0.2443983768928844
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "c0f6f868",
+        "n": 18,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "bfa03f51",
+            "mean": [
+              0.03407203533454587,
+              0.03407203533454587,
+              0.10521107075196623,
+              1.0,
+              0.046636546758649394,
+              67.97836800119809,
+              0.4362175190560645,
+              0.0319807837257388,
+              0.03397142545110694,
+              0.03400219109826783,
+              0.03392295041824106,
+              0.03071776521813495,
+              1.3714678139196566
+            ],
+            "m2": [
+              4.685316793189374e-05,
+              4.685316793189374e-05,
+              0.003095299815225897,
+              0.0,
+              5.9054580708491555e-05,
+              255731.89868985923,
+              0.5334397507569075,
+              0.00027754273778172095,
+              4.7172856570177935e-05,
+              4.8744250181117955e-05,
+              4.7336081310484396e-05,
+              0.0002385734836898935,
+              0.12713889031644357
+            ],
+            "n": 18,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "89bdd4db",
+        "n": 17,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "f362dda7",
+            "mean": [
+              0.04955551924722726,
+              0.04955551924722726,
+              0.10411238761593304,
+              1.0,
+              0.06962804974177914,
+              254.4527156775654,
+              0.4387256881096822,
+              0.04961934550190452,
+              0.04931316449358369,
+              0.04936430347930781,
+              0.04916917072266383,
+              0.043846098744722915,
+              1.426676173348079
+            ],
+            "m2": [
+              0.0002613964355173277,
+              0.0002613964355173277,
+              0.0038066049926363038,
+              0.0,
+              0.0003421248103915666,
+              74976.62136876394,
+              0.6407333030484721,
+              0.0002579038318866487,
+              0.0002530111943667703,
+              0.0002584649995536054,
+              0.0003659338184710834,
+              0.0014510295123600905,
+              1.1928960756480425
+            ],
+            "n": 17,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "4b15d84b",
+        "n": 3,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "0757ac36",
+            "mean": [
+              0.055487334097111665,
+              0.055487334097111665,
+              0.15913344376965166,
+              1.0,
+              0.041377306482003225,
+              110.15449030375322,
+              0.1581904884610154,
+              0.049142934995665785,
+              0.05611081768012241,
+              0.05606512051691638,
+              0.050730448249405716,
+              0.04982229785006247,
+              0.7396104818909455
+            ],
+            "m2": [
+              5.142683241983909e-05,
+              5.142683241983909e-05,
+              0.00556384980427258,
+              0.0,
+              0.00013946546875636724,
+              4079.399006908518,
+              0.0007401548935814805,
+              3.683603773036175e-05,
+              5.97422296973112e-05,
+              6.170494200863678e-05,
+              4.051750059565169e-05,
+              0.0010925365050583817,
+              0.0280823909204867
+            ],
+            "n": 3,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      }
+    ],
+    "mustard_bottle": [
+      {
+        "mode_id": "108b9fe8",
+        "n": 1,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "4dfa44eb",
+            "mean": [
+              0.0359896211568584,
+              0.0359896211568584,
+              0.10000000000000002,
+              1.0,
+              0.05433665779522004,
+              44.72398694328111,
+              0.49112935958174764,
+              0.027238888979016815,
+              0.037487373946301514,
+              0.0334944926385372,
+              0.035053102099128604,
+              0.030029194770471376,
+              1.5097868787892288
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "6d4bf7f6",
+        "n": 6,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "11f2deaa",
+            "mean": [
+              0.04599399785324868,
+              0.04599399785324868,
+              0.3631768806881679,
+              1.0,
+              0.08542489662124653,
+              35.07945183796984,
+              0.7861346443742819,
+              0.0473780703901211,
+              0.044106175279290276,
+              0.04613609006856266,
+              0.04511541887431867,
+              0.030538813310152145,
+              1.8602633328623348
+            ],
+            "m2": [
+              0.00012290796627412328,
+              0.00012290796627412328,
+              0.1564022373361983,
+              0.0,
+              0.0004056468956565887,
+              178.81099830914536,
+              0.003977939429802203,
+              0.00014490878394060177,
+              0.00013811493140792583,
+              0.00011352298734185429,
+              0.00013272415354041432,
+              0.00014985755036938406,
+              0.11962954611169171
+            ],
+            "n": 6,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "40555cf6",
+        "n": 5,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "20b600c6",
+            "mean": [
+              0.06288523398936688,
+              0.06288523398936688,
+              0.18719876794148846,
+              1.0,
+              0.08706140530650983,
+              48.44227025327733,
+              0.3820577319703296,
+              0.06275781756676191,
+              0.061965406768941446,
+              0.06270075560278882,
+              0.06348982092602558,
+              0.05331039305921409,
+              1.3878861679637458
+            ],
+            "m2": [
+              8.418059034050288e-05,
+              8.418059034050288e-05,
+              0.087782633168222,
+              0.0,
+              0.00034167200572557806,
+              1040.911060550196,
+              0.24677024123375024,
+              8.15129321123043e-05,
+              8.466668860472984e-05,
+              7.683784235374682e-05,
+              0.00010881425348104734,
+              0.00011521075229257291,
+              0.08763729617540801
+            ],
+            "n": 5,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "66f28693",
+        "n": 2,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "fb46b2ad",
+            "mean": [
+              0.047994422049429816,
+              0.047994422049429816,
+              0.37265069454705635,
+              1.0,
+              0.09446896177054927,
+              58.84560703066279,
+              0.2903693703616369,
+              0.046954885047106404,
+              0.04709928221975274,
+              0.0477646533959652,
+              0.04719729218068265,
+              0.034799054065857274,
+              1.9724603193654757
+            ],
+            "m2": [
+              9.388381645266096e-07,
+              9.388381645266096e-07,
+              0.036591240367554824,
+              0.0,
+              6.245526932066473e-05,
+              99.11738807398275,
+              5.303331863699438e-06,
+              1.6900844481966886e-10,
+              2.1188713973960676e-06,
+              1.5129579095900741e-06,
+              8.00250150040173e-06,
+              2.8688601296884294e-05,
+              0.0418133846244205
+            ],
+            "n": 2,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "2c9cff58",
+        "n": 5,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "8d5ea523",
+            "mean": [
+              0.03537628713415062,
+              0.03537628713415062,
+              0.6717044491382093,
+              1.0,
+              0.08937013442392797,
+              38.04180961922553,
+              0.6254842919901558,
+              0.0349694472627846,
+              0.03273688537317822,
+              0.03642359017500359,
+              0.03065740302131984,
+              0.014587714319128026,
+              2.5722884286798826
+            ],
+            "m2": [
+              0.0001301163256547182,
+              0.0001301163256547182,
+              0.17936506104217087,
+              0.0,
+              0.0004370791031095602,
+              285.5478325902558,
+              0.2384090230271499,
+              8.340748168003578e-05,
+              0.00013156360328820107,
+              0.00010625304236607102,
+              0.00012959600159012056,
+              9.912943323793982e-05,
+              1.5149912212199272
+            ],
+            "n": 5,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      }
+    ],
+    "bleach_bottle": [
+      {
+        "mode_id": "de7fbc79",
+        "n": 6,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "bd135aa3",
+            "mean": [
+              0.05279719212126398,
+              0.05279719212126398,
+              0.12403506220523408,
+              1.0,
+              0.10751055161707104,
+              359.1747647519426,
+              0.3077079634671573,
+              0.05032554510424636,
+              0.05255009179856171,
+              0.05234887030755726,
+              0.053092365488805096,
+              0.05023695015563019,
+              2.047496721408314
+            ],
+            "m2": [
+              8.492431093623097e-05,
+              8.492431093623097e-05,
+              0.010193550916383009,
+              0.0,
+              0.0001149416082778333,
+              2071.124663046693,
+              0.010305313620934493,
+              0.00019910975287165098,
+              8.352160183792886e-05,
+              7.263264331530496e-05,
+              8.10848482225607e-05,
+              0.00018838827453140285,
+              0.18730237111178943
+            ],
+            "n": 6,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "43453ec7",
+        "n": 1,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "64b35f72",
+            "mean": [
+              0.04600149719224453,
+              0.04600149719224453,
+              0.10000000000000002,
+              1.0,
+              0.04335856239637287,
+              22.257365642415916,
+              0.16116011234058977,
+              0.029488080958160894,
+              0.04621961034408035,
+              0.047406114930579724,
+              0.04913656085811709,
+              0.05012028938727707,
+              0.9425467657101118
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "2bb96a74",
+        "n": 1,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "28b5d10d",
+            "mean": [
+              0.06521391920253208,
+              0.06521391920253208,
+              0.15840821597366464,
+              1.0,
+              0.11501219295855904,
+              339.5702789697327,
+              0.35906898054070985,
+              0.06411677772248328,
+              0.06522440146090756,
+              0.06512051589769677,
+              0.0657719758171566,
+              0.0613012819723258,
+              1.7636141849007814
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "740e8dc0",
+        "n": 5,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "29e7f42d",
+            "mean": [
+              0.05705805520112327,
+              0.05705805520112327,
+              0.12622386593268614,
+              1.0,
+              0.10854959915031534,
+              133.09176341437424,
+              0.14803557499861567,
+              0.05558112050229689,
+              0.05662596299319279,
+              0.05655349403027671,
+              0.0571080926743819,
+              0.05617809782029303,
+              1.926405998821648
+            ],
+            "m2": [
+              0.00010596712840897262,
+              0.00010596712840897262,
+              0.010337561901990167,
+              0.0,
+              0.00014381930970380898,
+              5019.3027173586615,
+              0.009064725050404213,
+              0.00012835848834031878,
+              0.00010411407052548377,
+              9.12531353337064e-05,
+              0.00010426924088784178,
+              0.00027047661176529274,
+              0.3184267643659198
+            ],
+            "n": 5,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "10625e41",
+        "n": 4,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "96b8a6a6",
+            "mean": [
+              0.03799117828427745,
+              0.03799117828427745,
+              0.1935437106829095,
+              1.0,
+              0.09481978468006169,
+              190.39418556613546,
+              0.19705096360770546,
+              0.03668668658104539,
+              0.03827958887768063,
+              0.03850572208152936,
+              0.037630512048720054,
+              0.029656677439256957,
+              2.5162003112668314
+            ],
+            "m2": [
+              4.758989888605861e-05,
+              4.758989888605861e-05,
+              0.04365643985637132,
+              0.0,
+              0.0002912273127497817,
+              86946.16160919209,
+              0.04459185239365882,
+              6.180922037347876e-05,
+              4.9524924118657935e-05,
+              5.440742021730934e-05,
+              5.0958887937908444e-05,
+              0.00010880729449818364,
+              0.36467298442098395
+            ],
+            "n": 4,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      }
+    ],
+    "bowl": [
+      {
+        "mode_id": "540e00b0",
+        "n": 1,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "d2521c46",
+            "mean": [
+              0.05815172821238957,
+              0.056849490795844,
+              0.10000000000000002,
+              0.10000000000000002,
+              0.017770984270825917,
+              357.72409457474237,
+              0.9106063333340473,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.30559683808399185
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          },
+          "secondary_0": {
+            "mode_id": "c2ca9305",
+            "mean": [
+              0.06362762220024638,
+              0.046061136210541996,
+              0.3422947236340559,
+              1.0266847251529103,
+              0.0748079584660543,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.1757151356469302
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {
+          "dominant|secondary_0": [
+            0.0653037703313714,
+            0.0,
+            1
+          ]
+        }
+      },
+      {
+        "mode_id": "41d566b5",
+        "n": 1,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "ffe2a125",
+            "mean": [
+              0.06826094645793267,
+              0.06789604639179812,
+              0.7756476519465904,
+              0.9465686228683889,
+              0.04858348175745365,
+              355.3145156961882,
+              0.9173514012893346,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.7117317335673672
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          },
+          "secondary_0": {
+            "mode_id": "2915c5f9",
+            "mean": [
+              0.10047755305669827,
+              0.07862034700746975,
+              0.10000000000000002,
+              0.8625826354029997,
+              0.003569929269319955,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.03552961990729897
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {
+          "dominant|secondary_0": [
+            0.025592573270038093,
+            0.0,
+            1
+          ]
+        }
+      },
+      {
+        "mode_id": "bd90baa1",
+        "n": 2,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "7b44e824",
+            "mean": [
+              0.07204316789893725,
+              0.0711318528638517,
+              0.7083137995317927,
+              0.9560314771279242,
+              0.06529847220800422,
+              353.5288804827626,
+              0.8951668352917777,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.9068543225869576
+            ],
+            "m2": [
+              1.361832079538351e-06,
+              4.851650685092452e-08,
+              0.0011037318510155579,
+              2.7820056666007503e-05,
+              1.0002456736603997e-05,
+              4.494760874574335,
+              0.00032962337239988813,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0034326803461513693
+            ],
+            "n": 2,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {}
+      },
+      {
+        "mode_id": "012f64ff",
+        "n": 1,
+        "part_modes": {
+          "dominant": {
+            "mode_id": "1a0b5177",
+            "mean": [
+              0.18242469591246124,
+              0.11926355374199094,
+              0.10000000000000002,
+              0.10000000000000002,
+              0.021877467512258268,
+              356.9002953122051,
+              0.8219104979136442,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.1199260188037065
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          },
+          "secondary_0": {
+            "mode_id": "2039b705",
+            "mean": [
+              0.06496444616337098,
+              0.06449633389947437,
+              0.30439522474392655,
+              0.7200953050933502,
+              0.029240769598952245,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.45010419276750674
+            ],
+            "m2": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "n": 1,
+            "grasp_records": []
+          }
+        },
+        "relation_dist": {
+          "dominant|secondary_0": [
+            0.1875230233771904,
+            0.0,
+            1
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -127,17 +127,14 @@ class Mode:
         return Mode(mean=f.copy(), m2=np.zeros_like(f), n=1)
 
 MISSING_PART_PENALTY = 0.4
-CONFIDENCE_PSEUDO_N = 8   # a mode's final score gets multiplied by n/(n+8) -- a thin,
-                          # poorly-estimated mode (e.g. n=1-3) doesn't just get a wider,
-                          # more forgiving variance, it also gets systematically LESS
-                          # TRUSTED in the final head-to-head decision. Found necessary
-                          # after splitting bottle into two sub-words: the new words'
-                          # thin modes (avg n~3-4) were winning argmax comparisons
-                          # against can's well-supported modes (n=12-21) purely by
-                          # being too permissive (a wide Gaussian assigns nonzero
-                          # density broadly, so it doesn't punish deviation the way a
-                          # tight, correctly-confident Gaussian does), not by being
-                          # genuinely more correct.
+CONFIDENCE_PSEUDO_N = 1   # reduced from 8: that value was tuned specifically for the
+                          # split-vocabulary thin-mode problem (mustard_bottle/bleach_bottle,
+                          # avg n~3-4). Once that split was reverted, 8 was found to ALSO
+                          # meaningfully discount well-supported modes (e.g. n=36 kept only
+                          # 82% of its score), likely contributing to a real accuracy drop
+                          # (78.4%->61.5%) on a later run. k=1 keeps the mechanism (still
+                          # protects genuinely thin modes) while barely touching
+                          # well-supported ones.
 
 def confidence_discount(n):
     return n / (n + CONFIDENCE_PSEUDO_N)
@@ -298,7 +295,7 @@ class GraphMode:
 
 class Registry:
     def __init__(self):
-        self.modes = {}; self.provenance = []; self.graph_modes = {}
+        self.modes = {}; self.provenance = []; self.graph_modes = {}; self.axisymmetric_words = set()
     def classify(self, params, top_k=3, color_features=None):
         f = canonicalize(params, color_features); mask = color_active_mask(color_features); scores = []
         for noun, modes in self.modes.items():
@@ -408,6 +405,19 @@ class Registry:
             best = max((gm.membership_ensembled(obj_graph) for gm in gms), default=0.0)
             scores.append((noun, best))
         scores.sort(key=lambda x: -x[1]); return scores[:top_k]
+    def score_graph_against_word(self, obj_graph, noun, scoring='ensembled'):
+        """Scores ONE graph against ONE specific word only. Needed
+        because scores from two DIFFERENT fitting strategies (e.g.
+        axisymmetric+profile vs the flexible segmenter) are not on a
+        directly comparable scale -- found via a real test where a
+        wrong match from one strategy outscored a correct match from
+        the other in raw terms. The correct comparison is per-word,
+        each scored with ITS OWN correct fitting strategy, not a
+        global max across differently-fitted candidates."""
+        gms = self.graph_modes.get(noun, [])
+        if scoring == 'ensembled':
+            return max((gm.membership_ensembled(obj_graph) for gm in gms), default=0.0)
+        return max((gm.membership(obj_graph) for gm in gms), default=0.0)
     def describe_graph(self, noun):
         gms = self.graph_modes.get(noun)
         if not gms: return f'I have no learned graph structure for "{noun}" yet.'
@@ -435,7 +445,8 @@ class Registry:
     def save(self, path):
         data = {'modes': {noun: [m.to_dict() for m in modes] for noun, modes in self.modes.items()},
                 'provenance': self.provenance,
-                'graph_modes': {noun: [gm.to_dict() for gm in gms] for noun, gms in self.graph_modes.items()}}
+                'graph_modes': {noun: [gm.to_dict() for gm in gms] for noun, gms in self.graph_modes.items()},
+                'axisymmetric_words': sorted(getattr(self, 'axisymmetric_words', set()))}
         with open(path, 'w') as f: json.dump(data, f, indent=2)
     @staticmethod
     def load(path):
@@ -444,4 +455,5 @@ class Registry:
         reg.modes = {noun: [Mode.from_dict(d) for d in modes] for noun, modes in data['modes'].items()}
         reg.provenance = data['provenance']
         reg.graph_modes = {noun: [GraphMode.from_dict(d) for d in gms] for noun, gms in data.get('graph_modes', {}).items()}
+        reg.axisymmetric_words = set(data.get('axisymmetric_words', []))
         return reg

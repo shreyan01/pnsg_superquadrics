@@ -28,7 +28,6 @@ from concurrent.futures import ProcessPoolExecutor
 from scipy.io import loadmat
 import numpy as np
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 try:
     from tqdm import tqdm
@@ -36,14 +35,14 @@ try:
 except ImportError:
     HAVE_TQDM = False
 
-from registry import Registry
-from superquadric import fit_superquadric, is_physically_plausible
-from radius_profile import compute_radial_profile
-from ycbv_training.ycb_classes import class_id_to_vocab, YCB_CLASS_NAMES
-from ycbv_training.ycb_pose_aggregation import aggregate_multiview_cloud, discover_frames
-from ycbv_training.ycb_dataset_loader import resolve_video_dir
-from iterative_segment import iterative_two_part_segment
-from pipeline import build_graph_from_segmentation
+from ..registry import Registry
+from ..superquadric import fit_superquadric, is_physically_plausible
+from ..radius_profile import compute_radial_profile
+from .ycb_classes import class_id_to_vocab, YCB_CLASS_NAMES
+from .ycb_pose_aggregation import aggregate_multiview_cloud, discover_frames
+from .ycb_dataset_loader import resolve_video_dir
+from ..iterative_segment import iterative_two_part_segment
+from ..pipeline import build_graph_from_segmentation
 
 
 def _init_worker():
@@ -162,6 +161,12 @@ def main():
     ap.add_argument('--out', default='trained_ycbv_color.json')
     ap.add_argument('--max_nfev', type=int, default=2000)
     ap.add_argument('--workers', type=int, default=os.cpu_count())
+    ap.add_argument('--load_from', default=None,
+                     help='Path to an existing trained model to CONTINUE training '
+                          '(online update) instead of starting from a fresh, empty '
+                          'registry. New examples update existing modes or spawn new '
+                          'ones/words exactly as confirm_graph() already handles -- '
+                          'no special-casing needed, the registry was built for this.')
     args = ap.parse_args()
 
     split_path = os.path.join(args.dataset_root, 'image_sets', f'{args.split}.txt')
@@ -176,7 +181,20 @@ def main():
             work_items.append((args.dataset_root, vid, cid, args.frame_stride, args.max_nfev))
     print(f'{len(work_items)} (video, class) pairs to aggregate and fit (workers={args.workers})')
 
-    reg = Registry()
+    if args.load_from:
+        reg = Registry.load(args.load_from)
+        print(f'Loaded existing model from {args.load_from} -- CONTINUING training, not starting fresh.')
+        print(f'  Existing words: {list(reg.graph_modes.keys())}')
+        existing_axisym = getattr(reg, 'axisymmetric_words', set())
+        if existing_axisym and existing_axisym != AXISYMMETRIC_WORDS:
+            print(f'  WARNING: loaded model\'s axisymmetric_words ({existing_axisym}) differs from '
+                  f'this script\'s AXISYMMETRIC_WORDS ({AXISYMMETRIC_WORDS}) -- using the loaded '
+                  f'model\'s values to stay consistent with how it was originally trained.')
+        else:
+            reg.axisymmetric_words = AXISYMMETRIC_WORDS
+    else:
+        reg = Registry()
+        reg.axisymmetric_words = AXISYMMETRIC_WORDS
     per_class_counts = defaultdict(int)
     n_skipped = 0
     t0 = time.time()

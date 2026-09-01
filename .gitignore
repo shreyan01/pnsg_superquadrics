@@ -1,2 +1,3 @@
 ycb_dataset/*
 ycbv_training/__pycache__/*
+.env

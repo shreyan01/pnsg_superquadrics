@@ -1,0 +1,2 @@
+model,overall_accuracy,balanced_accuracy,box_accuracy,can_accuracy,mug_accuracy,bottle_accuracy,bowl_accuracy
+pointnet_grouped,0.9386834986474302,0.9283293961518087,0.9305263157894736,0.9746478873239437,0.9438202247191011,0.8835616438356164,0.9090909090909091

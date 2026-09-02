@@ -1,0 +1,2 @@
+model,overall_accuracy,balanced_accuracy,box_accuracy,can_accuracy,mug_accuracy,bottle_accuracy,bowl_accuracy
+svm_linear_groupkfold,0.842200180342651,0.6156246522173145,0.9789473684210527,0.9915492957746479,0.33707865168539325,0.5205479452054794,0.25

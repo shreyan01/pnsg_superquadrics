@@ -2,3 +2,10 @@ both_correct,a_correct_b_wrong,a_wrong_b_correct,both_wrong,statistic,p_value,mo
 915,112,23,59,23.0,3.028830399743235e-15,knn,svm_linear
 940,87,18,64,18.0,4.946255984389221e-12,knn,svm_rbf
 923,15,35,136,15.0,0.006600447966810918,svm_linear,svm_rbf
+1013,14,71,11,14.0,2.427174154689865e-10,knn,pointnet
+945,13,139,12,13.0,8.450343907951604e-28,svm_rbf,pointnet
+898,100,35,76,35.0,1.940951479556693e-08,knn_grouped,svm_linear_grouped
+924,74,22,89,22.0,9.43985778811796e-08,knn_grouped,svm_rbf_grouped
+908,25,38,138,25.0,0.12991792302255253,svm_linear_grouped,svm_rbf_grouped
+950,48,91,20,48.0,0.0003329425719921236,knn_grouped,pointnet_grouped
+897,49,144,19,49.0,4.8503930945583355e-12,svm_rbf_grouped,pointnet_grouped

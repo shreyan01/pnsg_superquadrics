@@ -1,4 +1,9 @@
+import sys
 from pathlib import Path
+
+# Allow these scripts to be launched from any working
+# directory (repo root or src/), not only from inside src/.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 import random
 
 import numpy as np
@@ -13,9 +18,16 @@ from torch.utils.data import (
     Subset,
 )
 
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import (
+    GroupKFold,
+    StratifiedKFold,
+    StratifiedGroupKFold,
+)
 
-from data_utils import load_pointcloud_data
+from data_utils import (
+    compute_object_groups,
+    load_pointcloud_data,
+)
 
 from evaluation import (
     LABEL_ORDER,
@@ -54,6 +66,24 @@ NUM_WORKERS = 0
 
 # Model name used in result files
 MODEL_NAME = "pointnet"
+
+# Size tolerance, in meters, for treating two instances as
+# the same physical object. See data_utils.compute_object_groups.
+GROUP_DISTANCE_THRESHOLD = 0.003
+
+# The same three regimes as Task 1:
+#   random     -- StratifiedKFold, leaks repeated frames
+#   grouped    -- StratifiedGroupKFold, objects whole + stratified
+#   groupkfold -- GroupKFold, objects whole, no stratification
+#
+# groupkfold is the closest analogue of a real video-level
+# split, since stratifying uses the label distribution to
+# build folds and holding out whole videos cannot.
+SPLIT_MODES = [
+    "random",
+    "grouped",
+    "groupkfold",
+]
 
 
 # =========================================================
@@ -422,13 +452,13 @@ class SmallPointNet(nn.Module):
     PointNet implementation.
 
     Raw point cloud
-        ↓
+        |
     shared point-wise MLPs
-        ↓
+        |
     global max pooling
-        ↓
+        |
     fully connected classifier
-        ↓
+        |
     5 object categories
     """
 
@@ -526,13 +556,13 @@ class SmallPointNet(nn.Module):
 
         # PointNet Conv1d expects:
         #
-        # batch × channels × points
+        # batch x channels x points
         #
         # therefore:
         #
-        # B × N × 3
+        # B x N x 3
         # becomes
-        # B × 3 × N
+        # B x 3 x N
 
         x = points.transpose(
             1,
@@ -578,7 +608,7 @@ class SmallPointNet(nn.Module):
 
         # Shape now:
         #
-        # batch × 256
+        # batch x 256
 
         # -------------------------------------------------
         # Classification head
@@ -830,10 +860,16 @@ def run_fold(
     test_indices,
     dataset,
     device,
+    split_mode="random",
 ):
     """
     Train a fresh PointNet model for one outer
     cross-validation fold.
+
+    split_mode only affects reporting and the checkpoint
+    filename, so the random-split and grouped-split fold
+    models do not overwrite one another. Task 4 reloads
+    the random-split checkpoints by their unsuffixed name.
     """
 
     fold_seed = (
@@ -1039,12 +1075,14 @@ def run_fold(
 
     model_path = (
         MODEL_DIR
-        / f"pointnet_fold_{fold_number}.pt"
+        / f"{result_name(MODEL_NAME, split_mode)}"
+          f"_fold_{fold_number}.pt"
     )
 
     torch.save(
         {
             "fold": fold_number,
+            "split_mode": split_mode,
             "model_state_dict": (
                 model.state_dict()
             ),
@@ -1091,30 +1129,40 @@ def create_combined_summary():
         / "task1_summary.csv"
     )
 
-    pointnet_metrics_path = (
-        RESULTS_DIR
-        / "pointnet_metrics.csv"
-    )
-
-    if not (
-        task1_summary_path.exists()
-        and pointnet_metrics_path.exists()
-    ):
+    if not task1_summary_path.exists():
         return None
 
-    task1_df = pd.read_csv(
-        task1_summary_path
-    )
+    frames = [
+        pd.read_csv(task1_summary_path)
+    ]
 
-    pointnet_df = pd.read_csv(
-        pointnet_metrics_path
-    )
+    # One PointNet row per CV regime, tagged with the same
+    # "split" column Task 1 writes, so the leakage effect
+    # lines up across all models in a single table.
+    for split_mode in SPLIT_MODES:
+
+        metrics_path = (
+            RESULTS_DIR
+            / f"{result_name(MODEL_NAME, split_mode)}"
+              f"_metrics.csv"
+        )
+
+        if not metrics_path.exists():
+            continue
+
+        pointnet_df = pd.read_csv(
+            metrics_path
+        )
+
+        pointnet_df["split"] = split_mode
+
+        frames.append(pointnet_df)
+
+    if len(frames) == 1:
+        return None
 
     combined = pd.concat(
-        [
-            task1_df,
-            pointnet_df,
-        ],
+        frames,
         ignore_index=True,
     )
 
@@ -1194,190 +1242,143 @@ def print_combined_summary(
 
 
 # =========================================================
-# 15. MAIN EXPERIMENT
+# 15. RESULT NAMING
 # =========================================================
 
-def main():
+def result_name(
+    model_name,
+    split_mode,
+):
+    """
+    Build the file/report name for one model under one
+    cross-validation regime.
+
+    Random-split names stay unsuffixed so files already
+    consumed by Task 4 and Task 5 keep working.
+    """
+
+    if split_mode == "random":
+        return model_name
+
+    return f"{model_name}_{split_mode}"
+
+
+# =========================================================
+# 16. RUN ONE CROSS-VALIDATION REGIME
+# =========================================================
+
+def run_split_mode(
+    split_mode,
+    dataset,
+    labels,
+    groups,
+    device,
+):
+    """
+    Train and evaluate PointNet under one CV regime.
+
+    Parameters
+    ----------
+    split_mode : {"random", "grouped"}
+        "random" splits rows independently, so repeated
+        frames of the same physical object appear in both
+        the train and the test fold. "grouped" keeps every
+        view of one object inside a single fold.
+
+    dataset : PointCloudDataset
+        Preprocessed clouds, shared across regimes.
+
+    labels : np.ndarray
+        String labels in original instance order.
+
+    groups : np.ndarray
+        Inferred object-identity group per instance.
+
+    device : torch.device
+        Compute device.
+
+    Returns
+    -------
+    np.ndarray
+        Out-of-fold predicted labels, original order.
+    """
+
+    report_name = result_name(
+        MODEL_NAME,
+        split_mode,
+    )
+
+    print("\n" + "#" * 70)
 
     print(
-        "\n"
-        + "=" * 70
+        f"CROSS-VALIDATION REGIME: "
+        f"{split_mode.upper()}"
     )
 
-    print(
-        "TASK 2 — RAW POINT-CLOUD "
-        "POINTNET BASELINE"
-    )
-
-    print(
-        "=" * 70
-    )
+    print("#" * 70)
 
     # -----------------------------------------------------
-    # Reproducibility
+    # Splitter
     # -----------------------------------------------------
 
-    seed_everything(
-        RANDOM_STATE
-    )
+    if split_mode == "random":
 
-    # -----------------------------------------------------
-    # Device
-    # -----------------------------------------------------
-
-    device = get_device()
-
-    print(
-        f"\nDevice: {device}"
-    )
-
-    if device.type == "cuda":
-
-        print(
-            "GPU:",
-            torch.cuda.get_device_name(
-                0
-            ),
+        cv = StratifiedKFold(
+            n_splits=N_SPLITS,
+            shuffle=True,
+            random_state=RANDOM_STATE,
         )
 
-    # -----------------------------------------------------
-    # Load raw data
-    # -----------------------------------------------------
+        split_groups = None
 
-    clouds, labels = (
-        load_pointcloud_data()
-    )
+    elif split_mode == "grouped":
 
-    labels = np.asarray(
-        labels
-    )
-
-    print(
-        f"\nInstances: "
-        f"{len(labels)}"
-    )
-
-    print(
-        f"Classes: "
-        f"{LABEL_ORDER}"
-    )
-
-    print(
-        f"Points per PointNet input: "
-        f"{NUM_POINTS}"
-    )
-
-    # -----------------------------------------------------
-    # Dataset
-    # -----------------------------------------------------
-
-    dataset = PointCloudDataset(
-        clouds=clouds,
-        labels=labels,
-        num_points=NUM_POINTS,
-        random_state=RANDOM_STATE,
-    )
-
-    print(
-        "\nProcessed data shape:"
-    )
-
-    print(
-        dataset.processed_clouds.shape
-    )
-
-    print(
-        f"NaN values: "
-        f"{np.isnan(dataset.processed_clouds).sum()}"
-    )
-
-    print(
-        f"Infinite values: "
-        f"{np.isinf(dataset.processed_clouds).sum()}"
-    )
-
-    # -----------------------------------------------------
-    # Verify centering
-    # -----------------------------------------------------
-
-    example_points = (
-        dataset
-        .processed_clouds[0]
-    )
-
-    example_centroid = (
-        example_points.mean(
-            axis=0
+        cv = StratifiedGroupKFold(
+            n_splits=N_SPLITS,
+            shuffle=True,
+            random_state=RANDOM_STATE,
         )
-    )
+
+        split_groups = groups
+
+    elif split_mode == "groupkfold":
+
+        cv = GroupKFold(
+            n_splits=N_SPLITS,
+            shuffle=True,
+            random_state=RANDOM_STATE,
+        )
+
+        split_groups = groups
+
+    else:
+
+        raise ValueError(
+            f"Unknown split_mode: {split_mode}"
+        )
 
     print(
-        "\nExample processed centroid:"
-    )
-
-    print(
-        example_centroid
-    )
-
-    # -----------------------------------------------------
-    # Output directories
-    # -----------------------------------------------------
-
-    RESULTS_DIR.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    FIGURES_DIR.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    MODEL_DIR.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    # -----------------------------------------------------
-    # Stratified 5-fold CV
-    # -----------------------------------------------------
-
-    cv = StratifiedKFold(
-        n_splits=N_SPLITS,
-        shuffle=True,
-        random_state=RANDOM_STATE,
-    )
-
-    print(
-        f"\nCross-validation: "
-        f"{N_SPLITS}-fold StratifiedKFold"
+        f"\n{N_SPLITS}-fold "
+        f"{type(cv).__name__}"
     )
 
     # -----------------------------------------------------
     # Storage for out-of-fold predictions
     # -----------------------------------------------------
 
-    number_instances = (
-        len(labels)
+    number_instances = len(labels)
+
+    out_of_fold_predictions = np.empty(
+        number_instances,
+        dtype=object,
     )
 
-    out_of_fold_predictions = (
-        np.empty(
-            number_instances,
-            dtype=object,
-        )
-    )
+    out_of_fold_predictions[:] = None
 
-    out_of_fold_predictions[:] = (
-        None
-    )
-
-    out_of_fold_folds = (
-        np.full(
-            number_instances,
-            -1,
-            dtype=int,
-        )
+    out_of_fold_folds = np.full(
+        number_instances,
+        -1,
+        dtype=int,
     )
 
     all_history = []
@@ -1392,10 +1393,9 @@ def main():
         test_indices,
     ) in enumerate(
         cv.split(
-            np.zeros(
-                number_instances
-            ),
+            np.zeros(number_instances),
             labels,
+            groups=split_groups,
         ),
         start=1,
     ):
@@ -1412,12 +1412,17 @@ def main():
             test_indices=test_indices,
             dataset=dataset,
             device=device,
+            split_mode=split_mode,
         )
 
         # -------------------------------------------------
         # Store predictions in original instance order
         # -------------------------------------------------
 
+        # torch's Subset forwards the *original* dataset
+        # index to __getitem__, so instance_ids are already
+        # positions in the full dataset and need no
+        # remapping through test_indices.
         for (
             instance_id,
             predicted_index,
@@ -1426,34 +1431,26 @@ def main():
             predicted_indices,
         ):
 
+            instance_id = int(instance_id)
+
             out_of_fold_predictions[
                 instance_id
             ] = INDEX_TO_LABEL[
-                int(
-                    predicted_index
-                )
+                int(predicted_index)
             ]
 
             out_of_fold_folds[
                 instance_id
             ] = fold_number
 
-        all_history.extend(
-            history
-        )
+        all_history.extend(history)
 
         fold_results.append(
             {
                 "fold": fold_number,
-                "train_size": (
-                    len(train_indices)
-                ),
-                "test_size": (
-                    len(test_indices)
-                ),
-                "accuracy": (
-                    fold_accuracy
-                ),
+                "train_size": len(train_indices),
+                "test_size": len(test_indices),
+                "accuracy": fold_accuracy,
             }
         )
 
@@ -1463,17 +1460,14 @@ def main():
 
     if any(
         prediction is None
-        for prediction
-        in out_of_fold_predictions
+        for prediction in out_of_fold_predictions
     ):
         raise RuntimeError(
             "Some instances did not receive "
             "an out-of-fold prediction."
         )
 
-    if np.any(
-        out_of_fold_folds < 1
-    ):
+    if np.any(out_of_fold_folds < 1):
         raise RuntimeError(
             "Some instances were not assigned "
             "to a fold."
@@ -1483,17 +1477,11 @@ def main():
     # Save fold training history
     # -----------------------------------------------------
 
-    history_df = pd.DataFrame(
-        all_history
-    )
-
-    history_path = (
-        RESULTS_DIR
-        / "pointnet_training_history.csv"
-    )
+    history_df = pd.DataFrame(all_history)
 
     history_df.to_csv(
-        history_path,
+        RESULTS_DIR
+        / f"{report_name}_training_history.csv",
         index=False,
     )
 
@@ -1501,40 +1489,22 @@ def main():
     # Save fold-level accuracy
     # -----------------------------------------------------
 
-    fold_results_df = (
-        pd.DataFrame(
-            fold_results
-        )
-    )
-
-    fold_results_path = (
-        RESULTS_DIR
-        / "pointnet_fold_results.csv"
-    )
+    fold_results_df = pd.DataFrame(fold_results)
 
     fold_results_df.to_csv(
-        fold_results_path,
+        RESULTS_DIR
+        / f"{report_name}_fold_results.csv",
         index=False,
     )
 
-    print(
-        "\n"
-        + "=" * 70
-    )
-
-    print(
-        "FOLD RESULTS"
-    )
-
-    print(
-        "=" * 70
-    )
+    print("\n" + "=" * 70)
+    print("FOLD RESULTS")
+    print("=" * 70)
 
     print(
         fold_results_df.to_string(
             index=False,
-            float_format=lambda x:
-            f"{x:.4f}",
+            float_format=lambda x: f"{x:.4f}",
         )
     )
 
@@ -1543,40 +1513,23 @@ def main():
     # -----------------------------------------------------
 
     print_evaluation_summary(
-        model_name=MODEL_NAME,
+        model_name=report_name,
         y_true=labels,
-        y_pred=(
-            out_of_fold_predictions
-        ),
+        y_pred=out_of_fold_predictions,
     )
 
-    # -----------------------------------------------------
-    # Save standard evaluation files
-    # -----------------------------------------------------
-
-    saved_files = (
-        save_evaluation_results(
-            model_name=MODEL_NAME,
-            y_true=labels,
-            y_pred=(
-                out_of_fold_predictions
-            ),
-            output_dir=RESULTS_DIR,
-        )
+    saved_files = save_evaluation_results(
+        model_name=report_name,
+        y_true=labels,
+        y_pred=out_of_fold_predictions,
+        output_dir=RESULTS_DIR,
     )
 
-    print(
-        "\nSaved evaluation files:"
-    )
+    print("\nSaved evaluation files:")
 
-    for (
-        result_type,
-        path,
-    ) in saved_files.items():
-
+    for result_type, path in saved_files.items():
         print(
-            f"{result_type:25s}: "
-            f"{path}"
+            f"{result_type:25s}: {path}"
         )
 
     # -----------------------------------------------------
@@ -1585,18 +1538,12 @@ def main():
 
     prediction_path = (
         RESULTS_DIR
-        / "pointnet_predictions.csv"
+        / f"{report_name}_predictions.csv"
     )
 
-    prediction_df = pd.read_csv(
-        prediction_path
-    )
+    prediction_df = pd.read_csv(prediction_path)
 
-    prediction_df[
-        "fold"
-    ] = (
-        out_of_fold_folds
-    )
+    prediction_df["fold"] = out_of_fold_folds
 
     prediction_df.to_csv(
         prediction_path,
@@ -1609,59 +1556,206 @@ def main():
 
     plot_confusion_matrix(
         y_true=labels,
-        y_pred=(
-            out_of_fold_predictions
-        ),
-        model_name="PointNet",
+        y_pred=out_of_fold_predictions,
+        model_name=f"PointNet ({split_mode} split)",
         output_path=(
             FIGURES_DIR
-            / "pointnet_confusion_matrix.png"
+            / f"{report_name}_confusion_matrix.png"
         ),
     )
 
     plot_normalized_confusion_matrix(
         y_true=labels,
-        y_pred=(
-            out_of_fold_predictions
-        ),
-        model_name="PointNet",
+        y_pred=out_of_fold_predictions,
+        model_name=f"PointNet ({split_mode} split)",
         output_path=(
             FIGURES_DIR
             / (
-                "pointnet_normalized_"
-                "confusion_matrix.png"
+                f"{report_name}_normalized_"
+                f"confusion_matrix.png"
             )
         ),
     )
+
+    return out_of_fold_predictions
+
+
+# =========================================================
+# 17. MAIN EXPERIMENT
+# =========================================================
+
+def main():
+
+    print("\n" + "=" * 70)
+
+    print(
+        "TASK 2 - RAW POINT-CLOUD "
+        "POINTNET BASELINE"
+    )
+
+    print("=" * 70)
+
+    # -----------------------------------------------------
+    # Reproducibility
+    # -----------------------------------------------------
+
+    seed_everything(RANDOM_STATE)
+
+    # -----------------------------------------------------
+    # Device
+    # -----------------------------------------------------
+
+    device = get_device()
+
+    print(f"\nDevice: {device}")
+
+    if device.type == "cuda":
+        print(
+            "GPU:",
+            torch.cuda.get_device_name(0),
+        )
+
+    # -----------------------------------------------------
+    # Load raw data
+    # -----------------------------------------------------
+
+    clouds, labels = load_pointcloud_data()
+
+    labels = np.asarray(labels)
+
+    print(f"\nInstances: {len(labels)}")
+    print(f"Classes: {LABEL_ORDER}")
+
+    print(
+        f"Points per PointNet input: {NUM_POINTS}"
+    )
+
+    # -----------------------------------------------------
+    # Object-identity groups
+    # -----------------------------------------------------
+
+    print(
+        "\nInferring object-identity groups "
+        "from point-cloud extents..."
+    )
+
+    groups = compute_object_groups(
+        clouds,
+        distance_threshold=(
+            GROUP_DISTANCE_THRESHOLD
+        ),
+    )
+
+    print(
+        f"Distinct object groups: "
+        f"{len(np.unique(groups))} "
+        f"(from {len(labels)} instances)"
+    )
+
+    # -----------------------------------------------------
+    # Dataset
+    # -----------------------------------------------------
+
+    dataset = PointCloudDataset(
+        clouds=clouds,
+        labels=labels,
+        num_points=NUM_POINTS,
+        random_state=RANDOM_STATE,
+    )
+
+    print("\nProcessed data shape:")
+    print(dataset.processed_clouds.shape)
+
+    print(
+        f"NaN values: "
+        f"{np.isnan(dataset.processed_clouds).sum()}"
+    )
+
+    print(
+        f"Infinite values: "
+        f"{np.isinf(dataset.processed_clouds).sum()}"
+    )
+
+    # -----------------------------------------------------
+    # Verify centering
+    # -----------------------------------------------------
+
+    example_centroid = (
+        dataset.processed_clouds[0].mean(axis=0)
+    )
+
+    print("\nExample processed centroid:")
+    print(example_centroid)
+
+    # -----------------------------------------------------
+    # Output directories
+    # -----------------------------------------------------
+
+    for directory in (
+        RESULTS_DIR,
+        FIGURES_DIR,
+        MODEL_DIR,
+    ):
+        directory.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+
+    # -----------------------------------------------------
+    # Run the requested regimes
+    # -----------------------------------------------------
+
+    # Each regime trains five folds from scratch, so allow
+    # running a subset:  python task2_pointnet.py groupkfold
+    requested = [
+        argument
+        for argument in sys.argv[1:]
+        if not argument.startswith("-")
+    ]
+
+    if requested:
+
+        unknown = set(requested) - set(SPLIT_MODES)
+
+        if unknown:
+            raise SystemExit(
+                f"Unknown split mode(s): {sorted(unknown)}. "
+                f"Choose from {SPLIT_MODES}."
+            )
+
+        selected_modes = requested
+
+    else:
+        selected_modes = SPLIT_MODES
+
+    print(f"
+Regimes to run: {selected_modes}")
+
+    for split_mode in selected_modes:
+
+        run_split_mode(
+            split_mode=split_mode,
+            dataset=dataset,
+            labels=labels,
+            groups=groups,
+            device=device,
+        )
 
     # -----------------------------------------------------
     # Combined Task 1 + Task 2 summary
     # -----------------------------------------------------
 
-    combined_df = (
-        create_combined_summary()
-    )
+    combined_df = create_combined_summary()
 
-    print_combined_summary(
-        combined_df
-    )
+    print_combined_summary(combined_df)
 
-    print(
-        "\n"
-        + "=" * 70
-    )
-
-    print(
-        "TASK 2 COMPLETE"
-    )
-
-    print(
-        "=" * 70
-    )
+    print("\n" + "=" * 70)
+    print("TASK 2 COMPLETE")
+    print("=" * 70)
 
 
 # =========================================================
-# 16. ENTRY POINT
+# 18. ENTRY POINT
 # =========================================================
 
 if __name__ == "__main__":

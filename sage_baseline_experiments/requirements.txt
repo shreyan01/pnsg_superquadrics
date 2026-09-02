@@ -16,3 +16,8 @@ torch>=2.13.0
 ipykernel>=7.3.0
 nbformat>=5.11.1
 nbclient>=0.11.0
+
+# Task 3, SAGE half only (`--dataset_root`). The YCB-Video loader reads
+# depth/label/colour PNGs through OpenCV. Not needed for the baseline
+# half, or for tasks 1, 2, 4 and 5.
+opencv-python>=4.8

@@ -1728,8 +1728,8 @@ def main():
     else:
         selected_modes = SPLIT_MODES
 
-    print(f"
-Regimes to run: {selected_modes}")
+    print()
+    print("Regimes to run:", selected_modes)
 
     for split_mode in selected_modes:
 

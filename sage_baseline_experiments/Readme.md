@@ -10,21 +10,23 @@ categories, 1109 held-out object instances), run from the exported
 
 1. **The 13D feature set, not the scoring formula, is the ceiling on mug and
    bowl.** A linear SVM trained discriminatively on the *identical* 13 features
-   reproduces SAGE's per-class failure profile almost exactly — mug 30.3% vs
-   SAGE's 32.6%, bowl 20.5% vs 18.2% (grouped split). Where SAGE fails, a
-   learned classifier on the same numbers fails the same way.
+   reproduces SAGE's per-class failure profile almost exactly — mug 33.7% vs
+   SAGE's 32.6%, bowl 25.0% vs 18.2% (GroupKFold). Where SAGE fails, a learned
+   classifier on the same numbers fails the same way.
 
 2. **Bottle is the exception, and it is a scoring problem.** Every same-feature
    baseline roughly doubles SAGE on bottle (55–83% vs 31.5%) while using the
    same inputs. That gap is recoverable without changing the representation.
 
 3. **Raw points carry far more than the 13D projection retains.** PointNet on
-   raw clouds reaches 93.9% overall / 92.8% balanced under a leakage-controlled
-   split, against 84–85% balanced-accuracy-60–65% for the feature baselines. The
+   raw clouds reaches 93.2% overall / 91.8% balanced under GroupKFold, against
+   84–86% overall and only 61–65% balanced for the feature baselines. The
    projection to 13 numbers is where most of the discriminative geometry goes.
 
 4. **The original 5-fold numbers were inflated by leakage.** See below — this
-   changed several conclusions and is the main correction in this repo.
+   changed several conclusions and is the main correction in this repo. Results
+   are reported under three CV regimes; the two leakage-controlled ones agree
+   to within 0.7 pp, so the conclusions do not rest on that choice.
 
 5. **SAGE's can-vs-bottle gap is real,** not small-sample noise: +63.4 pp
    [+55.3, +71.1], Fisher exact p = 7.6e-50.
@@ -58,13 +60,29 @@ classifier can retrieve a memorised neighbour instead of generalising.
 SAGE's own 78.4% used a **video-level** split, so a random-split baseline is not
 comparable to it.
 
-**Every task therefore reports two regimes**, and the gap between them is itself
-a result:
+**Every task therefore reports three regimes**, and the gap between them is
+itself a result:
 
-- `random` — plain `StratifiedKFold`. Kept for comparison; **do not quote it**.
-- `grouped` — `StratifiedGroupKFold` over inferred object identity. Verified:
-  no group appears in both train and test in any fold, and folds stay cleanly
-  stratified (~222 instances each, all five classes present).
+| Regime | Splitter | Objects kept whole? | Folds stratified? |
+|---|---|---|---|
+| `random` | `StratifiedKFold` | no — leaks | yes |
+| `grouped` | `StratifiedGroupKFold` | yes | yes |
+| `groupkfold` | `GroupKFold` | yes | no |
+
+`groupkfold` is the number to quote. Stratifying uses the label distribution to
+build the folds, and a real video-level split cannot do that — you hold out
+whole videos and accept whatever class mix falls out. `GroupKFold` is therefore
+the closer analogue of how SAGE's own 78.4% was measured; `grouped` is the
+lower-variance companion estimate, and `random` is kept only to show the size
+of the leak.
+
+Both group-aware splitters were verified: no group appears in both train and
+test in any fold. `StratifiedGroupKFold` gives near-flat folds (~222 instances
+each); `GroupKFold` gives folds of 181–288 with `can` swinging 37–124, which is
+what an unstratified held-out split of real videos actually looks like.
+
+**The two agree to within a few tenths of a point on every model**, so no
+conclusion here depends on which group-aware splitter is used.
 
 **Caveat.** The grouping is a *proxy*. The export carries no `video_id` or
 `frame_id`, so true object identity cannot be recovered from the `.npz` files.
@@ -83,38 +101,60 @@ numbers as "leakage substantially reduced", not "leakage eliminated".
 | Model | Split | Overall | Balanced | Box | Can | Mug | Bottle | Bowl |
 |---|---|---|---|---|---|---|---|---|
 | **SAGE** | video-level | **78.4** | – | 94.7 | 94.9 | 32.6 | 31.5 | 18.2 |
-| knn | random | 92.6 | 83.3 | 96.4 | 98.9 | 74.2 | 85.6 | 61.4 |
-| svm_linear | random | 84.6 | 60.9 | 97.9 | 99.7 | 32.6 | 56.2 | 18.2 |
-| svm_rbf | random | 86.4 | 64.4 | 99.4 | 99.2 | 28.1 | 65.8 | 29.5 |
-| pointnet | random | 97.7 | 95.5 | 99.4 | 99.2 | 95.5 | 92.5 | 90.9 |
-| knn | **grouped** | 90.0 | 79.4 | 93.3 | 98.9 | 65.2 | 82.9 | 56.8 |
-| svm_linear | **grouped** | 84.1 | 60.6 | 97.7 | 99.2 | 30.3 | 55.5 | 20.5 |
-| svm_rbf | **grouped** | 85.3 | 64.8 | 96.4 | 98.9 | 36.0 | 63.0 | 29.5 |
-| pointnet | **grouped** | **93.9** | **92.8** | 93.1 | 97.5 | 94.4 | 88.4 | 90.9 |
+| SVM (linear) | random | 84.6 | 60.9 | 97.9 | 99.7 | 32.6 | 56.2 | 18.2 |
+| SVM (RBF) | random | 86.4 | 64.4 | 99.4 | 99.2 | 28.1 | 65.8 | 29.5 |
+| k-NN | random | 92.6 | 83.3 | 96.4 | 98.9 | 74.2 | 85.6 | 61.4 |
+| PointNet | random | 97.7 | 95.5 | 99.4 | 99.2 | 95.5 | 92.5 | 90.9 |
+| SVM (linear) | grouped | 84.1 | 60.6 | 97.7 | 99.2 | 30.3 | 55.5 | 20.5 |
+| SVM (RBF) | grouped | 85.3 | 64.8 | 96.4 | 98.9 | 36.0 | 63.0 | 29.5 |
+| k-NN | grouped | 90.0 | 79.4 | 93.3 | 98.9 | 65.2 | 82.9 | 56.8 |
+| PointNet | grouped | 93.9 | 92.8 | 93.1 | 97.5 | 94.4 | 88.4 | 90.9 |
+| SVM (linear) | **groupkfold** | 84.2 | 61.6 | 97.9 | 99.2 | 33.7 | 52.1 | 25.0 |
+| SVM (RBF) | **groupkfold** | 85.6 | 64.8 | 96.4 | 99.4 | 33.7 | 65.1 | 29.5 |
+| k-NN | **groupkfold** | 90.3 | 81.1 | 92.8 | 98.9 | 70.8 | 81.5 | 61.4 |
+| PointNet | **groupkfold** | **93.2** | **91.8** | 92.2 | 97.5 | 93.3 | 87.7 | 88.6 |
 
-Leakage cost: k-NN −2.6 pp, PointNet −3.9 pp, SVMs ≈ −0.5–1.1 pp. k-NN and
-PointNet — the two models most able to memorise — are the two most affected,
-which is the expected signature.
+Per-model, across regimes (overall accuracy %):
+
+| Model | random | grouped | groupkfold | leak (random − groupkfold) | stratification effect (grouped − groupkfold) |
+|---|---|---|---|---|---|
+| SVM (linear) | 84.58 | 84.13 | 84.22 | +0.36 | −0.09 |
+| SVM (RBF) | 86.38 | 85.30 | 85.57 | +0.81 | −0.27 |
+| k-NN | 92.61 | 89.99 | 90.26 | +2.35 | −0.27 |
+| PointNet | 97.75 | 93.87 | 93.24 | **+4.51** | +0.63 |
+
+**Stratification barely matters.** The `grouped` − `groupkfold` column is within
+±0.7 pp for every model — an order of magnitude smaller than PointNet's leak.
+McNemar on the two group-aware regimes confirms it: `svm_rbf` p = 0.65,
+`pointnet` p = 0.39, i.e. no detectable difference. **So no conclusion here
+depends on which group-aware splitter is used**, which is what running both was
+meant to establish.
+
+Leakage cost, against `groupkfold`: PointNet +4.5 pp, k-NN +2.4 pp, SVMs
++0.4–0.8 pp. k-NN and PointNet — the two models most able to memorise — are
+the two most affected, which is the expected signature of leakage rather
+than of a general difficulty change.
 
 **Answering the Task 1 question directly** ("is the scoring formula the
 bottleneck, or is the 13D feature set the ceiling?"):
 
-The per-class profile of `svm_linear` (grouped) tracks SAGE's at r = 0.96, mean
-absolute difference 7.1 pp: mug 30.3% against SAGE's 32.6%, bowl 20.5% against
-18.2%. (The random-split run landed on mug 32.6% — matching SAGE to the decimal.)
+The per-class profile of `svm_linear` tracks SAGE's at r ≈ 0.96 under every
+regime: under `groupkfold`, mug 33.7% against SAGE's 32.6% and bowl 25.0%
+against 18.2%. (The random-split run landed on mug 32.6% — matching SAGE to
+the decimal.)
 **A discriminatively trained classifier on the same 13 numbers fails on exactly
 the same classes, by nearly the same amount.** For mug and bowl, the features
 are the ceiling — better scoring will not help.
 
-Bottle is the counter-example: 55.5% vs SAGE's 31.5% from identical inputs. That
-one is worth chasing in the scoring/fitting path.
+Bottle is the counter-example: 52–56% vs SAGE's 31.5% from identical inputs.
+That one is worth chasing in the scoring/fitting path.
 
 For contrast, k-NN's profile diverges from SAGE's most (mean absolute difference
 25.6 pp) — and k-NN is also the model most sensitive to the leakage above, which
 is consistent with it succeeding by retrieval rather than by generalising.
 
-PointNet's balanced accuracy (92.8%) versus the best feature baseline's (64.8%)
-is the size of what the 13D projection discards.
+PointNet's balanced accuracy (91.8% under `groupkfold`) versus the best
+feature baseline's (64.8%) is the size of what the 13D projection discards.
 
 ### Task 3 — sample efficiency
 
@@ -133,34 +173,85 @@ Accuracy (%) on held-out objects, mean over 20 random draws, counting *n* in
 n = 20 is not reachable: bowl only has 26 distinct objects, ~18 after holding
 out the evaluation pool.
 
-**This is the baseline half of the comparison only.** The SAGE registry half
-needs `train_registry_multiview.py` plus a local YCB-Video copy; this checkout
-has the script but `image_sets/train.txt` and `image_sets/val.txt` are empty
-stubs and there is no dataset root. Drop the registry's five numbers into
-`SAGE_REFERENCE_CURVE` in `src/task3_sample_efficiency.py` and both curves plot
-on one axis.
+#### Running the SAGE half
+
+`src/task3_sample_efficiency.py` implements **both** halves. The numbers above
+are the baseline half, which needs only `baseline_data/`. The SAGE half —
+retraining the real registry at each n and evaluating it on YCB-Video — runs as
+soon as you point it at a dataset:
+
+```bash
+pip install opencv-python          # the YCB-Video loader needs cv2
+
+python src/task3_sample_efficiency.py --dataset_root ~/ycb_dataset
+```
+
+Both curves then land on one axis in
+`results/task3/figures/sample_efficiency_curve.png`, and the registry numbers in
+`results/task3/sage_sample_efficiency_summary.csv`.
+
+Check it works on a small slice before committing to a full run:
+
+```bash
+python src/task3_sample_efficiency.py --dataset_root ~/ycb_dataset \
+    --sizes 1 2 --max-frames 200 --workers 8
+```
+
+Useful flags: `--sizes`, `--repeats` (independent draws of *which* examples get
+confirmed), `--split` / `--val-split`, `--frame-stride`, `--max-frames`,
+`--workers`, `--skip-baseline`. `--help` lists them all.
+
+**How it works.** It drives the author's own code — `discover_video_classes`,
+`_aggregate_and_fit` and `AXISYMMETRIC_WORDS` from
+`ycbv_training/train_registry_multiview.py`, and `_eval_one_frame` from
+`ycbv_training/evaluate_on_ycbv.py`. **Nothing in the parent repository is
+modified.** `src/sage_pipeline.py` handles the import (those modules mix
+package-relative and flat imports and the repo has no `__init__.py`, so a plain
+import fails); it registers a synthetic parent package, so a clone under any
+folder name works.
+
+"n confirmed examples per category" means one (video, class) pair — exactly the
+unit `train_registry_multiview.py` counts in `per_class_counts`. Registries are
+built **from scratch** at each n, not incrementally, as the guide asks.
+
+The fits are the expensive step, so each (video, class) pair is fitted **once**
+per repeat and reused across every n — the n=1 registry is a prefix of the n=20
+one. The whole sweep therefore costs about one n=20 training run rather than
+five separate ones. Trained registries are saved to `models/task3/` and
+instance-level predictions to `results/task3/`.
+
+If the dataset is missing or `cv2` is not installed, the script says exactly
+what to fix and still runs the baseline half.
+
+**Not run here.** This checkout has the training and evaluation scripts but
+`image_sets/train.txt` and `image_sets/val.txt` are empty stubs and there is no
+dataset root, so the SAGE numbers in this README are absent rather than
+estimated. The registry-construction path *was* verified end-to-end against real
+exported point clouds; only the dataset-reading and evaluation loops are
+untested here, since they need YCB-Video files.
 
 ### Task 4 — robustness to sensor degradation
 
 `results/task4/`, figures in `results/task4/figures/`
 
-Overall accuracy (%), grouped split:
+Overall accuracy (%), `groupkfold` split (all three regimes are in
+`results/task4/`, and all three degrade with the same shape):
 
 | Points | 1024 | 512 | 256 | 128 | 64 |
 |---|---|---|---|---|---|
-| Accuracy | 93.9 | 93.2 | 94.0 | 92.3 | 89.6 |
+| Accuracy | 93.2 | 93.0 | 92.9 | 91.0 | 87.8 |
 
 | Noise σ (mm) | 0.0 | 1.5 | 2.0 | 2.5 | 3.0 | 3.5 | 4.0 |
 |---|---|---|---|---|---|---|---|
-| Accuracy | 93.9 | 93.5 | 93.3 | 93.2 | 92.7 | 92.0 | 91.5 |
+| Accuracy | 93.2 | 92.8 | 92.8 | 92.4 | 92.5 | 92.4 | 91.8 |
 
 Graceful degradation, no cliff. Across the full sensor-realistic noise range
 (1.5–4.0 mm, your noise model: `cloud + np.random.normal(0, sigma, cloud.shape)`)
 the loss is 2.4 pp; a 16× point reduction costs 4.3 pp.
 
-Both regimes reproduce their Task 2 baseline exactly at the undegraded
-condition, which confirms each object is scored only by the fold model that held
-it out.
+All three regimes reproduce their Task 2 baseline exactly at the undegraded
+condition (97.75 / 93.87 / 93.24%), which confirms each object is scored only
+by the fold model that held it out.
 
 **Scope:** this degrades the clouds and re-runs the *PointNet* baseline. It does
 not re-evaluate SAGE — as the guide notes, noise changes the superquadric *fit*,
@@ -236,11 +327,12 @@ clean like-for-like estimate.
    video-level split, making the baselines directly comparable to 78.4%.
 2. **Instance-level SAGE predictions on `val_sample`.** Enables McNemar of SAGE
    vs each baseline, and an exact rather than reconstructed can/bottle table.
-3. **Task 3:** the registry's five accuracy numbers, or dataset access.
-4. **Task 4:** SAGE's accuracy at the σ values above, or pipeline access.
+3. **Task 4:** SAGE's accuracy at the σ values above, or pipeline access.
+   (Task 3 no longer needs anything from you — it runs the registry itself
+   given `--dataset_root`.)
 
 Per the guide's suggestion — happy to take (1) and (2) and do the analysis side,
-if you run (3) and (4).
+if you run (4).
 
 ---
 
@@ -267,6 +359,8 @@ the predictions Tasks 1 and 2 write. `run_all.py` stops at the first failure
 rather than reporting results built on stale files.
 
 To recreate the environment elsewhere: `pip install -r requirements.txt`.
+That includes `opencv-python`, which only Task 3's SAGE half needs — the other
+tasks run without it.
 
 ## Layout
 
@@ -278,7 +372,8 @@ src/
   inspect_data.py             data sanity checks (run this first)
   task1_feature_baselines.py  k-NN / linear SVM / RBF SVM on the 13D features
   task2_pointnet.py           small PointNet on raw clouds
-  task3_sample_efficiency.py  n-shot curve (baseline half)
+  task3_sample_efficiency.py  n-shot curve: SAGE registry + baselines
+  sage_pipeline.py            bridge to the parent repo's train/eval code
   task4_robustness.py         downsampling + Gaussian noise sweeps
   task5_statistics.py         bootstrap CIs, McNemar, Fisher exact
   results_io.py               loads saved results for the notebooks

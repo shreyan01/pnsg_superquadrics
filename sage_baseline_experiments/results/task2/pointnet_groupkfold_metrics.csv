@@ -1,0 +1,2 @@
+model,overall_accuracy,balanced_accuracy,box_accuracy,can_accuracy,mug_accuracy,bottle_accuracy,bowl_accuracy
+pointnet_groupkfold,0.9323715058611362,0.9184826770551039,0.9221052631578948,0.9746478873239437,0.9325842696629213,0.8767123287671232,0.8863636363636364

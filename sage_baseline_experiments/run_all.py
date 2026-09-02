@@ -38,13 +38,13 @@ STEPS = [
     (
         "2",
         "task2_pointnet.py",
-        "Raw point-cloud PointNet baseline",
-        "~25 min on CPU",
+        "Raw point-cloud PointNet baseline (3 CV regimes)",
+        "~36 min on CPU",
     ),
     (
         "3",
         "task3_sample_efficiency.py",
-        "Sample-efficiency curve (baseline half)",
+        "Sample-efficiency curve (baselines; add --dataset_root for SAGE)",
         "~1 min",
     ),
     (

@@ -82,11 +82,21 @@ SEQUENTIAL = LinearSegmentedColormap.from_list(
 # in every figure it appears in. Colour follows the entity, never its rank.
 SAGE_COLOR = INK_SECONDARY
 
-# The two cross-validation regimes. Grouped is the honest one, so it takes the
-# leading slot; random is the cautionary comparison.
+# The three cross-validation regimes.
+#
+# GroupKFold takes the leading slot: it is the closest analogue of a real
+# video-level split, since stratifying uses the label distribution to build
+# folds and holding out whole videos cannot. StratifiedGroupKFold is the
+# lower-variance companion estimate, and the random split is the cautionary
+# comparison.
+#
+# Colour follows the regime everywhere it appears, so a reader who learns
+# "orange means the leaky split" is never contradicted by a later figure.
 SPLIT_COLORS = {
-    "grouped": BLUE,
+    "groupkfold": BLUE,
+    "grouped": AQUA,
     "random": ORANGE,
+    "video_level": INK_SECONDARY,
 }
 
 # A fourth series is a neutral, never a fourth generated hue. Where four
@@ -382,5 +392,74 @@ def grouped_bars(
 
     ax.set_xticks(positions)
     ax.set_xticklabels(categories)
+
+    return positions
+
+
+def dot_plot(
+    ax,
+    labels,
+    series,
+    connector=True,
+):
+    """
+    Cleveland dot plot: one row per label, several dots per row.
+
+    The right form when more than two conditions share a row and a dumbbell
+    would only carry two of them. A hairline connector spans the range so
+    the row still reads as one comparison.
+
+    Parameters
+    ----------
+    labels : list of str
+        Row labels.
+
+    series : dict
+        Ordered mapping of ``label -> (values, color)``, one value per row.
+
+    connector : bool
+        Draw the hairline spanning each row's values.
+    """
+
+    positions = np.arange(len(labels))
+
+    if connector:
+
+        stacked = np.array(
+            [values for values, _ in series.values()]
+        )
+
+        for position, low, high in zip(
+            positions,
+            stacked.min(axis=0),
+            stacked.max(axis=0),
+        ):
+            ax.plot(
+                [low, high],
+                [position, position],
+                color=AXIS,
+                linewidth=1.5,
+                zorder=1,
+                solid_capstyle="round",
+            )
+
+    for name, (values, color) in series.items():
+        ax.scatter(
+            values,
+            positions,
+            s=80,
+            color=color,
+            zorder=3,
+            edgecolors=SURFACE,
+            linewidths=2,
+            label=name,
+        )
+
+    ax.set_yticks(positions)
+    ax.set_yticklabels(labels)
+    ax.invert_yaxis()
+
+    ax.grid(axis="y", visible=False)
+    ax.grid(axis="x", visible=True)
 
     return positions

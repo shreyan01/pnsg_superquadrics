@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import torch
 
 from sklearn.model_selection import (
+    GroupKFold,
     StratifiedKFold,
     StratifiedGroupKFold,
 )
@@ -509,14 +510,21 @@ def evaluate_condition(
 
         split_groups = None
 
-    elif split_mode == "grouped":
+    elif split_mode in ("grouped", "groupkfold"):
 
         if groups is None:
             raise ValueError(
-                "Grouped split mode needs object groups."
+                f"Split mode {split_mode!r} needs "
+                f"object groups."
             )
 
-        cv = StratifiedGroupKFold(
+        splitter = (
+            StratifiedGroupKFold
+            if split_mode == "grouped"
+            else GroupKFold
+        )
+
+        cv = splitter(
             n_splits=N_SPLITS,
             shuffle=True,
             random_state=RANDOM_STATE,

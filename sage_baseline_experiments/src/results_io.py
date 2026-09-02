@@ -46,6 +46,62 @@ CLASS_SUPPORT = {
     "bowl": 44,
 }
 
+# The three cross-validation regimes, in reporting order.
+# Result files are suffixed with the regime, except the
+# random one which is unsuffixed for backwards compatibility.
+SPLIT_SUFFIXES = {
+    "random": "",
+    "grouped": "_grouped",
+    "groupkfold": "_groupkfold",
+}
+
+SPLIT_ORDER = ["video_level", "random", "grouped", "groupkfold"]
+
+# What each regime actually is, for axis and legend labels.
+SPLIT_LABELS = {
+    "video_level": "video-level (SAGE's own)",
+    "random": "StratifiedKFold (leaky)",
+    "grouped": "StratifiedGroupKFold",
+    "groupkfold": "GroupKFold",
+}
+
+# Short forms, for tight legends and tick labels.
+SPLIT_SHORT = {
+    "video_level": "video-level",
+    "random": "random",
+    "grouped": "stratified-group",
+    "groupkfold": "group",
+}
+
+
+def split_of(model_name):
+    """
+    Recover which cross-validation regime produced a result.
+    """
+
+    if model_name.startswith("SAGE"):
+        return "video_level"
+
+    if model_name.endswith("_groupkfold"):
+        return "groupkfold"
+
+    if model_name.endswith("_grouped"):
+        return "grouped"
+
+    return "random"
+
+
+def base_model_of(model_name):
+    """
+    Strip the regime suffix, leaving the model identity.
+    """
+
+    for suffix in ("_groupkfold", "_grouped"):
+        if model_name.endswith(suffix):
+            return model_name[: -len(suffix)]
+
+    return model_name
+
 
 def _require(path):
     """
@@ -71,23 +127,20 @@ def _require(path):
 def load_summary():
     """
     The full model comparison: SAGE, the feature baselines and PointNet,
-    under both cross-validation regimes.
+    under all three cross-validation regimes.
 
     Returns
     -------
     pd.DataFrame
         One row per (model, split), with a `base_model` column that strips
-        the `_grouped` suffix so the two regimes of one model can be paired.
+        the regime suffix so the regimes of one model can be paired.
     """
 
     summary = _require(
         RESULTS_DIR / "task2" / "task1_task2_summary.csv"
     )
 
-    summary["base_model"] = (
-        summary["model"]
-        .str.replace("_grouped", "", regex=False)
-    )
+    summary["base_model"] = summary["model"].map(base_model_of)
 
     return summary
 
@@ -101,10 +154,7 @@ def load_task1_summary():
         RESULTS_DIR / "task1" / "task1_summary.csv"
     )
 
-    summary["base_model"] = (
-        summary["model"]
-        .str.replace("_grouped", "", regex=False)
-    )
+    summary["base_model"] = summary["model"].map(base_model_of)
 
     return summary
 
@@ -185,7 +235,7 @@ def load_robustness(kind, split_mode):
     Parameters
     ----------
     kind : {"point_count", "noise"}
-    split_mode : {"random", "grouped"}
+    split_mode : {"random", "grouped", "groupkfold"}
     """
 
     return _require(
@@ -268,6 +318,20 @@ def pretty(model_name):
     Human-readable model name, regime suffix stripped.
     """
 
-    base = model_name.replace("_grouped", "")
+    base = base_model_of(model_name)
 
     return PRETTY_NAMES.get(base, base)
+
+
+def pretty_with_split(model_name):
+    """
+    Model name plus its regime, e.g. "SVM (RBF) (group)".
+    """
+
+    if model_name.startswith("SAGE"):
+        return "SAGE"
+
+    return (
+        f"{pretty(model_name)} "
+        f"({SPLIT_SHORT[split_of(model_name)]})"
+    )

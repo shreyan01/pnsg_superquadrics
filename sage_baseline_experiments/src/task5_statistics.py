@@ -49,9 +49,14 @@ TASK5_RESULTS_DIR = (
 # ---------------------------------------------------------
 
 # Every headline number in Tasks 1 and 2 gets a confidence
-# interval, under both cross-validation regimes, so the
+# interval, under all three cross-validation regimes, so the
 # leakage gap is visible with uncertainty attached rather
-# than as two bare point estimates.
+# than as bare point estimates.
+#
+#   <name>             -- StratifiedKFold      (random, leaky)
+#   <name>_grouped     -- StratifiedGroupKFold (objects whole)
+#   <name>_groupkfold  -- GroupKFold           (objects whole,
+#                                               unstratified)
 MODEL_SPECS = [
     ("knn", TASK1_RESULTS_DIR),
     ("svm_linear", TASK1_RESULTS_DIR),
@@ -59,8 +64,12 @@ MODEL_SPECS = [
     ("knn_grouped", TASK1_RESULTS_DIR),
     ("svm_linear_grouped", TASK1_RESULTS_DIR),
     ("svm_rbf_grouped", TASK1_RESULTS_DIR),
+    ("knn_groupkfold", TASK1_RESULTS_DIR),
+    ("svm_linear_groupkfold", TASK1_RESULTS_DIR),
+    ("svm_rbf_groupkfold", TASK1_RESULTS_DIR),
     ("pointnet", TASK2_RESULTS_DIR),
     ("pointnet_grouped", TASK2_RESULTS_DIR),
+    ("pointnet_groupkfold", TASK2_RESULTS_DIR),
 ]
 
 
@@ -952,6 +961,17 @@ def main():
         ("svm_linear_grouped", "svm_rbf_grouped"),
         ("knn_grouped", "pointnet_grouped"),
         ("svm_rbf_grouped", "pointnet_grouped"),
+        ("knn_groupkfold", "svm_linear_groupkfold"),
+        ("knn_groupkfold", "svm_rbf_groupkfold"),
+        ("svm_linear_groupkfold", "svm_rbf_groupkfold"),
+        ("knn_groupkfold", "pointnet_groupkfold"),
+        ("svm_rbf_groupkfold", "pointnet_groupkfold"),
+        # The two group-aware regimes score the same
+        # instances, so they are directly comparable: this
+        # asks whether stratifying the folds changes the
+        # result at all.
+        ("svm_rbf_grouped", "svm_rbf_groupkfold"),
+        ("pointnet_grouped", "pointnet_groupkfold"),
     ]
 
     mcnemar_results = []

@@ -1,0 +1,7 @@
+model,metric,class,n_instances,accuracy,ci_lower,ci_upper
+svm_linear_groupkfold,overall_accuracy,all,1109,0.842200180342651,0.8205590622182146,0.8638412984670875
+svm_linear_groupkfold,per_class_accuracy,box,475,0.9789473684210527,0.9662631578947369,0.9894736842105263
+svm_linear_groupkfold,per_class_accuracy,can,355,0.9915492957746479,0.9802816901408451,1.0
+svm_linear_groupkfold,per_class_accuracy,mug,89,0.33707865168539325,0.23595505617977527,0.43820224719101125
+svm_linear_groupkfold,per_class_accuracy,bottle,146,0.5205479452054794,0.43818493150684945,0.6027397260273972
+svm_linear_groupkfold,per_class_accuracy,bowl,44,0.25,0.11363636363636363,0.38636363636363635

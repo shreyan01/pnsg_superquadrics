@@ -1,0 +1,4 @@
+both_correct,a_correct_b_wrong,a_wrong_b_correct,both_wrong,statistic,p_value,model_a,model_b
+915,112,23,59,23.0,3.028830399743235e-15,knn,svm_linear
+940,87,18,64,18.0,4.946255984389221e-12,knn,svm_rbf
+923,15,35,136,15.0,0.006600447966810918,svm_linear,svm_rbf

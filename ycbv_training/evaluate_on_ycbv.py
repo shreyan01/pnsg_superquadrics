@@ -95,8 +95,12 @@ def _eval_one_frame(args_tuple):
                 graph = build_graph_from_segmentation(cloud, params_a, params_b, assignment,
                                                        color_features=color_features)
 
-            classify_fn = (_worker_registry.classify_graph_ensembled if scoring == 'ensembled'
-                           else _worker_registry.classify_graph)
+            if scoring == 'ml':
+                classify_fn = _worker_registry.classify_graph_ml
+            elif scoring == 'ensembled':
+                classify_fn = _worker_registry.classify_graph_ensembled
+            else:
+                classify_fn = _worker_registry.classify_graph
             ranked_full = classify_fn(graph, top_k=len(_worker_registry.graph_modes))
             ranked = ranked_full[:1]
             score_dict = dict(ranked_full)
@@ -115,13 +119,22 @@ def main():
     ap.add_argument('--max_frames', type=int, default=None)
     ap.add_argument('--max_nfev', type=int, default=1500)
     ap.add_argument('--workers', type=int, default=os.cpu_count())
-    ap.add_argument('--scoring', choices=['joint', 'ensembled'], default='joint',
+    ap.add_argument('--scoring', choices=['joint', 'ensembled', 'ml'], default='joint',
                      help='joint = current 7D combined scoring; ensembled = EXPERIMENTAL '
-                          'geometry-primary/color-bonus scoring')
+                          'geometry-primary/color-bonus scoring; ml = ExtraTreesClassifier '
+                          'trained on raw dominant-part exemplars (see registry.py header comment '
+                          'for real accuracy numbers behind this option). Requires a model file '
+                          'that was TRAINED after raw_examples was added to Mode -- older files '
+                          'will silently fall back to ensembled scoring (see classify_graph_ml).')
     args = ap.parse_args()
 
     reg = Registry.load(args.model)
     print(f'Loaded model: {list(reg.graph_modes.keys())}')
+    if args.scoring == 'ml' and getattr(reg, '_ml_classifier', None) is None:
+        print('WARNING: --scoring ml requested but this model has no ML classifier '
+              '(no raw_examples found, or sklearn missing). SILENTLY FALLING BACK to '
+              'ensembled scoring per-call -- results below are NOT the ml classifier. '
+              'Retrain with the current registry.py to populate raw_examples first.')
 
     frame_keys = read_split_file(args.dataset_root, args.split)
     if args.max_frames:

@@ -1,0 +1,6 @@
+,pred_box,pred_can,pred_mug,pred_bottle,pred_bowl
+true_box,464,0,4,7,0
+true_can,0,352,0,2,1
+true_mug,61,0,27,1,0
+true_bottle,63,0,1,81,1
+true_bowl,21,0,0,14,9

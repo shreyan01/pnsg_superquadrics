@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+
+# Virtual environment (also self-ignores via experiment/.gitignore)
+experiment/
+
+# Matplotlib/OS noise
+.DS_Store

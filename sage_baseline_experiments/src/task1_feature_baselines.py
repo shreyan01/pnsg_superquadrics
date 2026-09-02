@@ -1,10 +1,17 @@
+import sys
 from pathlib import Path
+
+# Allow these scripts to be launched from any working
+# directory (repo root or src/), not only from inside src/.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import numpy as np
 import pandas as pd
 
 from sklearn.model_selection import (
+    GroupKFold,
     StratifiedKFold,
+    StratifiedGroupKFold,
     cross_val_predict,
 )
 from sklearn.pipeline import Pipeline
@@ -12,7 +19,11 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 
-from data_utils import load_feature_data
+from data_utils import (
+    compute_object_groups,
+    load_feature_data,
+    load_pointcloud_data,
+)
 from evaluation import (
     LABEL_ORDER,
     print_evaluation_summary,
@@ -26,6 +37,48 @@ from evaluation import (
 
 RANDOM_STATE = 42
 N_SPLITS = 5
+
+# Size tolerance, in meters, used to group instances that
+# are almost certainly the same physical object seen in a
+# different video frame. See data_utils.compute_object_groups.
+GROUP_DISTANCE_THRESHOLD = 0.003
+
+# Three cross-validation regimes are run for every model.
+#
+# "random"     -- plain StratifiedKFold. The naive split, and
+#                 it leaks: the export contains one row per
+#                 object *per frame*, so near-identical views
+#                 of one physical object land in both the
+#                 train and the test fold.
+#
+# "grouped"    -- StratifiedGroupKFold over inferred object
+#                 identity. Every view of one object stays on
+#                 one side of the split, while fold class
+#                 balance is still enforced.
+#
+# "groupkfold" -- plain GroupKFold. Also keeps objects whole,
+#                 but does NOT stratify: folds are balanced by
+#                 size only, and whatever class mix falls out
+#                 is what you get.
+#
+# The third regime matters because stratifying uses the label
+# distribution to build the folds, which a real video-level
+# split cannot do -- you hold out whole videos and accept the
+# class mix that results. GroupKFold is therefore the closer
+# analogue of how SAGE's own 78.4% was measured, and the
+# honest headline number. StratifiedGroupKFold is kept as the
+# lower-variance estimate.
+SPLIT_MODES = [
+    "random",
+    "grouped",
+    "groupkfold",
+]
+
+# Regimes that need object identity passed to the splitter.
+GROUP_AWARE_MODES = {
+    "grouped",
+    "groupkfold",
+}
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -142,21 +195,80 @@ def create_models():
 # Cross-validation setup
 # ---------------------------------------------------------
 
-def create_cross_validation():
+def create_cross_validation(
+    split_mode="random",
+):
     """
-    Create one shared stratified 5-fold split.
+    Create the shared 5-fold splitter for one regime.
 
-    Shuffle is enabled so that folds are not dependent
-    on the original instance ordering.
+    Parameters
+    ----------
+    split_mode : {"random", "grouped", "groupkfold"}
+        "random" uses StratifiedKFold, which splits rows
+        independently and therefore leaks repeated views
+        of the same physical object across folds.
 
-    random_state makes the split reproducible.
+        "grouped" uses StratifiedGroupKFold: objects stay
+        whole and fold class balance is enforced.
+
+        "groupkfold" uses GroupKFold: objects stay whole
+        but folds are balanced by size only, so the class
+        mix per fold is whatever falls out.
+
+    Shuffle is enabled so folds do not depend on the
+    original instance ordering. random_state makes the
+    split reproducible.
     """
 
-    return StratifiedKFold(
-        n_splits=N_SPLITS,
-        shuffle=True,
-        random_state=RANDOM_STATE,
+    if split_mode == "random":
+
+        return StratifiedKFold(
+            n_splits=N_SPLITS,
+            shuffle=True,
+            random_state=RANDOM_STATE,
+        )
+
+    if split_mode == "grouped":
+
+        return StratifiedGroupKFold(
+            n_splits=N_SPLITS,
+            shuffle=True,
+            random_state=RANDOM_STATE,
+        )
+
+    if split_mode == "groupkfold":
+
+        return GroupKFold(
+            n_splits=N_SPLITS,
+            shuffle=True,
+            random_state=RANDOM_STATE,
+        )
+
+    raise ValueError(
+        f"Unknown split_mode: {split_mode}"
     )
+
+
+# ---------------------------------------------------------
+# Result naming
+# ---------------------------------------------------------
+
+def result_name(
+    model_name,
+    split_mode,
+):
+    """
+    Build the file/report name for one model under one
+    cross-validation regime.
+
+    The random-split names are left unsuffixed so that
+    files already consumed by Task 5 keep working.
+    """
+
+    if split_mode == "random":
+        return model_name
+
+    return f"{model_name}_{split_mode}"
 
 
 # ---------------------------------------------------------
@@ -169,6 +281,7 @@ def evaluate_model(
     X,
     y,
     cv,
+    groups=None,
 ):
     """
     Generate out-of-fold predictions for one classifier.
@@ -191,7 +304,11 @@ def evaluate_model(
         Ground-truth labels.
 
     cv : cross-validation splitter
-        Shared StratifiedKFold object.
+        Shared fold generator.
+
+    groups : np.ndarray, optional
+        Object-identity group per instance. Required by
+        StratifiedGroupKFold, ignored by StratifiedKFold.
 
     Returns
     -------
@@ -207,6 +324,7 @@ def evaluate_model(
         estimator=model,
         X=X,
         y=y,
+        groups=groups,
         cv=cv,
         method="predict",
         n_jobs=-1,
@@ -258,6 +376,8 @@ def create_combined_summary():
         ),
     }
 
+    sage_row["split"] = "video_level"
+
     rows.append(sage_row)
 
     # -----------------------------------------------------
@@ -270,22 +390,25 @@ def create_combined_summary():
         "svm_rbf",
     ]
 
-    for model_name in model_names:
+    for split_mode in SPLIT_MODES:
 
-        metric_file = (
-            RESULTS_DIR
-            / f"{model_name}_metrics.csv"
-        )
+        for model_name in model_names:
 
-        if not metric_file.exists():
-            continue
-
-        df = pd.read_csv(metric_file)
-
-        if len(df) > 0:
-            rows.append(
-                df.iloc[0].to_dict()
+            metric_file = (
+                RESULTS_DIR
+                / f"{result_name(model_name, split_mode)}"
+                  f"_metrics.csv"
             )
+
+            if not metric_file.exists():
+                continue
+
+            df = pd.read_csv(metric_file)
+
+            if len(df) > 0:
+                row = df.iloc[0].to_dict()
+                row["split"] = split_mode
+                rows.append(row)
 
     summary_df = pd.DataFrame(rows)
 
@@ -333,7 +456,7 @@ def print_comparison_table(summary_df):
             )
 
     print("\n" + "=" * 90)
-    print("TASK 1 — SAME-FEATURE BASELINE COMPARISON")
+    print("TASK 1 - SAME-FEATURE BASELINE COMPARISON")
     print("=" * 90)
 
     print(
@@ -351,7 +474,7 @@ def print_comparison_table(summary_df):
 def main():
 
     print("\n" + "=" * 70)
-    print("TASK 1 — SAME-FEATURE BASELINES")
+    print("TASK 1 - SAME-FEATURE BASELINES")
     print("=" * 70)
 
     # -----------------------------------------------------
@@ -396,18 +519,42 @@ def main():
     )
 
     # -----------------------------------------------------
-    # Shared cross-validation
+    # Object-identity groups
     # -----------------------------------------------------
 
-    cv = create_cross_validation()
+    # The exported rows are per object *per frame*, so the
+    # same physical object appears many times. Grouping is
+    # what keeps a random split from leaking those repeats
+    # across folds.
 
     print(
-        f"\nCross-validation: "
-        f"{N_SPLITS}-fold StratifiedKFold"
+        "\nInferring object-identity groups "
+        "from point-cloud extents..."
+    )
+
+    clouds, cloud_labels = load_pointcloud_data()
+
+    if not np.array_equal(
+        np.asarray(cloud_labels),
+        np.asarray(y),
+    ):
+        raise ValueError(
+            "Feature and point-cloud exports are not in "
+            "the same instance order, so groups cannot "
+            "be aligned to the feature matrix."
+        )
+
+    groups = compute_object_groups(
+        clouds,
+        distance_threshold=(
+            GROUP_DISTANCE_THRESHOLD
+        ),
     )
 
     print(
-        f"Random state: {RANDOM_STATE}"
+        f"Distinct object groups: "
+        f"{len(np.unique(groups))} "
+        f"(from {len(y)} instances)"
     )
 
     # -----------------------------------------------------
@@ -417,46 +564,80 @@ def main():
     models = create_models()
 
     # -----------------------------------------------------
-    # Run all models
+    # Run all models under both CV regimes
     # -----------------------------------------------------
 
-    for model_name, model in models.items():
+    for split_mode in SPLIT_MODES:
 
-        y_pred = evaluate_model(
-            model_name=model_name,
-            model=model,
-            X=X,
-            y=y,
-            cv=cv,
+        cv = create_cross_validation(
+            split_mode
         )
 
-        # -----------------------------------------------
-        # Print results
-        # -----------------------------------------------
+        print("\n" + "#" * 70)
 
-        print_evaluation_summary(
-            model_name,
-            y,
-            y_pred,
+        print(
+            f"CROSS-VALIDATION REGIME: "
+            f"{split_mode.upper()}"
         )
 
-        # -----------------------------------------------
-        # Save results
-        # -----------------------------------------------
+        print("#" * 70)
 
-        saved_files = save_evaluation_results(
-            model_name=model_name,
-            y_true=y,
-            y_pred=y_pred,
-            output_dir=RESULTS_DIR,
+        print(
+            f"\n{N_SPLITS}-fold "
+            f"{type(cv).__name__}"
         )
 
-        print("\nSaved files:")
+        print(
+            f"Random state: {RANDOM_STATE}"
+        )
 
-        for result_type, path in saved_files.items():
-            print(
-                f"{result_type:25s}: {path}"
+        for model_name, model in models.items():
+
+            report_name = result_name(
+                model_name,
+                split_mode,
             )
+
+            y_pred = evaluate_model(
+                model_name=report_name,
+                model=model,
+                X=X,
+                y=y,
+                cv=cv,
+                groups=(
+                    groups
+                    if split_mode in GROUP_AWARE_MODES
+                    else None
+                ),
+            )
+
+            # -------------------------------------------
+            # Print results
+            # -------------------------------------------
+
+            print_evaluation_summary(
+                report_name,
+                y,
+                y_pred,
+            )
+
+            # -------------------------------------------
+            # Save results
+            # -------------------------------------------
+
+            saved_files = save_evaluation_results(
+                model_name=report_name,
+                y_true=y,
+                y_pred=y_pred,
+                output_dir=RESULTS_DIR,
+            )
+
+            print("\nSaved files:")
+
+            for result_type, path in saved_files.items():
+                print(
+                    f"{result_type:25s}: {path}"
+                )
 
     # -----------------------------------------------------
     # SAGE vs baselines

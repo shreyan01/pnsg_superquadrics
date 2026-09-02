@@ -1,4 +1,9 @@
+import sys
 from pathlib import Path
+
+# Allow these scripts to be launched from any working
+# directory (repo root or src/), not only from inside src/.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import matplotlib.pyplot as plt
 import numpy as np

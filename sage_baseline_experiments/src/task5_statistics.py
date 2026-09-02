@@ -1,8 +1,14 @@
-
+import sys
 from pathlib import Path
+
+# Allow these scripts to be launched from any working
+# directory (repo root or src/), not only from inside src/.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import numpy as np
 import pandas as pd
+
+from scipy.stats import fisher_exact
 
 from statsmodels.stats.contingency_tables import mcnemar
 
@@ -25,11 +31,75 @@ TASK1_RESULTS_DIR = (
     / "task1"
 )
 
+TASK2_RESULTS_DIR = (
+    PROJECT_ROOT
+    / "results"
+    / "task2"
+)
+
 TASK5_RESULTS_DIR = (
     PROJECT_ROOT
     / "results"
     / "task5"
 )
+
+
+# ---------------------------------------------------------
+# Which prediction files to analyse
+# ---------------------------------------------------------
+
+# Every headline number in Tasks 1 and 2 gets a confidence
+# interval, under all three cross-validation regimes, so the
+# leakage gap is visible with uncertainty attached rather
+# than as bare point estimates.
+#
+#   <name>             -- StratifiedKFold      (random, leaky)
+#   <name>_grouped     -- StratifiedGroupKFold (objects whole)
+#   <name>_groupkfold  -- GroupKFold           (objects whole,
+#                                               unstratified)
+MODEL_SPECS = [
+    ("knn", TASK1_RESULTS_DIR),
+    ("svm_linear", TASK1_RESULTS_DIR),
+    ("svm_rbf", TASK1_RESULTS_DIR),
+    ("knn_grouped", TASK1_RESULTS_DIR),
+    ("svm_linear_grouped", TASK1_RESULTS_DIR),
+    ("svm_rbf_grouped", TASK1_RESULTS_DIR),
+    ("knn_groupkfold", TASK1_RESULTS_DIR),
+    ("svm_linear_groupkfold", TASK1_RESULTS_DIR),
+    ("svm_rbf_groupkfold", TASK1_RESULTS_DIR),
+    ("pointnet", TASK2_RESULTS_DIR),
+    ("pointnet_grouped", TASK2_RESULTS_DIR),
+    ("pointnet_groupkfold", TASK2_RESULTS_DIR),
+]
+
+
+# ---------------------------------------------------------
+# SAGE reported per-class results
+# ---------------------------------------------------------
+
+# SAGE's own locked numbers, from the co-author guide. We
+# have no instance-level SAGE predictions, only these rates
+# and the class supports, so the correct/incorrect counts
+# below are reconstructed by rounding rate * support to the
+# nearest integer. That is exact enough for a test whose
+# p-value lands many orders of magnitude from 0.05, but the
+# counts are reconstructed, not measured -- worth restating
+# if this ends up in a paper.
+SAGE_PER_CLASS = {
+    "box": 0.947,
+    "can": 0.949,
+    "mug": 0.326,
+    "bottle": 0.315,
+    "bowl": 0.182,
+}
+
+CLASS_SUPPORT = {
+    "box": 475,
+    "can": 355,
+    "mug": 89,
+    "bottle": 146,
+    "bowl": 44,
+}
 
 
 # ---------------------------------------------------------
@@ -436,25 +506,221 @@ def run_mcnemar_test(
 
 
 # ---------------------------------------------------------
+# Can vs bottle: two independent proportions
+# ---------------------------------------------------------
+
+def run_two_proportion_test(
+    n_correct_a,
+    n_total_a,
+    n_correct_b,
+    n_total_b,
+    label_a="can",
+    label_b="bottle",
+    rng=None,
+):
+    """
+    Test whether two *independent* groups are classified
+    at different rates.
+
+    Why not McNemar
+    ---------------
+    McNemar's test is the right tool for two classifiers
+    scored on the same instances: it conditions on the
+    discordant pairs, and pairing is what gives it its
+    power. Cans and bottles are different objects, so
+    there are no pairs to condition on and McNemar simply
+    does not apply.
+
+    The can-vs-bottle question in the guide is really
+    "does the axisymmetric fitting path succeed at a
+    higher rate than the flexible one?", which is a
+    comparison of two independent binomial proportions.
+    Fisher's exact test answers exactly that, without the
+    large-sample approximation a chi-square would need for
+    the smaller bottle group.
+
+    A bootstrap interval on the difference in rates is
+    reported alongside the p-value, because the effect
+    size is the part that actually matters here.
+
+    Returns
+    -------
+    dict
+        Counts, rates, difference with CI, odds ratio and
+        two-sided p-value.
+    """
+
+    if rng is None:
+        rng = np.random.default_rng(RANDOM_STATE)
+
+    n_wrong_a = n_total_a - n_correct_a
+    n_wrong_b = n_total_b - n_correct_b
+
+    #            correct      wrong
+    # group A    n_correct_a  n_wrong_a
+    # group B    n_correct_b  n_wrong_b
+    table = [
+        [int(n_correct_a), int(n_wrong_a)],
+        [int(n_correct_b), int(n_wrong_b)],
+    ]
+
+    odds_ratio, p_value = fisher_exact(
+        table,
+        alternative="two-sided",
+    )
+
+    rate_a = n_correct_a / n_total_a
+    rate_b = n_correct_b / n_total_b
+
+    # Bootstrap the difference by resampling each group
+    # independently, which is what "independent groups"
+    # means operationally.
+    outcomes_a = np.zeros(n_total_a, dtype=int)
+    outcomes_a[: int(n_correct_a)] = 1
+
+    outcomes_b = np.zeros(n_total_b, dtype=int)
+    outcomes_b[: int(n_correct_b)] = 1
+
+    differences = np.empty(N_BOOTSTRAP)
+
+    for index in range(N_BOOTSTRAP):
+
+        sample_a = rng.choice(
+            outcomes_a,
+            size=n_total_a,
+            replace=True,
+        )
+
+        sample_b = rng.choice(
+            outcomes_b,
+            size=n_total_b,
+            replace=True,
+        )
+
+        differences[index] = (
+            sample_a.mean()
+            - sample_b.mean()
+        )
+
+    alpha = 1.0 - CONFIDENCE_LEVEL
+
+    lower, upper = np.percentile(
+        differences,
+        [
+            100 * (alpha / 2),
+            100 * (1 - alpha / 2),
+        ],
+    )
+
+    return {
+        "group_a": label_a,
+        "group_b": label_b,
+        "n_total_a": int(n_total_a),
+        "n_correct_a": int(n_correct_a),
+        "accuracy_a": rate_a,
+        "n_total_b": int(n_total_b),
+        "n_correct_b": int(n_correct_b),
+        "accuracy_b": rate_b,
+        "difference": rate_a - rate_b,
+        "difference_ci_lower": lower,
+        "difference_ci_upper": upper,
+        "odds_ratio": float(odds_ratio),
+        "p_value": float(p_value),
+        "test": "fisher_exact_two_sided",
+    }
+
+
+def can_vs_bottle_from_predictions(
+    model_name,
+    prediction_file,
+    rng=None,
+):
+    """
+    Run the can-vs-bottle comparison from one model's
+    saved instance-level predictions.
+    """
+
+    predictions = pd.read_csv(prediction_file)
+
+    y_true = predictions["true_label"].to_numpy()
+    y_pred = predictions["predicted_label"].to_numpy()
+
+    correct = y_pred == y_true
+
+    can_mask = y_true == "can"
+    bottle_mask = y_true == "bottle"
+
+    result = run_two_proportion_test(
+        n_correct_a=int(correct[can_mask].sum()),
+        n_total_a=int(can_mask.sum()),
+        n_correct_b=int(correct[bottle_mask].sum()),
+        n_total_b=int(bottle_mask.sum()),
+        rng=rng,
+    )
+
+    result["model"] = model_name
+
+    return result
+
+
+def can_vs_bottle_for_sage(rng=None):
+    """
+    Run the same comparison on SAGE's own reported rates.
+
+    This is the version the guide actually asks about: it
+    tests whether SAGE's axisymmetric-fitting result on
+    cans really is better than its flexible-fitting result
+    on bottles, rather than a fluke of a modest held-out
+    set. Counts are reconstructed from the reported
+    percentages -- see SAGE_PER_CLASS.
+    """
+
+    result = run_two_proportion_test(
+        n_correct_a=round(
+            SAGE_PER_CLASS["can"]
+            * CLASS_SUPPORT["can"]
+        ),
+        n_total_a=CLASS_SUPPORT["can"],
+        n_correct_b=round(
+            SAGE_PER_CLASS["bottle"]
+            * CLASS_SUPPORT["bottle"]
+        ),
+        n_total_b=CLASS_SUPPORT["bottle"],
+        rng=rng,
+    )
+
+    result["model"] = "SAGE (reconstructed counts)"
+
+    return result
+
+
+# ---------------------------------------------------------
 # Pairwise classifier comparison
 # ---------------------------------------------------------
 
 def compare_saved_models(
     model_a,
     model_b,
+    dir_a=TASK1_RESULTS_DIR,
+    dir_b=TASK1_RESULTS_DIR,
 ):
     """
     Run McNemar's test between two learned baseline
-    classifiers using their saved Task 1 predictions.
+    classifiers using their saved instance-level
+    predictions.
+
+    Both models must have been evaluated on the same
+    instances in the same order, which every out-of-fold
+    prediction file in this project satisfies.
     """
 
     file_a = (
-        TASK1_RESULTS_DIR
+        dir_a
         / f"{model_a}_predictions.csv"
     )
 
     file_b = (
-        TASK1_RESULTS_DIR
+        dir_b
         / f"{model_b}_predictions.csv"
     )
 
@@ -547,7 +813,7 @@ def format_ci(
 def main():
 
     print("\n" + "=" * 70)
-    print("TASK 5 — STATISTICAL RIGOR")
+    print("TASK 5 - STATISTICAL RIGOR")
     print("=" * 70)
 
     TASK5_RESULTS_DIR.mkdir(
@@ -555,22 +821,30 @@ def main():
         exist_ok=True,
     )
 
-    models = [
-        "knn",
-        "svm_linear",
-        "svm_rbf",
-    ]
+    rng = np.random.default_rng(RANDOM_STATE)
 
     all_bootstrap_results = []
+
+    available_models = []
 
     # -----------------------------------------------------
     # Bootstrap confidence intervals
     # -----------------------------------------------------
 
-    for model_name in models:
+    print("\n" + "=" * 70)
+    print("BOOTSTRAP CONFIDENCE INTERVALS")
+    print("=" * 70)
+
+    print(
+        f"\n{N_BOOTSTRAP} resamples, "
+        f"{CONFIDENCE_LEVEL * 100:.0f}% percentile "
+        f"intervals."
+    )
+
+    for model_name, results_dir in MODEL_SPECS:
 
         prediction_file = (
-            TASK1_RESULTS_DIR
+            results_dir
             / f"{model_name}_predictions.csv"
         )
 
@@ -583,9 +857,11 @@ def main():
 
             continue
 
-        print(
-            f"\nBootstrapping: {model_name}"
+        available_models.append(
+            (model_name, results_dir)
         )
+
+        print(f"\nBootstrapping: {model_name}")
 
         model_results = (
             calculate_model_bootstrap_results(
@@ -594,33 +870,19 @@ def main():
             )
         )
 
-        all_bootstrap_results.append(
-            model_results
-        )
-
-        # Individual model file
-        output_file = (
-            TASK5_RESULTS_DIR
-            / (
-                f"{model_name}_"
-                f"bootstrap_ci.csv"
-            )
-        )
+        all_bootstrap_results.append(model_results)
 
         model_results.to_csv(
-            output_file,
+            TASK5_RESULTS_DIR
+            / f"{model_name}_bootstrap_ci.csv",
             index=False,
         )
 
-        print("\nOverall accuracy:")
+        overall_row = model_results[
+            model_results["class"] == "all"
+        ].iloc[0]
 
-        overall_row = (
-            model_results[
-                model_results["class"]
-                == "all"
-            ]
-            .iloc[0]
-        )
+        print("\nOverall accuracy:")
 
         print(
             format_ci(
@@ -630,27 +892,19 @@ def main():
             )
         )
 
-        print(
-            "\nPer-class accuracy:"
-        )
+        print("\nPer-class accuracy:")
 
         class_rows = model_results[
-            model_results["class"]
-            != "all"
+            model_results["class"] != "all"
         ]
 
         for _, row in class_rows.iterrows():
 
-            formatted_result = format_ci(
-                row["accuracy"],
-                row["ci_lower"],
-                row["ci_upper"],
-                    )
-
             print(
                 f"{row['class']:10s}: "
-                f"{formatted_result}"
-                )
+                f"{format_ci(row['accuracy'], row['ci_lower'], row['ci_upper'])}"
+            )
+
     # -----------------------------------------------------
     # Save combined bootstrap table
     # -----------------------------------------------------
@@ -676,55 +930,70 @@ def main():
             "\nCombined bootstrap results saved to:"
         )
 
-        print(
-            combined_path
-        )
+        print(combined_path)
 
     # -----------------------------------------------------
-    # Pairwise McNemar tests between learned models
+    # Paired classifier comparisons (McNemar)
     # -----------------------------------------------------
 
-    comparisons = [
-        (
-            "knn",
-            "svm_linear",
-        ),
-        (
-            "knn",
-            "svm_rbf",
-        ),
-        (
-            "svm_linear",
-            "svm_rbf",
-        ),
+    print("\n" + "=" * 70)
+    print("PAIRED CLASSIFIER COMPARISONS (McNEMAR)")
+    print("=" * 70)
+
+    print(
+        "\nMcNemar is valid here because both members of "
+        "each pair predict the same instances."
+    )
+
+    model_dirs = dict(available_models)
+
+    # Within-regime comparisons only. Comparing a random-split
+    # model against a grouped-split one would confound the
+    # model difference with the split difference.
+    candidate_comparisons = [
+        ("knn", "svm_linear"),
+        ("knn", "svm_rbf"),
+        ("svm_linear", "svm_rbf"),
+        ("knn", "pointnet"),
+        ("svm_rbf", "pointnet"),
+        ("knn_grouped", "svm_linear_grouped"),
+        ("knn_grouped", "svm_rbf_grouped"),
+        ("svm_linear_grouped", "svm_rbf_grouped"),
+        ("knn_grouped", "pointnet_grouped"),
+        ("svm_rbf_grouped", "pointnet_grouped"),
+        ("knn_groupkfold", "svm_linear_groupkfold"),
+        ("knn_groupkfold", "svm_rbf_groupkfold"),
+        ("svm_linear_groupkfold", "svm_rbf_groupkfold"),
+        ("knn_groupkfold", "pointnet_groupkfold"),
+        ("svm_rbf_groupkfold", "pointnet_groupkfold"),
+        # The two group-aware regimes score the same
+        # instances, so they are directly comparable: this
+        # asks whether stratifying the folds changes the
+        # result at all.
+        ("svm_rbf_grouped", "svm_rbf_groupkfold"),
+        ("pointnet_grouped", "pointnet_groupkfold"),
     ]
 
     mcnemar_results = []
 
-    print(
-        "\n" + "=" * 70
-    )
-    print(
-        "PAIRED CLASSIFIER COMPARISONS"
-    )
-    print(
-        "=" * 70
-    )
+    for model_a, model_b in candidate_comparisons:
 
-    for model_a, model_b in comparisons:
+        if (
+            model_a not in model_dirs
+            or model_b not in model_dirs
+        ):
+            continue
 
         result = compare_saved_models(
             model_a,
             model_b,
+            dir_a=model_dirs[model_a],
+            dir_b=model_dirs[model_b],
         )
 
-        mcnemar_results.append(
-            result
-        )
+        mcnemar_results.append(result)
 
-        print(
-            f"\n{model_a} vs {model_b}"
-        )
+        print(f"\n{model_a} vs {model_b}")
 
         print(
             f"A correct / B wrong: "
@@ -742,77 +1011,128 @@ def main():
         )
 
         print(
-            f"p-value: "
-            f"{result['p_value']:.6g}"
+            f"p-value: {result['p_value']:.6g}"
         )
 
-    mcnemar_df = pd.DataFrame(
-        mcnemar_results
+    if mcnemar_results:
+
+        mcnemar_path = (
+            TASK5_RESULTS_DIR
+            / "mcnemar_model_comparisons.csv"
+        )
+
+        pd.DataFrame(mcnemar_results).to_csv(
+            mcnemar_path,
+            index=False,
+        )
+
+        print(
+            f"\nMcNemar results saved to:\n{mcnemar_path}"
+        )
+
+    # -----------------------------------------------------
+    # Can vs bottle fitting-strategy comparison
+    # -----------------------------------------------------
+
+    print("\n" + "=" * 70)
+    print("CAN VS BOTTLE FITTING-STRATEGY COMPARISON")
+    print("=" * 70)
+
+    print(
+        "\nCans and bottles are different objects, so this "
+        "is a comparison of two independent proportions, "
+        "not a paired one."
     )
 
-    mcnemar_path = (
+    print(
+        "McNemar's test does not apply; Fisher's exact "
+        "test does. See run_two_proportion_test."
+    )
+
+    can_bottle_results = [
+        can_vs_bottle_for_sage(rng=rng)
+    ]
+
+    for model_name, results_dir in available_models:
+
+        can_bottle_results.append(
+            can_vs_bottle_from_predictions(
+                model_name,
+                results_dir
+                / f"{model_name}_predictions.csv",
+                rng=rng,
+            )
+        )
+
+    can_bottle_df = pd.DataFrame(can_bottle_results)
+
+    column_order = [
+        "model",
+        "group_a",
+        "n_correct_a",
+        "n_total_a",
+        "accuracy_a",
+        "group_b",
+        "n_correct_b",
+        "n_total_b",
+        "accuracy_b",
+        "difference",
+        "difference_ci_lower",
+        "difference_ci_upper",
+        "odds_ratio",
+        "p_value",
+        "test",
+    ]
+
+    can_bottle_df = can_bottle_df[column_order]
+
+    can_bottle_path = (
         TASK5_RESULTS_DIR
-        / "mcnemar_model_comparisons.csv"
+        / "can_vs_bottle_tests.csv"
     )
 
-    mcnemar_df.to_csv(
-        mcnemar_path,
+    can_bottle_df.to_csv(
+        can_bottle_path,
         index=False,
     )
 
-    print(
-        "\nMcNemar results saved to:"
-    )
+    for _, row in can_bottle_df.iterrows():
+
+        print(f"\n{row['model']}")
+
+        print(
+            f"  can    : {row['n_correct_a']:4d}/"
+            f"{row['n_total_a']:4d} = "
+            f"{row['accuracy_a'] * 100:6.2f}%"
+        )
+
+        print(
+            f"  bottle : {row['n_correct_b']:4d}/"
+            f"{row['n_total_b']:4d} = "
+            f"{row['accuracy_b'] * 100:6.2f}%"
+        )
+
+        print(
+            f"  difference: "
+            f"{row['difference'] * 100:+.2f} pp "
+            f"[{row['difference_ci_lower'] * 100:+.2f}, "
+            f"{row['difference_ci_upper'] * 100:+.2f}]"
+        )
+
+        print(
+            f"  Fisher exact p = {row['p_value']:.4g}"
+            f"  (odds ratio {row['odds_ratio']:.2f})"
+        )
 
     print(
-        mcnemar_path
+        f"\nCan/bottle results saved to:\n"
+        f"{can_bottle_path}"
     )
 
-    # -----------------------------------------------------
-    # Methodological warning
-    # -----------------------------------------------------
-
-    print(
-        "\n" + "=" * 70
-    )
-    print(
-        "CAN VS BOTTLE SIGNIFICANCE TEST"
-    )
-    print(
-        "=" * 70
-    )
-
-    print(
-        "\nNot run yet."
-    )
-
-    print(
-        "McNemar's test requires paired predictions "
-        "from two methods on the same instances."
-    )
-
-    print(
-        "Can and bottle class accuracies alone are "
-        "based on different object instances."
-    )
-
-    print(
-        "We therefore need the intended paired SAGE "
-        "fitting-strategy predictions before running "
-        "that requested test."
-    )
-
-    print(
-        "\n" + "=" * 70
-    )
-    print(
-        "TASK 5 COMPLETE"
-    )
-    print(
-        "=" * 70
-    )
+    print("\n" + "=" * 70)
+    print("TASK 5 COMPLETE")
+    print("=" * 70)
 
 
 if __name__ == "__main__":
     main()
-

@@ -1,4 +1,9 @@
+import sys
 from pathlib import Path
+
+# Allow these scripts to be launched from any working
+# directory (repo root or src/), not only from inside src/.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import numpy as np
 import pandas as pd
@@ -6,9 +11,16 @@ import matplotlib.pyplot as plt
 
 import torch
 
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import (
+    GroupKFold,
+    StratifiedKFold,
+    StratifiedGroupKFold,
+)
 
-from data_utils import load_pointcloud_data
+from data_utils import (
+    compute_object_groups,
+    load_pointcloud_data,
+)
 
 from evaluation import (
     LABEL_ORDER,
@@ -20,6 +32,10 @@ from task2_pointnet import (
     SmallPointNet,
     LABEL_TO_INDEX,
     INDEX_TO_LABEL,
+    GROUP_DISTANCE_THRESHOLD,
+    MODEL_NAME,
+    SPLIT_MODES,
+    result_name,
 )
 
 
@@ -32,6 +48,18 @@ RANDOM_STATE = 42
 N_SPLITS = 5
 
 BASE_NUM_POINTS = 1024
+
+# Task 4 reuses the fold models Task 2 trained, so it has to
+# reuse Task 2's fold assignment too: each object is only ever
+# scored by the model that held it out.
+#
+# Both CV regimes are swept for the same reason as in Tasks 1
+# and 2. The random-split curve is the one to be careful with:
+# those models saw other frames of every test object during
+# training, so what it measures is partly how well degradation
+# preserves a memorised object, not how well the model
+# generalises under degradation. The grouped-split curve is
+# the one to quote.
 
 
 # ---------------------------------------------------------
@@ -123,14 +151,20 @@ def get_device():
 def load_fold_model(
     fold_number,
     device,
+    split_mode="random",
 ):
     """
     Load one PointNet model produced by Task 2.
+
+    split_mode selects which family of checkpoints to
+    read, so the robustness sweep is always run against
+    models trained under the matching CV regime.
     """
 
     model_path = (
         MODEL_DIR
-        / f"pointnet_fold_{fold_number}.pt"
+        / f"{result_name(MODEL_NAME, split_mode)}"
+          f"_fold_{fold_number}.pt"
     )
 
     if not model_path.exists():
@@ -434,13 +468,19 @@ def evaluate_condition(
     device,
     num_points,
     noise_sigma,
+    split_mode="random",
+    groups=None,
 ):
     """
     Evaluate all five PointNet fold models under
     one degradation condition.
 
     Each object is evaluated only by the model whose
-    fold held that object out during Task 2 training.
+    fold held that object out during Task 2 training,
+    so the splitter here must be constructed exactly as
+    Task 2 constructed it -- same class, same seed, same
+    groups -- or objects get scored by a model that was
+    trained on them.
     """
 
     number_instances = len(
@@ -460,11 +500,43 @@ def evaluate_condition(
         dtype=int,
     )
 
-    cv = StratifiedKFold(
-        n_splits=N_SPLITS,
-        shuffle=True,
-        random_state=RANDOM_STATE,
-    )
+    if split_mode == "random":
+
+        cv = StratifiedKFold(
+            n_splits=N_SPLITS,
+            shuffle=True,
+            random_state=RANDOM_STATE,
+        )
+
+        split_groups = None
+
+    elif split_mode in ("grouped", "groupkfold"):
+
+        if groups is None:
+            raise ValueError(
+                f"Split mode {split_mode!r} needs "
+                f"object groups."
+            )
+
+        splitter = (
+            StratifiedGroupKFold
+            if split_mode == "grouped"
+            else GroupKFold
+        )
+
+        cv = splitter(
+            n_splits=N_SPLITS,
+            shuffle=True,
+            random_state=RANDOM_STATE,
+        )
+
+        split_groups = groups
+
+    else:
+
+        raise ValueError(
+            f"Unknown split_mode: {split_mode}"
+        )
 
     for fold_number, (
         train_indices,
@@ -475,6 +547,7 @@ def evaluate_condition(
                 number_instances
             ),
             labels,
+            groups=split_groups,
         ),
         start=1,
     ):
@@ -487,6 +560,7 @@ def evaluate_condition(
         model = load_fold_model(
             fold_number,
             device,
+            split_mode=split_mode,
         )
 
         (
@@ -510,7 +584,7 @@ def evaluate_condition(
             instance_ids
         ] = fold_number
 
-        print(" ✓")
+        print(" ok")
 
         # Free GPU memory between folds
         del model
@@ -596,6 +670,8 @@ def run_point_count_experiment(
     clouds,
     labels,
     device,
+    split_mode="random",
+    groups=None,
 ):
     """
     Evaluate PointNet as the number of input points
@@ -608,7 +684,7 @@ def run_point_count_experiment(
     )
 
     print(
-        "TASK 4A — POINT-COUNT ROBUSTNESS"
+        "TASK 4A - POINT-COUNT ROBUSTNESS"
     )
 
     print(
@@ -637,6 +713,8 @@ def run_point_count_experiment(
             device=device,
             num_points=point_count,
             noise_sigma=0.0,
+            split_mode=split_mode,
+            groups=groups,
         )
 
         metrics = (
@@ -722,12 +800,12 @@ def run_point_count_experiment(
 
     metric_path = (
         RESULTS_DIR
-        / "point_count_robustness.csv"
+        / f"point_count_robustness_{split_mode}.csv"
     )
 
     prediction_path = (
         RESULTS_DIR
-        / "point_count_predictions.csv"
+        / f"point_count_predictions_{split_mode}.csv"
     )
 
     metric_df.to_csv(
@@ -751,6 +829,8 @@ def run_noise_experiment(
     clouds,
     labels,
     device,
+    split_mode="random",
+    groups=None,
 ):
     """
     Evaluate PointNet under increasing Gaussian
@@ -763,7 +843,7 @@ def run_noise_experiment(
     )
 
     print(
-        "TASK 4B — GAUSSIAN-NOISE ROBUSTNESS"
+        "TASK 4B - GAUSSIAN-NOISE ROBUSTNESS"
     )
 
     print(
@@ -793,6 +873,8 @@ def run_noise_experiment(
             device=device,
             num_points=BASE_NUM_POINTS,
             noise_sigma=sigma,
+            split_mode=split_mode,
+            groups=groups,
         )
 
         metrics = (
@@ -883,12 +965,12 @@ def run_noise_experiment(
 
     metric_path = (
         RESULTS_DIR
-        / "noise_robustness.csv"
+        / f"noise_robustness_{split_mode}.csv"
     )
 
     prediction_path = (
         RESULTS_DIR
-        / "noise_predictions.csv"
+        / f"noise_predictions_{split_mode}.csv"
     )
 
     metric_df.to_csv(
@@ -905,70 +987,79 @@ def run_noise_experiment(
 
 
 # =========================================================
-# 11. POINT-COUNT PLOT
+# 11. DEGRADATION CURVES
 # =========================================================
 
-def plot_point_count_curve(
-    dataframe,
+def plot_degradation_curve(
+    curves,
+    x_column,
+    x_label,
+    title,
+    output_path,
+    invert_x=False,
 ):
     """
-    Plot accuracy versus number of input points.
+    Plot one accuracy-vs-degradation curve per CV regime
+    on a shared axis.
+
+    Drawing both regimes together is the point: the gap
+    between them is the part of the "robustness" that is
+    really just the random-split models recognising
+    objects they were trained on.
+
+    Parameters
+    ----------
+    curves : dict
+        Mapping from split_mode to its metrics DataFrame.
+
+    x_column : str
+        Column holding the degradation level.
+
+    x_label, title : str
+        Axis and figure labels.
+
+    output_path : Path
+        Where to save the figure.
+
+    invert_x : bool
+        Draw the x axis high-to-low, for point counts
+        where "worse" means fewer points.
     """
 
-    dataframe = (
-        dataframe
-        .sort_values(
-            "point_count"
+    fig, ax = plt.subplots(figsize=(7.5, 5))
+
+    for split_mode, dataframe in curves.items():
+
+        if dataframe is None or dataframe.empty:
+            continue
+
+        dataframe = dataframe.sort_values(x_column)
+
+        ax.plot(
+            dataframe[x_column],
+            dataframe["overall_accuracy"] * 100,
+            marker="o",
+            label=f"{split_mode} split",
         )
-    )
 
-    x = dataframe[
-        "point_count"
-    ]
+    ax.set_xlabel(x_label)
+    ax.set_ylabel("Accuracy (%)")
+    ax.set_title(title)
 
-    y = (
-        dataframe[
-            "overall_accuracy"
-        ]
-        * 100
-    )
+    ax.set_ylim(0, 100)
+    ax.grid(alpha=0.25)
+    ax.legend()
 
-    fig, ax = plt.subplots(
-        figsize=(7, 5)
-    )
-
-    ax.plot(
-        x,
-        y,
-        marker="o",
-    )
-
-    ax.set_xlabel(
-        "Number of input points"
-    )
-
-    ax.set_ylabel(
-        "Accuracy (%)"
-    )
-
-    ax.set_title(
-        "PointNet Robustness to Point-Cloud Downsampling"
-    )
-
-    ax.set_ylim(
-        0,
-        100,
-    )
-
-    ax.grid(
-        alpha=0.25
-    )
+    if invert_x:
+        ax.invert_xaxis()
 
     fig.tight_layout()
 
-    output_path = (
-        FIGURES_DIR
-        / "accuracy_vs_point_count.png"
+    output_path = Path(output_path)
+
+    output_path.parent.mkdir(
+        parents=True,
+        exist_ok=True,
     )
 
     fig.savefig(
@@ -981,101 +1072,28 @@ def plot_point_count_curve(
 
 
 # =========================================================
-# 12. NOISE PLOT
-# =========================================================
-
-def plot_noise_curve(
-    dataframe,
-):
-    """
-    Plot accuracy versus Gaussian noise sigma.
-    """
-
-    dataframe = (
-        dataframe
-        .sort_values(
-            "noise_sigma_mm"
-        )
-    )
-
-    x = dataframe[
-        "noise_sigma_mm"
-    ]
-
-    y = (
-        dataframe[
-            "overall_accuracy"
-        ]
-        * 100
-    )
-
-    fig, ax = plt.subplots(
-        figsize=(7, 5)
-    )
-
-    ax.plot(
-        x,
-        y,
-        marker="o",
-    )
-
-    ax.set_xlabel(
-        "Gaussian noise σ (mm)"
-    )
-
-    ax.set_ylabel(
-        "Accuracy (%)"
-    )
-
-    ax.set_title(
-        "PointNet Robustness to Gaussian Sensor Noise"
-    )
-
-    ax.set_ylim(
-        0,
-        100,
-    )
-
-    ax.grid(
-        alpha=0.25
-    )
-
-    fig.tight_layout()
-
-    output_path = (
-        FIGURES_DIR
-        / "accuracy_vs_noise.png"
-    )
-
-    fig.savefig(
-        output_path,
-        dpi=300,
-        bbox_inches="tight",
-    )
-
-    plt.close(fig)
-
-
-# =========================================================
-# 13. BASELINE CONSISTENCY CHECK
+# 12. BASELINE CONSISTENCY CHECK
 # =========================================================
 
 def verify_task2_baseline(
     point_count_df,
     noise_df,
+    split_mode,
 ):
     """
-    Compare the undegraded Task 4 condition against
-    the original Task 2 PointNet result.
+    Compare the undegraded Task 4 condition against the
+    matching Task 2 PointNet result.
 
-    The 1024-point / 0-noise condition should reproduce
-    the Task 2 baseline if the same final fold models
-    are being used.
+    The 1024-point / zero-noise condition has to reproduce
+    Task 2 exactly. If it does not, Task 4 is pairing
+    objects with the wrong fold models, which would make
+    every curve above it meaningless.
     """
 
     task2_metric_file = (
         TASK2_RESULTS_DIR
-        / "pointnet_metrics.csv"
+        / f"{result_name(MODEL_NAME, split_mode)}"
+          f"_metrics.csv"
     )
 
     if not task2_metric_file.exists():
@@ -1087,48 +1105,30 @@ def verify_task2_baseline(
 
         return
 
-    task2_metrics = pd.read_csv(
-        task2_metric_file
-    )
+    task2_metrics = pd.read_csv(task2_metric_file)
 
     original_accuracy = float(
-        task2_metrics.iloc[0][
-            "overall_accuracy"
-        ]
+        task2_metrics.iloc[0]["overall_accuracy"]
     )
 
     point_baseline = float(
         point_count_df[
-            point_count_df[
-                "point_count"
-            ] == BASE_NUM_POINTS
-        ][
-            "overall_accuracy"
-        ].iloc[0]
+            point_count_df["point_count"]
+            == BASE_NUM_POINTS
+        ]["overall_accuracy"].iloc[0]
     )
 
     noise_baseline = float(
         noise_df[
-            noise_df[
-                "noise_sigma_m"
-            ] == 0.0
-        ][
-            "overall_accuracy"
-        ].iloc[0]
+            noise_df["noise_sigma_m"] == 0.0
+        ]["overall_accuracy"].iloc[0]
     )
 
+    print("\n" + "=" * 70)
     print(
-        "\n"
-        + "=" * 70
+        f"BASELINE CONSISTENCY CHECK ({split_mode})"
     )
-
-    print(
-        "BASELINE CONSISTENCY CHECK"
-    )
-
-    print(
-        "=" * 70
-    )
+    print("=" * 70)
 
     print(
         f"Task 2 PointNet: "
@@ -1148,14 +1148,10 @@ def verify_task2_baseline(
     tolerance = 1e-12
 
     if (
-        abs(
-            original_accuracy
-            - point_baseline
-        ) < tolerance
-        and abs(
-            original_accuracy
-            - noise_baseline
-        ) < tolerance
+        abs(original_accuracy - point_baseline)
+        < tolerance
+        and abs(original_accuracy - noise_baseline)
+        < tolerance
     ):
 
         print(
@@ -1177,174 +1173,28 @@ def verify_task2_baseline(
 
 
 # =========================================================
-# 14. MAIN
+# 13. PRINT ONE REGIME
 # =========================================================
 
-def main():
+def print_regime_results(
+    split_mode,
+    point_count_df,
+    noise_df,
+):
+    """
+    Print both degradation tables for one CV regime.
+    """
 
+    print("\n" + "=" * 70)
     print(
-        "\n"
-        + "=" * 70
+        f"POINT-COUNT RESULTS ({split_mode})"
     )
+    print("=" * 70)
 
-    print(
-        "TASK 4 — ROBUSTNESS TO SENSOR DEGRADATION"
-    )
+    display_point_df = point_count_df.copy()
 
-    print(
-        "=" * 70
-    )
-
-    RESULTS_DIR.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    FIGURES_DIR.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    # -----------------------------------------------------
-    # Device
-    # -----------------------------------------------------
-
-    device = get_device()
-
-    print(
-        f"\nDevice: {device}"
-    )
-
-    if device.type == "cuda":
-
-        print(
-            "GPU:",
-            torch.cuda.get_device_name(
-                0
-            ),
-        )
-
-    # -----------------------------------------------------
-    # Load exported raw point clouds
-    # -----------------------------------------------------
-
-    clouds, labels = (
-        load_pointcloud_data()
-    )
-
-    labels = np.asarray(
-        labels
-    )
-
-    print(
-        f"\nInstances: "
-        f"{len(labels)}"
-    )
-
-    # -----------------------------------------------------
-    # Confirm Task 2 models exist
-    # -----------------------------------------------------
-
-    print(
-        "\nChecking Task 2 fold models..."
-    )
-
-    for fold_number in range(
-        1,
-        N_SPLITS + 1,
-    ):
-
-        model_path = (
-            MODEL_DIR
-            / f"pointnet_fold_{fold_number}.pt"
-        )
-
-        if not model_path.exists():
-
-            raise FileNotFoundError(
-                f"\nMissing model:\n"
-                f"{model_path}\n\n"
-                f"Complete Task 2 before "
-                f"running Task 4."
-            )
-
-        print(
-            f"Fold {fold_number}: ✓"
-        )
-
-    # -----------------------------------------------------
-    # A. Downsampling
-    # -----------------------------------------------------
-
-    point_count_df = (
-        run_point_count_experiment(
-            clouds,
-            labels,
-            device,
-        )
-    )
-
-    # -----------------------------------------------------
-    # B. Gaussian noise
-    # -----------------------------------------------------
-
-    noise_df = (
-        run_noise_experiment(
-            clouds,
-            labels,
-            device,
-        )
-    )
-
-    # -----------------------------------------------------
-    # Figures
-    # -----------------------------------------------------
-
-    plot_point_count_curve(
-        point_count_df
-    )
-
-    plot_noise_curve(
-        noise_df
-    )
-
-    # -----------------------------------------------------
-    # Check undegraded result
-    # -----------------------------------------------------
-
-    verify_task2_baseline(
-        point_count_df,
-        noise_df,
-    )
-
-    # -----------------------------------------------------
-    # Console summaries
-    # -----------------------------------------------------
-
-    print(
-        "\n"
-        + "=" * 70
-    )
-
-    print(
-        "POINT-COUNT RESULTS"
-    )
-
-    print(
-        "=" * 70
-    )
-
-    display_point_df = (
-        point_count_df.copy()
-    )
-
-    display_point_df[
-        "overall_accuracy"
-    ] *= 100
-
-    display_point_df[
-        "balanced_accuracy"
-    ] *= 100
+    display_point_df["overall_accuracy"] *= 100
+    display_point_df["balanced_accuracy"] *= 100
 
     print(
         display_point_df[
@@ -1355,35 +1205,18 @@ def main():
             ]
         ].to_string(
             index=False,
-            float_format=lambda x:
-            f"{x:.2f}",
+            float_format=lambda x: f"{x:.2f}",
         )
     )
 
-    print(
-        "\n"
-        + "=" * 70
-    )
+    print("\n" + "=" * 70)
+    print(f"NOISE RESULTS ({split_mode})")
+    print("=" * 70)
 
-    print(
-        "NOISE RESULTS"
-    )
+    display_noise_df = noise_df.copy()
 
-    print(
-        "=" * 70
-    )
-
-    display_noise_df = (
-        noise_df.copy()
-    )
-
-    display_noise_df[
-        "overall_accuracy"
-    ] *= 100
-
-    display_noise_df[
-        "balanced_accuracy"
-    ] *= 100
+    display_noise_df["overall_accuracy"] *= 100
+    display_noise_df["balanced_accuracy"] *= 100
 
     print(
         display_noise_df[
@@ -1394,31 +1227,203 @@ def main():
             ]
         ].to_string(
             index=False,
-            float_format=lambda x:
-            f"{x:.2f}",
+            float_format=lambda x: f"{x:.2f}",
         )
     )
 
+
+# =========================================================
+# 14. MAIN
+# =========================================================
+
+def main():
+
+    print("\n" + "=" * 70)
     print(
-        "\nResults saved to:"
+        "TASK 4 - ROBUSTNESS TO SENSOR DEGRADATION"
+    )
+    print("=" * 70)
+
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+
+    # -----------------------------------------------------
+    # Scope note
+    # -----------------------------------------------------
+
+    print(
+        "\nScope: this degrades the point clouds and "
+        "re-runs the Task 2 PointNet baseline."
     )
 
     print(
-        RESULTS_DIR
+        "It does NOT re-evaluate SAGE itself. Noise "
+        "changes the superquadric *fit*, not just the "
+        "stored numbers, so re-scoring SAGE under noise "
+        "needs the fitting pipeline and the dataset -- "
+        "see the guide's note on Task 4."
+    )
+
+    # -----------------------------------------------------
+    # Device
+    # -----------------------------------------------------
+
+    device = get_device()
+
+    print(f"\nDevice: {device}")
+
+    if device.type == "cuda":
+        print(
+            "GPU:",
+            torch.cuda.get_device_name(0),
+        )
+
+    # -----------------------------------------------------
+    # Load exported raw point clouds
+    # -----------------------------------------------------
+
+    clouds, labels = load_pointcloud_data()
+
+    labels = np.asarray(labels)
+
+    print(f"\nInstances: {len(labels)}")
+
+    # -----------------------------------------------------
+    # Object-identity groups
+    # -----------------------------------------------------
+
+    print(
+        "\nInferring object-identity groups "
+        "from point-cloud extents..."
+    )
+
+    groups = compute_object_groups(
+        clouds,
+        distance_threshold=(
+            GROUP_DISTANCE_THRESHOLD
+        ),
     )
 
     print(
-        "\n"
-        + "=" * 70
+        f"Distinct object groups: "
+        f"{len(np.unique(groups))}"
     )
 
-    print(
-        "TASK 4 COMPLETE"
+    # -----------------------------------------------------
+    # Sweep every regime whose models exist
+    # -----------------------------------------------------
+
+    point_count_curves = {}
+    noise_curves = {}
+
+    for split_mode in SPLIT_MODES:
+
+        missing = [
+            fold_number
+            for fold_number in range(
+                1,
+                N_SPLITS + 1,
+            )
+            if not (
+                MODEL_DIR
+                / f"{result_name(MODEL_NAME, split_mode)}"
+                  f"_fold_{fold_number}.pt"
+            ).exists()
+        ]
+
+        if missing:
+
+            print(
+                f"\nSkipping {split_mode}: missing "
+                f"Task 2 fold models {missing}. "
+                f"Run Task 2 first."
+            )
+
+            continue
+
+        print("\n" + "#" * 70)
+        print(
+            f"CROSS-VALIDATION REGIME: "
+            f"{split_mode.upper()}"
+        )
+        print("#" * 70)
+
+        point_count_df = run_point_count_experiment(
+            clouds,
+            labels,
+            device,
+            split_mode=split_mode,
+            groups=groups,
+        )
+
+        noise_df = run_noise_experiment(
+            clouds,
+            labels,
+            device,
+            split_mode=split_mode,
+            groups=groups,
+        )
+
+        point_count_curves[split_mode] = point_count_df
+        noise_curves[split_mode] = noise_df
+
+        verify_task2_baseline(
+            point_count_df,
+            noise_df,
+            split_mode,
+        )
+
+        print_regime_results(
+            split_mode,
+            point_count_df,
+            noise_df,
+        )
+
+    if not point_count_curves:
+
+        raise FileNotFoundError(
+            "No Task 2 fold models found for any "
+            "cross-validation regime. Run Task 2 first."
+        )
+
+    # -----------------------------------------------------
+    # Figures
+    # -----------------------------------------------------
+
+    plot_degradation_curve(
+        curves=point_count_curves,
+        x_column="point_count",
+        x_label="Number of input points",
+        title=(
+            "PointNet robustness to point-cloud "
+            "downsampling"
+        ),
+        output_path=(
+            FIGURES_DIR
+            / "accuracy_vs_point_count.png"
+        ),
+        invert_x=True,
     )
 
-    print(
-        "=" * 70
+    plot_degradation_curve(
+        curves=noise_curves,
+        x_column="noise_sigma_mm",
+        x_label="Gaussian noise sigma (mm)",
+        title=(
+            "PointNet robustness to Gaussian "
+            "sensor noise"
+        ),
+        output_path=(
+            FIGURES_DIR
+            / "accuracy_vs_noise.png"
+        ),
     )
+
+    print(f"\nResults saved to:\n{RESULTS_DIR}")
+
+    print("\n" + "=" * 70)
+    print("TASK 4 COMPLETE")
+    print("=" * 70)
 
 
 if __name__ == "__main__":

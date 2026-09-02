@@ -35,14 +35,24 @@ try:
 except ImportError:
     HAVE_TQDM = False
 
-from ..registry import Registry
-from ..superquadric import fit_superquadric, is_physically_plausible
-from ..radius_profile import compute_radial_profile
-from .ycb_classes import class_id_to_vocab, YCB_CLASS_NAMES
-from .ycb_pose_aggregation import aggregate_multiview_cloud, discover_frames
-from .ycb_dataset_loader import resolve_video_dir
-from ..iterative_segment import iterative_two_part_segment
-from ..pipeline import build_graph_from_segmentation
+# FIX (pre-existing bug, not introduced by the ML-classifier change):
+# these were relative imports (`from ..registry import Registry` etc.),
+# which cannot resolve when this file is run as `python3 -m
+# ycbv_training.train_registry_multiview` from the repo root -- there's
+# no __init__.py anywhere in this repo, so `ycbv_training` isn't part of
+# a real package and `..` has nowhere to go ("attempted relative import
+# beyond top-level package"). evaluate_on_ycbv.py never hit this because
+# it manually inserts the repo root onto sys.path and uses plain absolute
+# imports instead -- doing the same thing here.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from registry import Registry
+from superquadric import fit_superquadric, is_physically_plausible
+from radius_profile import compute_radial_profile
+from ycbv_training.ycb_classes import class_id_to_vocab, YCB_CLASS_NAMES
+from ycbv_training.ycb_pose_aggregation import aggregate_multiview_cloud, discover_frames
+from ycbv_training.ycb_dataset_loader import resolve_video_dir
+from iterative_segment import iterative_two_part_segment
+from pipeline import build_graph_from_segmentation
 
 
 def _init_worker():

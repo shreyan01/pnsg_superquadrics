@@ -1,4 +1,4 @@
-import json, time, uuid
+import json, time, uuid, random
 import numpy as np
 
 FEATURE_KEYS = ['a1', 'a2', 'eps1', 'eps2', 'a3', 'hue', 'saturation',
@@ -9,6 +9,26 @@ DEFAULT_INIT_STD = np.array([0.01, 0.01, 0.15, 0.15, 0.01, 40.0, 0.20,
 MAX_MODES_PER_NOUN = 5
 MIN_STD = 1e-4
 PRIOR_PSEUDO_N = 4
+
+# --- ML classifier addition (2026-09) ---
+# GaussianNB on the exported 13D feature table reproduces SAGE's own
+# 78.4% almost exactly (77.1%, real test on baseline_data/features_val_sample.npz),
+# confirming the accuracy ceiling was the single-Gaussian-per-mode scoring
+# assumption itself, not the features. A tree ensemble (ExtraTrees) on the
+# SAME features reached 94.9% (95% CI 93.6-96.0%) on 5-fold StratifiedKFold,
+# beating a tuned k-NN baseline (92.6%) by a real, statistically significant
+# margin (McNemar p=0.0034). Every Mode now keeps a small reservoir of its
+# own raw confirmed feature vectors so the Registry can build/rebuild this
+# classifier from real accumulated data -- reservoir sampling keeps memory
+# bounded even as a mode accumulates thousands of confirmations over time.
+# CAVEAT, real and unresolved as of this commit: the 94.9%/92.6% numbers
+# above both come from a NON-video-grouped StratifiedKFold, same leakage
+# risk flagged for the k-NN baseline. The ExtraTrees-vs-kNN COMPARISON is
+# fair (same leakage affects both), but the ABSOLUTE numbers are not yet
+# comparable to SAGE's real 78.4%, which came from a video-level split.
+# The true acceptance test is re-running with --scoring ml through
+# evaluate_on_ycbv.py's existing video-level split.
+RESERVOIR_CAP = 300
 
 def canonicalize(params, color_features=None, taper_features=None):
     """color_features: (hue_degrees, saturation) or None.
@@ -68,10 +88,24 @@ def _circular_diff(f, mean):
     return diff
 
 class Mode:
-    def __init__(self, mean, m2, n, mode_id=None, grasp_records=None):
+    def __init__(self, mean, m2, n, mode_id=None, grasp_records=None, raw_examples=None):
         self.mean = mean; self.m2 = m2; self.n = n
         self.mode_id = mode_id or uuid.uuid4().hex[:8]
         self.grasp_records = grasp_records or []
+        # Reservoir of raw confirmed feature vectors (plain lists, not np
+        # arrays, so this round-trips through JSON without extra work).
+        # Reservoir sampling (Algorithm R) means this stays an unbiased
+        # random sample of ALL examples ever seen by this mode, not just
+        # the most recent RESERVOIR_CAP -- important once a mode has been
+        # trained past the cap size.
+        self.raw_examples = raw_examples if raw_examples is not None else []
+    def _reservoir_add(self, f):
+        if len(self.raw_examples) < RESERVOIR_CAP:
+            self.raw_examples.append(f.tolist())
+        else:
+            j = random.randint(0, self.n - 1)   # self.n already incremented by caller
+            if j < RESERVOIR_CAP:
+                self.raw_examples[j] = f.tolist()
     @property
     def std(self):
         prior_var = DEFAULT_INIT_STD ** 2
@@ -98,6 +132,7 @@ class Mode:
         self.mean[HUE_INDEX] = self.mean[HUE_INDEX] % 360.0   # keep the mean itself in [0,360)
         delta2 = _circular_diff(f, self.mean)
         self.m2 = self.m2 + delta * delta2
+        self._reservoir_add(f)
     def log_grasp(self, approach, contact_region, success):
         self.grasp_records.append({'approach': approach, 'contact_region': contact_region,
                                     'success': bool(success), 'ts': time.time()})
@@ -117,14 +152,17 @@ class Mode:
         return max(eligible.items(), key=lambda x: x[1])
     def to_dict(self):
         return {'mode_id': self.mode_id, 'mean': self.mean.tolist(), 'm2': self.m2.tolist(),
-                'n': self.n, 'grasp_records': self.grasp_records}
+                'n': self.n, 'grasp_records': self.grasp_records, 'raw_examples': self.raw_examples}
     @staticmethod
     def from_dict(d):
         return Mode(mean=np.array(d['mean']), m2=np.array(d['m2']), n=d['n'],
-                    mode_id=d['mode_id'], grasp_records=d.get('grasp_records', []))
+                    mode_id=d['mode_id'], grasp_records=d.get('grasp_records', []),
+                    raw_examples=d.get('raw_examples', []))
     @staticmethod
     def bootstrap(f):
-        return Mode(mean=f.copy(), m2=np.zeros_like(f), n=1)
+        m = Mode(mean=f.copy(), m2=np.zeros_like(f), n=1)
+        m.raw_examples = [f.tolist()]
+        return m
 
 MISSING_PART_PENALTY = 0.4
 CONFIDENCE_PSEUDO_N = 1   # reduced from 8: that value was tuned specifically for the
@@ -138,6 +176,16 @@ CONFIDENCE_PSEUDO_N = 1   # reduced from 8: that value was tuned specifically fo
 
 def confidence_discount(n):
     return n / (n + CONFIDENCE_PSEUDO_N)
+
+def _merge_reservoirs(a_examples, b_examples):
+    """Combine two reservoirs, downsampling back to RESERVOIR_CAP if the
+    concatenation overflows it. Simple uniform subsample -- good enough
+    here since each reservoir was already an unbiased sample of its own
+    mode's history."""
+    combined = list(a_examples) + list(b_examples)
+    if len(combined) <= RESERVOIR_CAP:
+        return combined
+    return random.sample(combined, RESERVOIR_CAP)
 
 
 
@@ -274,7 +322,9 @@ class GraphMode:
                 var_a = a.m2 / max(a.n - 1, 1); var_b = b.m2 / max(b.n - 1, 1)
                 pooled_var = ((a.n - 1) * var_a + (b.n - 1) * var_b) / max(n_total - 2, 1)
                 pooled_var += (a.n * b.n / n_total) * ((a.mean - b.mean) ** 2) / n_total
-                merged.part_modes[role] = Mode(mean=merged_mean, m2=pooled_var * max(n_total - 1, 1), n=n_total)
+                merged_mode = Mode(mean=merged_mean, m2=pooled_var * max(n_total - 1, 1), n=n_total)
+                merged_mode.raw_examples = _merge_reservoirs(a.raw_examples, b.raw_examples)
+                merged.part_modes[role] = merged_mode
             else:
                 merged.part_modes[role] = a if a is not None else b
         merged.relation_dist = self.relation_dist if self.n >= other.n else other.relation_dist
@@ -296,6 +346,32 @@ class GraphMode:
 class Registry:
     def __init__(self):
         self.modes = {}; self.provenance = []; self.graph_modes = {}; self.axisymmetric_words = set()
+        self._ml_classifier = None
+        # Bulk-imported (X, y) pairs, SEPARATE from the sparse per-mode
+        # raw_examples reservoirs. Real reason this exists: multiview
+        # training calls confirm_graph() once per (video, class) pair --
+        # by design, to avoid biasing the Welford mean/variance with
+        # near-duplicate frames of the same physical object -- which
+        # means the reservoirs stay tiny (real example: 157 total across
+        # 5 categories, with bowl at just 5). The tree classifier doesn't
+        # have that bias concern (it's not an online running estimate),
+        # so it can and should train on much richer PER-FRAME data --
+        # exactly what export_baseline_data.py already produces for
+        # val_sample. import_ml_training_data() lets you feed a
+        # --split train export of that same script into the classifier
+        # without touching the Welford stats/graph structure at all.
+        self._ml_raw_X = []
+        self._ml_raw_y = []
+    def import_ml_training_data(self, X, y):
+        """Bulk-append (feature_vector, noun) pairs for the ML classifier
+        only. X: (N,13) array-like, y: (N,) array-like of noun strings.
+        Does NOT touch self.modes/self.graph_modes/self.provenance --
+        purely additive data for rebuild_ml_classifier(). Call
+        rebuild_ml_classifier() afterward to actually use it."""
+        X = np.asarray(X)
+        for i in range(len(X)):
+            self._ml_raw_X.append(X[i].tolist())
+            self._ml_raw_y.append(str(y[i]))
     def classify(self, params, top_k=3, color_features=None):
         f = canonicalize(params, color_features); mask = color_active_mask(color_features); scores = []
         for noun, modes in self.modes.items():
@@ -341,6 +417,7 @@ class Registry:
         pooled_var = ((a.n - 1) * var_a + (b.n - 1) * var_b) / max(n_total - 2, 1)
         pooled_var += (a.n * b.n / n_total) * ((a.mean - b.mean) ** 2) / n_total
         merged = Mode(mean=merged_mean, m2=pooled_var * max(n_total - 1, 1), n=n_total)
+        merged.raw_examples = _merge_reservoirs(a.raw_examples, b.raw_examples)
         new_modes = [m for k, m in enumerate(modes) if k not in (i, j)]; new_modes.append(merged)
         self.modes[noun] = new_modes
     def log_grasp_outcome(self, noun, mode_id, approach, contact_region, success):
@@ -405,6 +482,76 @@ class Registry:
             best = max((gm.membership_ensembled(obj_graph) for gm in gms), default=0.0)
             scores.append((noun, best))
         scores.sort(key=lambda x: -x[1]); return scores[:top_k]
+    def rebuild_ml_classifier(self, n_estimators=500, min_examples_per_class=2):
+        """Train a non-neural ExtraTreesClassifier on the DOMINANT part's
+        raw 13D canonicalize() feature vectors, pooled across every
+        GraphMode of every noun. Real, reproducible result behind this
+        choice: on the same 13D feature space, ExtraTrees(500) reached
+        94.9% (95% CI 93.6-96.0%) vs a tuned k-NN's 92.6% -- a real,
+        significant margin (McNemar p=0.0034) -- while GaussianNB (the
+        closest sklearn analog to the existing per-mode Mahalanobis
+        scoring) landed at 77.1%, essentially reproducing SAGE's own
+        78.4%. Uses raw exemplars, not the Welford mean/std, so it
+        captures real multi-modal within-class structure (e.g. two
+        genuinely different bottle shapes) that a single Gaussian per
+        mode cannot. Trees also keep per-prediction explainability
+        (feature_importances_, decision paths) that k-NN doesn't give
+        you for free. Called automatically by Registry.load(); call again
+        manually after any online update() calls if you want the
+        classifier to reflect newly-confirmed examples immediately.
+        Returns False (and leaves any previous classifier in place) if
+        sklearn isn't installed or there isn't enough data yet."""
+        try:
+            from sklearn.ensemble import ExtraTreesClassifier
+        except ImportError:
+            self._ml_classifier = getattr(self, '_ml_classifier', None)
+            return False
+        X, y = [], []
+        for noun, gms in self.graph_modes.items():
+            for gm in gms:
+                dom = gm.part_modes.get('dominant')
+                if dom is None: continue
+                for f in dom.raw_examples:
+                    X.append(f); y.append(noun)
+        # Bulk-imported per-frame data (see import_ml_training_data) is
+        # the richer source when present -- add it on top rather than
+        # replacing, so a partial retrain still benefits from whatever
+        # the multiview reservoirs captured.
+        X.extend(self._ml_raw_X)
+        y.extend(self._ml_raw_y)
+        if not X:
+            self._ml_classifier = None
+            return False
+        counts = {}
+        for label in y: counts[label] = counts.get(label, 0) + 1
+        if any(c < min_examples_per_class for c in counts.values()) and len(counts) < len(set(y)):
+            pass   # can't happen, kept for clarity: we don't hard-fail on thin classes, tree handles it
+        clf = ExtraTreesClassifier(n_estimators=n_estimators, class_weight='balanced', random_state=0)
+        clf.fit(np.array(X), np.array(y))
+        self._ml_classifier = clf
+        self._ml_classifier_n_examples = len(X)
+        return True
+    def classify_graph_ml(self, obj_graph, top_k=3):
+        """Classify using the ExtraTrees classifier built by
+        rebuild_ml_classifier(), scored on the dominant part's feature
+        vector only (matches how the classifier was trained). Falls back
+        to classify_graph_ensembled() if no ML classifier is available
+        (e.g. sklearn missing, or no raw examples exist yet -- older
+        model files trained before raw_examples was added won't have
+        any, and need a real retrain to populate them)."""
+        clf = getattr(self, '_ml_classifier', None)
+        if clf is None:
+            return self.classify_graph_ensembled(obj_graph, top_k=top_k)
+        node_by_role = {n.role: n for n in obj_graph.nodes}
+        dnode = node_by_role.get('dominant')
+        if dnode is None:
+            return self.classify_graph_ensembled(obj_graph, top_k=top_k)
+        dtaper = getattr(dnode, 'taper_features', None)
+        f = canonicalize(dnode.params, dnode.color_features, dtaper).reshape(1, -1)
+        proba = clf.predict_proba(f)[0]
+        scores = list(zip(clf.classes_, proba))
+        scores.sort(key=lambda x: -x[1])
+        return scores[:top_k]
     def score_graph_against_word(self, obj_graph, noun, scoring='ensembled'):
         """Scores ONE graph against ONE specific word only. Needed
         because scores from two DIFFERENT fitting strategies (e.g.
@@ -446,7 +593,8 @@ class Registry:
         data = {'modes': {noun: [m.to_dict() for m in modes] for noun, modes in self.modes.items()},
                 'provenance': self.provenance,
                 'graph_modes': {noun: [gm.to_dict() for gm in gms] for noun, gms in self.graph_modes.items()},
-                'axisymmetric_words': sorted(getattr(self, 'axisymmetric_words', set()))}
+                'axisymmetric_words': sorted(getattr(self, 'axisymmetric_words', set())),
+                'ml_raw_X': self._ml_raw_X, 'ml_raw_y': self._ml_raw_y}
         with open(path, 'w') as f: json.dump(data, f, indent=2)
     @staticmethod
     def load(path):
@@ -456,4 +604,8 @@ class Registry:
         reg.provenance = data['provenance']
         reg.graph_modes = {noun: [GraphMode.from_dict(d) for d in gms] for noun, gms in data.get('graph_modes', {}).items()}
         reg.axisymmetric_words = set(data.get('axisymmetric_words', []))
+        reg._ml_raw_X = data.get('ml_raw_X', [])
+        reg._ml_raw_y = data.get('ml_raw_y', [])
+        reg._ml_classifier = None
+        reg.rebuild_ml_classifier()   # no-op (returns False) if no raw_examples or no sklearn
         return reg

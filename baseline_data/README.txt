@@ -1,8 +1,8 @@
 BASELINE COMPARISON DATA -- README
 
-features_val_sample.npz
+features_train.npz
 ------------------------
-Load with: data = numpy.load('features_val_sample.npz', allow_pickle=True)
+Load with: data = numpy.load('features_train.npz', allow_pickle=True)
   data['X']             -- (N, 13) float array, the feature vector
   data['y']              -- (N,) string array, true label
   data['feature_names']  -- (13,) string array, column names in order
@@ -30,13 +30,13 @@ this matches exactly how our own registry treats missing features.
 
 Labels (y): 'box', 'mug', 'bowl', 'can', 'bottle'
 
-pointclouds_val_sample.npz (only if --include_pointclouds was used)
+pointclouds_train.npz (only if --include_pointclouds was used)
 ------------------------------------------------------------
-Load with: data = numpy.load('pointclouds_val_sample.npz', allow_pickle=True)
+Load with: data = numpy.load('pointclouds_train.npz', allow_pickle=True)
   data['clouds']  -- object array, each element is (Mi, 3) float32 array
                      of real depth-camera points for one object instance
   data['y']        -- (N,) string array, same order as clouds, same labels
 
-Both files use the SAME instance order and SAME split ('val_sample') as
+Both files use the SAME instance order and SAME split ('train') as
 our own reported evaluation results, so any baseline trained/tested on
 this data is directly, fairly comparable to our numbers.

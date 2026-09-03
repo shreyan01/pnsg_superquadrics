@@ -1,0 +1,7 @@
+model,metric,class,n_instances,accuracy,ci_lower,ci_upper
+sage,overall_accuracy,all,1109,0.8944995491433724,0.8773669972948602,0.9125338142470695
+sage,per_class_accuracy,box,475,1.0,1.0,1.0
+sage,per_class_accuracy,can,355,1.0,1.0,1.0
+sage,per_class_accuracy,mug,89,0.5168539325842697,0.4157303370786517,0.6179775280898876
+sage,per_class_accuracy,bottle,146,0.684931506849315,0.6095890410958904,0.7602739726027398
+sage,per_class_accuracy,bowl,44,0.36363636363636365,0.22727272727272727,0.5

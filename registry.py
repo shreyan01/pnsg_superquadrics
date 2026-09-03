@@ -1,3 +1,51 @@
+import os
+import sys
+
+# MUST be set before numpy/scipy are imported -- otherwise every process
+# that imports this module (directly or via any script that imports
+# registry.py) independently multithreads its own BLAS calls on top of
+# whatever process-level parallelism the caller already set up. This
+# module is imported by essentially every script in the project, so
+# fixing it HERE, not just in the scripts that happened to import numpy
+# after registry.py, is the actual robust fix -- import order in any one
+# calling script is fragile and already slipped through twice tonight
+# (see export_baseline_data.py's comment: a real load average of 935 on
+# a nominally 30-process run, caused by exactly this).
+#
+# Two ways this fix can silently fail to actually take effect, both
+# checked below rather than just hoped against:
+#   1. Something ELSE already imported numpy before this file even ran,
+#      AND that something didn't set these env vars first either --
+#      BLAS reads these env vars once, at first import, so setting them
+#      now would be too late regardless of the value. (If a responsible
+#      caller -- e.g. bake_ml_classifier.py -- already set them correctly
+#      before importing numpy itself, that's fine and NOT a problem: the
+#      values were set at the right time, just by a different file. Only
+#      warn when they're actually still wrong.)
+#   2. A DIFFERENT, stale copy of this file (e.g. an old `pip install`
+#      of this project sitting in site-packages) gets imported instead
+#      of this one -- this exact fix wouldn't exist in that copy at all.
+_env_already_correct = all(
+    os.environ.get(n) == '1'
+    for n in ('OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS')
+)
+if 'numpy' in sys.modules and not _env_already_correct:
+    print(
+        f"WARNING (registry.py): numpy was already imported by something else "
+        f"before this file ran (from {__file__}), and the thread-limit env "
+        f"vars weren't already set correctly at that point either. The "
+        f"OMP_NUM_THREADS=1 fix below cannot retroactively fix numpy/BLAS's "
+        f"thread count -- it's already decided. If a script hangs or runs far "
+        f"slower than expected after seeing this warning, that's very likely "
+        f"why. Run check_thread_limits.py to confirm before trusting a long run.",
+        file=sys.stderr,
+    )
+
+os.environ.setdefault('OMP_NUM_THREADS', '1')
+os.environ.setdefault('OPENBLAS_NUM_THREADS', '1')
+os.environ.setdefault('MKL_NUM_THREADS', '1')
+os.environ.setdefault('NUMEXPR_NUM_THREADS', '1')
+
 import json, time, uuid, random
 import numpy as np
 
@@ -29,6 +77,32 @@ PRIOR_PSEUDO_N = 4
 # The true acceptance test is re-running with --scoring ml through
 # evaluate_on_ycbv.py's existing video-level split.
 RESERVOIR_CAP = 300
+
+
+def assert_thread_limits_ok():
+    """Cheap (no subprocess spawning) pre-flight check that the two real
+    failure modes found this session aren't present, before an expensive
+    script (kfold_multiview_eval.py, task3/task4's SAGE halves, etc.)
+    burns hours of compute on a misconfigured environment. Raises
+    RuntimeError with a specific, actionable message rather than letting
+    the script proceed into what would otherwise be a silent, severe
+    slowdown -- this is exactly what should have caught the load-average-
+    935 incident and the 14-hour/4-fold hang before they happened, not
+    after."""
+    import sys
+    names = ['OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS']
+    bad = {n: os.environ.get(n) for n in names if os.environ.get(n) != '1'}
+    if bad:
+        raise RuntimeError(
+            f"Thread-limit env vars not set correctly: {bad}. This is the exact "
+            f"condition that caused a load average of 935 and a 14-hour/4-fold "
+            f"hang earlier -- refusing to start expensive parallel work. Run "
+            f"`python3 check_thread_limits.py --workers <N>` first and get a "
+            f"clean PASS before retrying. Most common cause: a different, stale "
+            f"copy of registry.py (e.g. an old `pip install` in site-packages) "
+            f"is shadowing this one -- Step 0 of that script's output will show "
+            f"you which file actually got imported."
+        )
 
 def canonicalize(params, color_features=None, taper_features=None):
     """color_features: (hue_degrees, saturation) or None.

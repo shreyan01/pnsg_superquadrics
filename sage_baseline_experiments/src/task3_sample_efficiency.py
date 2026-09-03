@@ -54,12 +54,38 @@ from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
+try:
+    from tqdm import tqdm
+    HAVE_TQDM = True
+except ImportError:
+    HAVE_TQDM = False
+
 # Allow these scripts to be launched from any working
 # directory (repo root or src/), not only from inside src/.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import os
+# MUST be set before numpy/scipy are imported -- see registry.py's
+# module docstring for the real incident this fix is for (a load average
+# of 935 on a nominally 30-process run). This is very likely the actual
+# root cause behind this script's SAGE half being dramatically slower
+# than expected (repeats=1 default should finish in ~15-20 minutes, not
+# multiple hours) -- worker processes spawned later (by run_sage_half's
+# calls into train_registry_multiview.py / evaluate_on_ycbv.py) inherit,
+# via fork, whatever BLAS threading state THIS process already latched
+# onto at its own `import numpy as np` below, if that happens before
+# these env vars are set.
+os.environ.setdefault('OMP_NUM_THREADS', '1')
+os.environ.setdefault('OPENBLAS_NUM_THREADS', '1')
+os.environ.setdefault('MKL_NUM_THREADS', '1')
+os.environ.setdefault('NUMEXPR_NUM_THREADS', '1')
+
 import numpy as np
 import pandas as pd
+# MUST come before importing pyplot -- see plotting.py for why (headless
+# Qt/xcb crash otherwise).
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from sklearn.pipeline import Pipeline
@@ -562,14 +588,19 @@ def evaluate_registry(
         initargs=(str(model_path),),
     ) as executor:
 
-        for frame_key, results, error in executor.map(
-            evaluation_module._eval_one_frame, work_items
-        ):
+        iterator = executor.map(evaluation_module._eval_one_frame, work_items)
+        if HAVE_TQDM:
+            iterator = tqdm(iterator, total=len(work_items), desc='  evaluating', unit='frame')
+
+        for frame_key, results, error in iterator:
 
             if error:
+                if HAVE_TQDM:
+                    iterator.write(f'  [frame {frame_key}] skipped: {error}')
                 continue
 
             for (
+                instance_id,
                 true_word,
                 pred_word,
                 confidence,
@@ -589,6 +620,7 @@ def evaluate_registry(
 
                 predictions.append(
                     {
+                        "instance_id": instance_id,
                         "frame": frame_key,
                         "true_label": true_word,
                         "predicted_label": pred_word,
@@ -643,6 +675,7 @@ def run_sage_half(
     max_nfev,
     workers,
     max_frames,
+    scoring="ml",
 ):
     """
     Retrain and evaluate the real registry at each n.
@@ -713,6 +746,7 @@ def run_sage_half(
                 max_frames=max_frames,
                 max_nfev=max_nfev,
                 workers=workers,
+                scoring=scoring,
             )
 
             metrics.update(
@@ -1042,6 +1076,22 @@ def parse_args():
         help="Skip the learned-baseline half.",
     )
 
+    parser.add_argument(
+        "--scoring",
+        choices=["joint", "ensembled", "ml"],
+        default="ml",
+        help=(
+            "Which registry scoring path to evaluate. Was hardcoded to "
+            "'joint' (the original single-Gaussian-per-mode scorer) -- "
+            "changed the default to 'ml' (ExtraTreesClassifier) since "
+            "that's the current best-performing classifier, and every "
+            "other option in this file existed already. Falls back to "
+            "'ensembled' scoring per-instance if the registry has no "
+            "trained ML classifier (e.g. too few raw examples at very "
+            "small n)."
+        ),
+    )
+
     return parser.parse_args()
 
 
@@ -1079,6 +1129,9 @@ def main():
             print(reason)
             raise SystemExit(1)
 
+        from registry import assert_thread_limits_ok
+        assert_thread_limits_ok()
+
         dataset_root = sage_pipeline.resolve_dataset_root(
             args.dataset_root
         )
@@ -1089,6 +1142,7 @@ def main():
         print(f"Sizes       : {args.sizes}")
         print(f"Repeats     : {args.repeats}")
         print(f"Workers     : {workers}")
+        print(f"Scoring     : {args.scoring}")
 
     else:
         print(
@@ -1187,6 +1241,7 @@ def main():
             max_nfev=args.max_nfev,
             workers=workers,
             max_frames=args.max_frames,
+            scoring=args.scoring,
         )
 
         if not sage_df.empty:

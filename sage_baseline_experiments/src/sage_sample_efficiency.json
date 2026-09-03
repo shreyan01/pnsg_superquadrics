@@ -1,0 +1,41 @@
+[
+  {
+    "n_per_class": 1,
+    "n_evaluated": 1109,
+    "n_correct": 740,
+    "n_implausible": 535,
+    "overall_accuracy": 0.6672678088367899,
+    "balanced_accuracy": 0.5641409397296516,
+    "box_accuracy": 0.5642105263157895,
+    "can_accuracy": 0.9943661971830986,
+    "mug_accuracy": 0.4943820224719101,
+    "bottle_accuracy": 0.4041095890410959,
+    "bowl_accuracy": 0.36363636363636365
+  },
+  {
+    "n_per_class": 2,
+    "n_evaluated": 1109,
+    "n_correct": 689,
+    "n_implausible": 535,
+    "overall_accuracy": 0.6212804328223624,
+    "balanced_accuracy": 0.5944233402192407,
+    "box_accuracy": 0.3831578947368421,
+    "can_accuracy": 0.9943661971830986,
+    "mug_accuracy": 0.8539325842696629,
+    "bottle_accuracy": 0.4452054794520548,
+    "bowl_accuracy": 0.29545454545454547
+  },
+  {
+    "n_per_class": 5,
+    "n_evaluated": 1109,
+    "n_correct": 777,
+    "n_implausible": 535,
+    "overall_accuracy": 0.7006311992786294,
+    "balanced_accuracy": 0.5794385176327397,
+    "box_accuracy": 0.6442105263157895,
+    "can_accuracy": 0.9943661971830986,
+    "mug_accuracy": 0.5842696629213483,
+    "bottle_accuracy": 0.3561643835616438,
+    "bowl_accuracy": 0.3181818181818182
+  }
+]

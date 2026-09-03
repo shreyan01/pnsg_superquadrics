@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 
@@ -108,6 +109,8 @@ MODEL_DIR = (
     / "models"
     / "task2"
 )
+
+SAGE_MODEL_PATH = PROJECT_ROOT.parent / "trained_ycbv_ml_v2.json"
 
 
 # =========================================================
@@ -1179,6 +1182,37 @@ def create_combined_summary():
     return combined
 
 
+def run_sage_comparison(clouds, labels, model_path, workers):
+    """Evaluate the saved SAGE registry on the Task 2 point-cloud set."""
+
+    from registry import Registry
+    from task4_robustness import evaluate_sage_condition
+
+    model_path = Path(model_path).expanduser().resolve()
+    if not model_path.exists():
+        raise FileNotFoundError(f"SAGE model not found: {model_path}")
+
+    print(f"\nSAGE model: {model_path}")
+    metrics = evaluate_sage_condition(
+        Registry.load(str(model_path)),
+        clouds,
+        labels,
+        NUM_POINTS,
+        0.0,
+        workers,
+    )
+    metrics["model"] = "SAGE (local model)"
+    metrics["model_path"] = str(model_path)
+    output_path = RESULTS_DIR / "sage_metrics.csv"
+    pd.DataFrame([metrics]).to_csv(output_path, index=False)
+    print(
+        f"SAGE accuracy: {metrics['overall_accuracy'] * 100:.2f}% "
+        f"({metrics['n_evaluated'] if 'n_evaluated' in metrics else len(labels)} instances)"
+    )
+    print(f"SAGE metrics saved: {output_path}")
+    return metrics
+
+
 # =========================================================
 # 14. PRINT COMBINED COMPARISON
 # =========================================================
@@ -1707,10 +1741,33 @@ def main():
 
     # Each regime trains five folds from scratch, so allow
     # running a subset:  python task2_pointnet.py groupkfold
+    arguments = sys.argv[1:]
+    sage_enabled = "--no-sage" not in arguments
+    sage_model = SAGE_MODEL_PATH
+    sage_workers = min(8, os.cpu_count() or 1)
+
+    if "--sage-model" in arguments:
+        model_index = arguments.index("--sage-model")
+        if model_index + 1 >= len(arguments):
+            raise SystemExit("--sage-model requires a JSON path")
+        sage_model = arguments[model_index + 1]
+
+    if "--sage-workers" in arguments:
+        workers_index = arguments.index("--sage-workers")
+        if workers_index + 1 >= len(arguments):
+            raise SystemExit("--sage-workers requires an integer")
+        sage_workers = int(arguments[workers_index + 1])
+
     requested = [
         argument
-        for argument in sys.argv[1:]
+        for argument in arguments
         if not argument.startswith("-")
+        and argument not in (str(sage_model),)
+        and not (
+            argument.isdigit()
+            and arguments[arguments.index(argument) - 1]
+            in ("--sage-workers",)
+        )
     ]
 
     if requested:
@@ -1739,6 +1796,14 @@ def main():
             labels=labels,
             groups=groups,
             device=device,
+        )
+
+    if sage_enabled:
+        run_sage_comparison(
+            clouds=clouds,
+            labels=labels,
+            model_path=sage_model,
+            workers=sage_workers,
         )
 
     # -----------------------------------------------------

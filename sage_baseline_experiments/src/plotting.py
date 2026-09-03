@@ -5,6 +5,14 @@ from pathlib import Path
 # directory (repo root or src/), not only from inside src/.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+# MUST come before importing pyplot -- without this, pyplot defaults to
+# an interactive backend (Qt/xcb on Linux) and crashes with
+# "qt.qpa.plugin: Could not load the Qt platform plugin xcb" on any
+# headless/SSH machine with no X11 display. 'Agg' is the standard
+# non-interactive, file-output-only backend -- fine since these scripts
+# only ever call savefig(), never plt.show().
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 

@@ -27,7 +27,7 @@ instance_id,true_label,predicted_label,correct
 25,can,can,1
 26,box,box,1
 27,can,can,1
-28,box,bottle,0
+28,box,box,1
 29,box,box,1
 30,can,can,1
 31,box,box,1
@@ -160,9 +160,9 @@ instance_id,true_label,predicted_label,correct
 158,box,box,1
 159,bottle,box,0
 160,box,box,1
-161,can,bottle,0
+161,can,mug,0
 162,box,box,1
-163,mug,box,0
+163,mug,mug,1
 164,box,box,1
 165,can,can,1
 166,can,can,1
@@ -256,7 +256,7 @@ instance_id,true_label,predicted_label,correct
 254,bottle,bottle,1
 255,box,box,1
 256,can,can,1
-257,bottle,bottle,1
+257,bottle,bowl,0
 258,mug,box,0
 259,can,can,1
 260,box,box,1
@@ -318,7 +318,7 @@ instance_id,true_label,predicted_label,correct
 316,box,box,1
 317,box,box,1
 318,can,can,1
-319,bottle,bottle,1
+319,bottle,bowl,0
 320,can,can,1
 321,bottle,bottle,1
 322,box,box,1
@@ -372,7 +372,7 @@ instance_id,true_label,predicted_label,correct
 370,bowl,box,0
 371,box,box,1
 372,can,can,1
-373,bottle,bottle,1
+373,bottle,bowl,0
 374,can,can,1
 375,box,box,1
 376,box,box,1
@@ -417,7 +417,7 @@ instance_id,true_label,predicted_label,correct
 415,box,box,1
 416,bottle,bottle,1
 417,bowl,box,0
-418,mug,box,0
+418,mug,mug,1
 419,box,box,1
 420,can,can,1
 421,box,box,1
@@ -449,7 +449,7 @@ instance_id,true_label,predicted_label,correct
 447,mug,box,0
 448,box,box,1
 449,can,can,1
-450,box,mug,0
+450,box,bottle,0
 451,can,can,1
 452,bottle,bottle,1
 453,bottle,bottle,1
@@ -466,7 +466,7 @@ instance_id,true_label,predicted_label,correct
 464,can,can,1
 465,box,box,1
 466,can,can,1
-467,bottle,bottle,1
+467,bottle,box,0
 468,mug,box,0
 469,box,box,1
 470,can,can,1
@@ -480,7 +480,7 @@ instance_id,true_label,predicted_label,correct
 478,bottle,mug,0
 479,box,box,1
 480,can,can,1
-481,box,bottle,0
+481,box,box,1
 482,box,box,1
 483,box,box,1
 484,can,can,1
@@ -504,7 +504,7 @@ instance_id,true_label,predicted_label,correct
 502,can,can,1
 503,box,box,1
 504,can,can,1
-505,box,bottle,0
+505,box,mug,0
 506,box,box,1
 507,box,box,1
 508,can,can,1
@@ -722,7 +722,7 @@ instance_id,true_label,predicted_label,correct
 720,can,can,1
 721,box,box,1
 722,box,mug,0
-723,bottle,bottle,1
+723,bottle,box,0
 724,box,box,1
 725,can,can,1
 726,box,box,1
@@ -755,7 +755,7 @@ instance_id,true_label,predicted_label,correct
 753,box,box,1
 754,can,can,1
 755,box,box,1
-756,box,box,1
+756,box,bottle,0
 757,can,can,1
 758,box,box,1
 759,box,box,1
@@ -791,7 +791,7 @@ instance_id,true_label,predicted_label,correct
 789,mug,mug,1
 790,can,can,1
 791,can,can,1
-792,bottle,bottle,1
+792,bottle,bowl,0
 793,box,box,1
 794,box,box,1
 795,can,can,1
@@ -813,7 +813,7 @@ instance_id,true_label,predicted_label,correct
 811,can,can,1
 812,box,box,1
 813,box,box,1
-814,box,bottle,0
+814,box,box,1
 815,can,can,1
 816,box,box,1
 817,bottle,box,0
@@ -827,7 +827,7 @@ instance_id,true_label,predicted_label,correct
 825,can,can,1
 826,box,box,1
 827,box,box,1
-828,bowl,box,0
+828,bowl,bottle,0
 829,mug,box,0
 830,bottle,box,0
 831,bottle,bottle,1
@@ -864,7 +864,7 @@ instance_id,true_label,predicted_label,correct
 862,bottle,bottle,1
 863,box,box,1
 864,can,can,1
-865,box,bottle,0
+865,box,mug,0
 866,box,box,1
 867,can,can,1
 868,box,box,1
@@ -889,7 +889,7 @@ instance_id,true_label,predicted_label,correct
 887,bottle,bottle,1
 888,box,box,1
 889,bottle,box,0
-890,bowl,bowl,1
+890,bowl,bottle,0
 891,mug,mug,1
 892,bowl,bowl,1
 893,mug,box,0
@@ -964,7 +964,7 @@ instance_id,true_label,predicted_label,correct
 962,box,box,1
 963,box,box,1
 964,box,box,1
-965,can,bowl,0
+965,can,can,1
 966,can,can,1
 967,bottle,bottle,1
 968,can,can,1
@@ -974,7 +974,7 @@ instance_id,true_label,predicted_label,correct
 972,box,box,1
 973,box,box,1
 974,bottle,box,0
-975,bowl,bottle,0
+975,bowl,bowl,1
 976,mug,box,0
 977,box,box,1
 978,can,can,1
@@ -1038,9 +1038,9 @@ instance_id,true_label,predicted_label,correct
 1036,box,box,1
 1037,bottle,bottle,1
 1038,bowl,bottle,0
-1039,mug,box,0
+1039,mug,mug,1
 1040,bottle,box,0
-1041,mug,bottle,0
+1041,mug,mug,1
 1042,box,box,1
 1043,can,can,1
 1044,box,box,1
@@ -1093,7 +1093,7 @@ instance_id,true_label,predicted_label,correct
 1091,box,box,1
 1092,box,box,1
 1093,can,can,1
-1094,bowl,box,0
+1094,bowl,bottle,0
 1095,mug,box,0
 1096,bottle,box,0
 1097,bottle,bottle,1

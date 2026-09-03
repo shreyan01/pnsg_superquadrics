@@ -93,20 +93,40 @@ RESULTS_DIR = (
 # SAGE reference results
 # ---------------------------------------------------------
 
-# These are the locked results supplied by the SAGE authors.
-# They are included only for comparison.
+# These are SAGE's own results on the SAME val_sample split used for
+# every other model in this file, kept here as a fixed reference point
+# (not re-derived by this script itself -- update the dict below when
+# a new SAGE number is available).
 #
 # We do NOT have instance-level SAGE predictions here,
 # so they are not part of the cross-validation procedure.
 
 SAGE_REFERENCE = {
+    # UPDATED (see comment above) -- ExtraTreesClassifier scoring
+    # (--scoring ml), trained on the per-frame `train` split export
+    # (baseline_data/features_train.npz, 35178 examples) baked into
+    # trained_ycbv_ml_v2.json via bake_ml_classifier.py, evaluated on
+    # val_sample (1109 instances) via evaluate_on_ycbv.py. Train and
+    # eval come from disjoint YCB-Video splits, same as the original
+    # 0.784 number -- this is a fair, like-for-like replacement, not a
+    # leakier comparison.
+    #
+    # THIS IS A LIVING NUMBER, not a final one -- there's an open,
+    # unresolved investigation (see diagnose_confusions.py) into why
+    # bottle/mug/bowl still collapse toward box in a meaningful fraction
+    # of cases. Update again if that investigation changes the result.
+    #
+    # balanced_accuracy = simple mean of the 5 per-class accuracies
+    # below (was missing entirely before -- this is why the summary
+    # table printed NaN for the SAGE row's balanced_accuracy column).
     "model": "SAGE",
-    "overall_accuracy": 0.784,
-    "box_accuracy": 0.947,
-    "can_accuracy": 0.949,
-    "mug_accuracy": 0.326,
-    "bottle_accuracy": 0.315,
-    "bowl_accuracy": 0.182,
+    "overall_accuracy": 0.894,
+    "balanced_accuracy": 0.7132,
+    "box_accuracy": 1.000,
+    "can_accuracy": 1.000,
+    "mug_accuracy": 0.517,
+    "bottle_accuracy": 0.685,
+    "bowl_accuracy": 0.364,
 }
 
 

@@ -1,12 +1,40 @@
 import sys
+import os
 from pathlib import Path
 
 # Allow these scripts to be launched from any working
 # directory (repo root or src/), not only from inside src/.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import argparse
+
+# Repo root (two levels up from src/) -- where registry.py,
+# export_baseline_data.py, and evaluate_sage_robustness.py live. Needed
+# only for the optional --dataset_root SAGE-robustness half below;
+# the existing PointNet-only sweep doesn't need any of this.
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(_REPO_ROOT))
+
+# MUST be set before numpy/scipy/pandas are imported -- see registry.py's
+# module docstring for the real incident this fix is for (a load average
+# of 935 on a nominally 30-process run). This file imports numpy/pandas
+# for its own PointNet-baseline work regardless of --dataset_root, and
+# on Linux's default 'fork' multiprocessing start method, worker
+# processes spawned later (by the optional SAGE-half sweep) inherit
+# whatever BLAS threading state THIS process already latched onto --
+# fixing it only inside evaluate_sage_robustness.py is not reliably
+# enough once this file has already imported numpy first.
+os.environ.setdefault('OMP_NUM_THREADS', '1')
+os.environ.setdefault('OPENBLAS_NUM_THREADS', '1')
+os.environ.setdefault('MKL_NUM_THREADS', '1')
+os.environ.setdefault('NUMEXPR_NUM_THREADS', '1')
+
 import numpy as np
 import pandas as pd
+# MUST come before importing pyplot -- see plotting.py for why (headless
+# Qt/xcb crash otherwise).
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 import torch
@@ -1238,6 +1266,45 @@ def print_regime_results(
 
 def main():
 
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--dataset_root', default=None,
+                     help='Path to ycb_dataset. If given, ALSO runs a real, directly '
+                          'comparable SAGE robustness sweep (same point-count levels and '
+                          'noise sigmas) via evaluate_sage_robustness.py, alongside the '
+                          'existing PointNet-only sweep. Omit to keep the original '
+                          'PointNet-only behavior.')
+    ap.add_argument('--sage_model', default=None,
+                     help='Trained SAGE model with an ML classifier built (e.g. '
+                          'trained_ycbv_ml_v2.json). Required if --dataset_root is given.')
+    ap.add_argument('--sage_split', default='val_sample')
+    ap.add_argument('--workers', type=int, default=None)
+    args = ap.parse_args()
+
+    if args.dataset_root and not args.sage_model:
+        ap.error('--sage_model is required when --dataset_root is given')
+
+    if args.dataset_root:
+        from registry import assert_thread_limits_ok
+        assert_thread_limits_ok()
+
+        # Resolve to an absolute path and fail HERE, before spawning any
+        # worker -- the alternative (a bare relative path that doesn't
+        # resolve from whatever directory you happened to launch this
+        # script from) crashes every worker process's initializer
+        # individually and kills the whole pool with a much less useful
+        # BrokenProcessPool error, well after real Task 4 baseline work
+        # has already run.
+        args.sage_model = os.path.abspath(args.sage_model)
+        if not os.path.exists(args.sage_model):
+            raise FileNotFoundError(
+                f"--sage_model resolved to '{args.sage_model}', which doesn't "
+                f"exist. If you meant a path relative to the repo root "
+                f"(e.g. trained_ycbv_ml_v2.json created by "
+                f"bake_ml_classifier.py), check you're not running this "
+                f"script from sage_baseline_experiments/src/ while the "
+                f"model file lives in the repo root -- pass the full path."
+            )
+
     print("\n" + "=" * 70)
     print(
         "TASK 4 - ROBUSTNESS TO SENSOR DEGRADATION"
@@ -1256,13 +1323,23 @@ def main():
         "re-runs the Task 2 PointNet baseline."
     )
 
-    print(
-        "It does NOT re-evaluate SAGE itself. Noise "
-        "changes the superquadric *fit*, not just the "
-        "stored numbers, so re-scoring SAGE under noise "
-        "needs the fitting pipeline and the dataset -- "
-        "see the guide's note on Task 4."
-    )
+    if args.dataset_root:
+        print(
+            "--dataset_root was given, so this run ALSO re-runs SAGE's "
+            "own fitting + classification pipeline on the same degraded "
+            "point clouds (same point-count levels, same noise sigmas) "
+            "for a real, direct head-to-head -- not reusing stored "
+            "numbers."
+        )
+    else:
+        print(
+            "It does NOT re-evaluate SAGE itself in this run. Noise "
+            "changes the superquadric *fit*, not just the "
+            "stored numbers, so re-scoring SAGE under noise "
+            "needs the fitting pipeline and the dataset -- "
+            "pass --dataset_root and --sage_model to also run SAGE's "
+            "own robustness sweep alongside PointNet's."
+        )
 
     # -----------------------------------------------------
     # Device
@@ -1385,6 +1462,56 @@ def main():
             "No Task 2 fold models found for any "
             "cross-validation regime. Run Task 2 first."
         )
+
+    # -----------------------------------------------------
+    # Optional SAGE half -- real, not reused/estimated
+    # -----------------------------------------------------
+
+    sage_point_rows, sage_noise_rows = None, None
+    if args.dataset_root:
+        print("\n" + "=" * 70)
+        print("SAGE HALF -- same degradation levels, real fitting pipeline")
+        print("=" * 70)
+        from evaluate_sage_robustness import run_sweep, POINT_LEVELS, NOISE_SIGMAS_MM
+        workers = args.workers or os.cpu_count()
+
+        sage_point_rows = run_sweep(args.dataset_root, args.sage_split, args.sage_model,
+                                     'points', POINT_LEVELS, workers, 1500, 0)
+        sage_noise_rows = run_sweep(args.dataset_root, args.sage_split, args.sage_model,
+                                     'noise', NOISE_SIGMAS_MM, workers, 1500, 0)
+
+        sage_point_df = pd.DataFrame(sage_point_rows)
+        sage_noise_df = pd.DataFrame(sage_noise_rows)
+        sage_point_df.to_csv(RESULTS_DIR / 'sage_point_count_results.csv', index=False)
+        sage_noise_df.to_csv(RESULTS_DIR / 'sage_noise_results.csv', index=False)
+
+        # Combined head-to-head table against PointNet's groupkfold curve
+        # (the leakage-free protocol, the fair comparison point).
+        if 'groupkfold' in point_count_curves:
+            pn_points = point_count_curves['groupkfold'].set_index('point_count')['overall_accuracy'] * 100
+            print("\n" + "=" * 70)
+            print("SAGE vs PointNet (groupkfold) -- POINT-COUNT ROBUSTNESS, real head-to-head")
+            print("=" * 70)
+            combined = sage_point_df.set_index('points')[['overall_accuracy']].rename(
+                columns={'overall_accuracy': 'sage_accuracy'})
+            combined['sage_accuracy'] *= 100
+            combined['pointnet_accuracy'] = pn_points
+            print(combined.to_string())
+            combined.to_csv(RESULTS_DIR / 'sage_vs_pointnet_point_count.csv')
+
+        if 'groupkfold' in noise_curves:
+            pn_noise = noise_curves['groupkfold'].set_index('noise_sigma_mm')['overall_accuracy'] * 100
+            print("\n" + "=" * 70)
+            print("SAGE vs PointNet (groupkfold) -- NOISE ROBUSTNESS, real head-to-head")
+            print("=" * 70)
+            combined_n = sage_noise_df.set_index('noise')[['overall_accuracy']].rename(
+                columns={'overall_accuracy': 'sage_accuracy'})
+            combined_n['sage_accuracy'] *= 100
+            combined_n['pointnet_accuracy'] = pn_noise
+            print(combined_n.to_string())
+            combined_n.to_csv(RESULTS_DIR / 'sage_vs_pointnet_noise.csv')
+
+        print(f"\nSAGE robustness CSVs saved to {RESULTS_DIR}")
 
     # -----------------------------------------------------
     # Figures

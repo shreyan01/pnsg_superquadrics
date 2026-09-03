@@ -68,8 +68,16 @@ def _eval_one_frame(args_tuple):
     dataset_root, frame_key, max_nfev, scoring = args_tuple
     results = []
     try:
-        for true_word, cloud, color_features in iter_frame_objects(
-                dataset_root, frame_key, class_id_to_vocab):
+        for obj_idx, (true_word, cloud, color_features) in enumerate(iter_frame_objects(
+                dataset_root, frame_key, class_id_to_vocab)):
+            # Stable identifier for this exact instance, independent of
+            # which worker processed it or what order results come back
+            # in -- REQUIRED for correctly pairing predictions across two
+            # separate evaluation runs (e.g. old model vs new model) in a
+            # McNemar test. Row order alone is not safe for this: two
+            # separate ProcessPoolExecutor runs are not guaranteed to
+            # complete frames in the same order.
+            instance_id = f"{frame_key}#{obj_idx}"
             axisym = true_word in AXISYMMETRIC_WORDS
             if axisym:
                 # SUPERSEDES the discrete neck detector -- see
@@ -79,7 +87,7 @@ def _eval_one_frame(args_tuple):
                                                    min_size_multiplier=0.05, position_margin_multiplier=2.0,
                                                    axisymmetric=True)
                 if not is_physically_plausible(params_a):
-                    results.append((true_word, '__IMPLAUSIBLE__', 0.0, {}))
+                    results.append((instance_id, true_word, '__IMPLAUSIBLE__', 0.0, {}))
                     continue
                 taper_features = compute_radial_profile(cloud, params_a)
                 graph = build_graph_from_segmentation(cloud, params_a, None, None,
@@ -88,7 +96,7 @@ def _eval_one_frame(args_tuple):
                 params_a, params_b, assignment = iterative_two_part_segment(
                     cloud, verbose=False, max_nfev=max_nfev)
                 if not is_physically_plausible(params_a):
-                    results.append((true_word, '__IMPLAUSIBLE__', 0.0, {}))
+                    results.append((instance_id, true_word, '__IMPLAUSIBLE__', 0.0, {}))
                     continue
                 if params_b is not None and not is_physically_plausible(params_b):
                     params_b, assignment = None, None
@@ -105,7 +113,7 @@ def _eval_one_frame(args_tuple):
             ranked = ranked_full[:1]
             score_dict = dict(ranked_full)
             pred_word, confidence = ranked[0] if ranked else (None, 0.0)
-            results.append((true_word, pred_word, confidence, score_dict))
+            results.append((instance_id, true_word, pred_word, confidence, score_dict))
         return frame_key, results, None
     except Exception as e:
         return frame_key, [], str(e)
@@ -126,6 +134,15 @@ def main():
                           'for real accuracy numbers behind this option). Requires a model file '
                           'that was TRAINED after raw_examples was added to Mode -- older files '
                           'will silently fall back to ensembled scoring (see classify_graph_ml).')
+    ap.add_argument('--predictions_out', default=None,
+                     help='If given, save every valid instance\'s (true_label, predicted_label, '
+                          'confidence) to this CSV path -- same column names Task 5 '
+                          '(task5_statistics.py) expects from every other model\'s predictions '
+                          'file, so pointing this at '
+                          'sage_baseline_experiments/results/sage/sage_predictions.csv and adding '
+                          '("sage", SAGE_RESULTS_DIR) to task5_statistics.py\'s MODEL_SPECS gets '
+                          'SAGE included in real bootstrap CIs and McNemar tests, not just the '
+                          'reconstructed-rate approximation.')
     args = ap.parse_args()
 
     reg = Registry.load(args.model)
@@ -146,6 +163,7 @@ def main():
     confusion = defaultdict(int)
     confident_correct, confident_wrong = [], []
     raw_results = []
+    predictions_with_ids = []  # separate from raw_results -- carries instance_id for the CSV, without changing raw_results' shape for every existing downstream consumer (metrics_module.print_full_report, calibrated_confidence loop, etc.)
     full_score_results = []   # (true_word, {class: score, ...}) -- needed for honest AUC
 
     work_items = [(args.dataset_root, fk, args.max_nfev, args.scoring) for fk in frame_keys]
@@ -162,11 +180,12 @@ def main():
                 msg = f'  [frame {frame_key}] skipped: {error}'
                 (iterator.write(msg) if HAVE_TQDM else print(msg))
                 continue
-            for true_word, pred_word, confidence, score_dict in results:
+            for instance_id, true_word, pred_word, confidence, score_dict in results:
                 if pred_word == '__IMPLAUSIBLE__':
                     n_implausible += 1
                     continue
                 raw_results.append((true_word, pred_word, confidence))
+                predictions_with_ids.append((instance_id, true_word, pred_word, confidence))
                 full_score_results.append((true_word, score_dict))
                 n_total += 1
                 per_class_total[true_word] += 1
@@ -180,6 +199,19 @@ def main():
             if HAVE_TQDM:
                 acc = n_correct / max(n_total, 1) * 100
                 iterator.set_postfix(accuracy=f'{acc:.1f}%', n=n_total, refresh=False)
+
+    if args.predictions_out:
+        import csv
+        os.makedirs(os.path.dirname(args.predictions_out) or '.', exist_ok=True)
+        with open(args.predictions_out, 'w', newline='') as f:
+            writer = csv.writer(f)
+            # instance_id first (for pairing two separate runs' predictions
+            # in a McNemar test -- row order alone isn't safe for that,
+            # see _eval_one_frame's comment), true_label/predicted_label
+            # keep the exact names Task 5 already reads by column name.
+            writer.writerow(['instance_id', 'true_label', 'predicted_label', 'confidence'])
+            writer.writerows(predictions_with_ids)
+        print(f'\nSaved {len(predictions_with_ids)} real per-instance predictions to {args.predictions_out}')
 
     print(f'\n=== Results ===')
     print(f'Overall top-1 accuracy: {n_correct}/{n_total} = {100*n_correct/max(n_total,1):.1f}%')

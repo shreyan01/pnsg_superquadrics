@@ -15,7 +15,7 @@ instance_id,true_label,predicted_label,correct,fold
 13,mug,mug,1,3
 14,can,can,1,4
 15,box,box,1,1
-16,can,mug,0,2
+16,can,box,0,2
 17,bottle,bottle,1,4
 18,bottle,bottle,1,3
 19,box,box,1,1
@@ -65,7 +65,7 @@ instance_id,true_label,predicted_label,correct,fold
 63,bottle,bottle,1,5
 64,box,box,1,1
 65,can,can,1,1
-66,bottle,box,0,4
+66,bottle,bottle,1,4
 67,mug,mug,1,4
 68,box,box,1,2
 69,can,can,1,4
@@ -244,7 +244,7 @@ instance_id,true_label,predicted_label,correct,fold
 242,box,box,1,5
 243,can,can,1,2
 244,box,box,1,1
-245,bottle,bottle,1,4
+245,bottle,box,0,4
 246,mug,mug,1,4
 247,box,box,1,1
 248,box,box,1,1
@@ -272,7 +272,7 @@ instance_id,true_label,predicted_label,correct,fold
 270,box,box,1,1
 271,box,box,1,3
 272,bowl,box,0,2
-273,mug,bowl,0,5
+273,mug,mug,1,5
 274,can,can,1,5
 275,box,box,1,5
 276,box,box,1,3
@@ -498,7 +498,7 @@ instance_id,true_label,predicted_label,correct,fold
 496,bottle,bottle,1,2
 497,bottle,bottle,1,2
 498,bowl,bowl,1,3
-499,mug,mug,1,4
+499,mug,bowl,0,4
 500,can,can,1,5
 501,mug,mug,1,4
 502,can,can,1,2
@@ -540,7 +540,7 @@ instance_id,true_label,predicted_label,correct,fold
 538,can,can,1,1
 539,can,can,1,3
 540,bottle,bottle,1,4
-541,bottle,bottle,1,3
+541,bottle,can,0,3
 542,mug,mug,1,3
 543,can,can,1,2
 544,box,box,1,2
@@ -560,7 +560,7 @@ instance_id,true_label,predicted_label,correct,fold
 558,bottle,bottle,1,1
 559,bowl,bowl,1,4
 560,mug,mug,1,1
-561,box,box,1,1
+561,box,bottle,0,1
 562,box,box,1,5
 563,box,box,1,1
 564,can,can,1,2
@@ -600,7 +600,7 @@ instance_id,true_label,predicted_label,correct,fold
 598,box,box,1,1
 599,box,box,1,2
 600,box,box,1,2
-601,box,box,1,2
+601,box,can,0,2
 602,bottle,bottle,1,3
 603,can,can,1,5
 604,can,can,1,2
@@ -631,7 +631,7 @@ instance_id,true_label,predicted_label,correct,fold
 629,box,box,1,4
 630,can,can,1,1
 631,bottle,bottle,1,1
-632,bottle,bottle,1,1
+632,bottle,box,0,1
 633,can,can,1,5
 634,bottle,bottle,1,4
 635,box,box,1,5
@@ -717,7 +717,7 @@ instance_id,true_label,predicted_label,correct,fold
 715,bowl,can,0,1
 716,mug,mug,1,3
 717,box,box,1,4
-718,bottle,bottle,1,3
+718,bottle,can,0,3
 719,mug,mug,1,1
 720,can,can,1,1
 721,box,box,1,1
@@ -755,7 +755,7 @@ instance_id,true_label,predicted_label,correct,fold
 753,box,box,1,4
 754,can,can,1,2
 755,box,box,1,3
-756,box,bottle,0,2
+756,box,box,1,2
 757,can,can,1,4
 758,box,box,1,1
 759,box,box,1,3
@@ -837,7 +837,7 @@ instance_id,true_label,predicted_label,correct,fold
 835,bottle,bottle,1,2
 836,box,box,1,2
 837,bottle,bowl,0,5
-838,bowl,can,0,2
+838,bowl,box,0,2
 839,mug,mug,1,2
 840,box,box,1,2
 841,bowl,bowl,1,1
@@ -1102,7 +1102,7 @@ instance_id,true_label,predicted_label,correct,fold
 1100,box,box,1,4
 1101,box,box,1,5
 1102,bowl,bowl,1,4
-1103,mug,mug,1,1
+1103,mug,can,0,1
 1104,bowl,bowl,1,2
 1105,mug,mug,1,3
 1106,box,box,1,2

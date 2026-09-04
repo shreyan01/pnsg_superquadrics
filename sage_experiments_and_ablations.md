@@ -1,10 +1,22 @@
-# SAGE — Experiments & Ablation Studies: Complete Log (v4)
+# SAGE — Experiments & Ablation Studies: Complete Log (v5)
 
-**This replaces v3.** One small but clean closure since then: the CSG/k-NN
-work (rows 17-18, carried as "status unknown" through v2 and v3) has been
-confirmed by you as no longer present in the repo, and not something you
-want to pursue. Marked formally abandoned below rather than left open —
-Part 2 now genuinely has only one remaining item.
+**This replaces v4.** The one item Part 2 still had — the 5-fold
+cross-validated multi-view result — is now done, with a real, proven,
+statistically significant result. Every `[PENDING]` marker in the paper
+is now filled in. This is the last update needed before the paper is
+considered content-complete.
+
+**One clarification worth stating plainly, since it caused real
+confusion**: "ExtraTrees" and "k-fold" are not two competing models or
+two things to choose between. ExtraTrees is the classifier — the same
+one in every result this session, no exceptions. K-fold is an
+*evaluation method* (rigorous cross-validation), used here specifically
+to test one real design question: does classifying from a *fused
+multi-view point cloud* work better than classifying from a *single
+frame*? It does, substantially. The actual deployment decision this
+unlocks is: **use multi-view fusion at inference whenever the robot can
+gather more than one observation of an object before committing to a
+classification** — not "switch to a different model."
 
 ---
 
@@ -80,28 +92,80 @@ Part 2 now genuinely has only one remaining item.
 | 19 | Real data-starvation bug in ExtraTrees training | 82.2% | **89.4%** after per-frame training data added (35,178 examples) | KEPT, the real headline fix |
 | 20 | Class-imbalance correction (cap majority classes 16,619→2,200) | 89.45% | 89.00% | **McNemar p=0.182 — proven non-significant** |
 | 21 | Paired significance test, original vs. adopted classifier | 78.8% | 89.4% | **McNemar p=4.17×10⁻²¹ — proven real improvement** |
-| 22 | Multi-view fusion at inference (occlusion mitigation) | 89.4% (single-frame) | 93.3% (n=30, fixed split) | Directionally positive, not yet proven; 5-fold CV in progress |
+| 22 | Multi-view fusion at inference (occlusion mitigation), fixed-split preview | 89.4% (single-frame) | 93.3% (n=30, fixed split) | Directionally positive, CI too wide to be conclusive alone |
+| **22b** | **Multi-view fusion, 5-fold video-level cross-validation (the real test)** | 89.4% (single-frame, n=1109) | **95.72%** (179/187, 95% CI [91.8%,97.8%], the full dataset ceiling at this granularity) | **PROVEN**: two-proportion z-test vs. single-frame result, z=2.69, p=0.0072 (Fisher's exact p=0.0048). Every category improved, most sharply the occlusion-prone ones: mug 51.7%→88.2%, bottle 68.5%→97.1%, bowl 36.4%→57.1% |
 | 23 | SAGE vs. PointNet, point-count downsampling robustness | — | SAGE 90.9% vs. PointNet 87.6% at 64 pts | **SAGE wins**, real head-to-head |
 | 24 | SAGE vs. PointNet, Gaussian noise robustness | — | SAGE 78.7% vs. PointNet 91.3% at σ=4mm | **PointNet wins badly** — honest negative result |
 | **25** | **SAGE's own sample-efficiency curve vs. baselines** | best baseline: 53.4%/60.0%/63.0% at n=1/2/5 | **SAGE: 66.7%/62.1%/70.1%** at n=1/2/5 | **SAGE wins at every budget tested**, single-draw caveat noted |
 
 ---
 
-## PART 2 — Immediate next steps (UPDATED — genuinely one item now)
+## PART 2 — Immediate next steps (UPDATED — the paper is now content-complete)
 
-1. **5-fold video-level cross-validated multi-view result.** The only
-   remaining gap of consequence. `kfold_multiview_eval.py` is built,
-   tested, and now protected by the same thread-limit guard that's already
-   been validated on two other expensive runs (Task 3, Task 4) without
-   incident. Expected ~75 minutes.
-   ```bash
-   python3 kfold_multiview_eval.py \
-       --dataset_root ~/pnsg_superquadrics/ycb_dataset \
-       --n_folds 5 --scoring ml --workers 30
-   ```
+~~5-fold video-level cross-validated multi-view result~~ — **done, see
+row 22b.** Real cost: 7.1 hours (25,694s), not the ~75 minutes estimated
+beforehand — that estimate was wrong, not the run. Each of the 5 folds
+requires a full, independent re-training (fresh per-frame export +
+fresh ExtraTrees fit on ~37-38k examples per fold), which is far more
+expensive than the original estimate accounted for.
 
 ~~Confirm the status of the CSG/k-NN work~~ — **resolved: confirmed gone,
 not being pursued. See row 17.**
+
+**Every `[PENDING]` marker in the paper draft is now filled in.** The
+remaining open items in this document are all outside the paper itself
+(hardware trials, future-work items) — see Part 5.
+
+---
+
+## PART 2B — The k-fold multi-view algorithm, start to end
+
+Added here because the distinction between "which classifier" and
+"which evaluation protocol" caused real confusion — worth a precise,
+complete record.
+
+**The classifier is ExtraTrees in every single result in this
+document, with no exception.** "K-fold" is not a competing model — it
+is the cross-validation *method* used specifically to rigorously test
+one real design question: does classifying from a fused multi-view
+point cloud beat classifying from a single frame? (It does,
+substantially — see row 22b.)
+
+1. **Find every real video.** Scan the dataset for all 92 video
+   folders (`discover_video_ids`).
+2. **Split into 5 folds.** Shuffle the 92 videos with a fixed random
+   seed, deal round-robin into 5 groups of ~18-19 videos
+   (`build_folds`). Every video belongs to exactly one fold — this is
+   the entire basis for the "no leakage" guarantee, and it was
+   re-verified directly against the actual code before trusting the
+   result, not just assumed.
+3. **Repeat 5 times, once per fold:**
+   - This fold's videos become the test set; the other 4 folds
+     (~74 videos) become the training set for this round.
+   - Export per-frame training features from those ~74 videos (every
+     5th frame, real superquadric fitting per object) — this is the
+     expensive step; fold 5 alone touched 21,110 frames.
+   - Train a brand-new `ExtraTreesClassifier` from scratch on
+     everything just exported (37,622 examples in fold 5) — never
+     reused from a previous fold.
+   - Evaluate on the held-out fold's videos: for each real object, fuse
+     multiple viewpoints of that same physical instance into one
+     combined point cloud, fit one superquadric to the fused cloud, and
+     classify it with the classifier just trained.
+   - Record every prediction.
+4. **Pool all 5 folds' held-out predictions together.** Every video was
+   tested in exactly one fold, so this covers all 187 real object
+   instances the dataset contains at this granularity, each scored by a
+   classifier that genuinely never saw that video during training.
+5. **Compute final statistics** from the pooled set: 179/187 = 95.72%
+   overall, Wilson 95% CIs per class, confusion matrix.
+
+**The real, practical takeaway**: this isn't evidence to swap models.
+It's evidence that **multi-view fusion at inference time is worth
+doing whenever the robot's setup allows gathering more than one
+observation before classifying** — the same ExtraTrees classifier,
+given richer input, does substantially better, especially on the
+occlusion-prone categories.
 
 ---
 
@@ -183,14 +247,16 @@ For items 1–24, see v2 of this document. What follows is new since then.
 ## PART 5 — Full "still to do" list, by owner (UPDATED)
 
 **You (hardware + pipeline-specific):**
-- Run the 5-fold cross-validated multi-view result (Part 2) — the single
-  remaining item of consequence for the paper.
+- ~~Run the 5-fold cross-validated multi-view result~~ — **done, see
+  Part 1 row 22b. The paper draft is now content-complete.**
 - ~~Confirm CSG/k-NN status~~ — **resolved: confirmed gone, not pursuing.**
-- **Physical grasping trials on OpenArm.** Unchanged from v2 — the ROS2
-  package (`sage_openarm_grasping`) is built but untested on real
-  hardware. Config placeholders (camera topics, joint names, MoveIt2
-  planning group, and especially the elbow-bend angle) still need real
-  values before any physical trial.
+- **Physical grasping trials on OpenArm.** Now the single largest
+  remaining item overall. The ROS2 package (`sage_openarm_grasping`) is
+  built but untested on real hardware. Config placeholders (camera
+  topics, joint names, MoveIt2 planning group, and especially the
+  elbow-bend angle) still need real values before any physical trial —
+  see that package's own README for the exact discovery commands
+  (`ros2 topic list`, `ros2 topic echo /joint_states`).
 - ~~Task 3's SAGE-half sample-efficiency numbers~~ — **done, see Part 1
   row 25.**
 - Real, isolated `can`-vs-`bottle` fitting-strategy comparison — already

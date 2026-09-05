@@ -35,13 +35,8 @@ CLASS_ACCURACY_COLUMNS = [
 SAGE = sage_reference.summary_row()
 SAGE["model"] = "SAGE"
 
-CLASS_SUPPORT = {
-    "box": 475,
-    "can": 355,
-    "mug": 89,
-    "bottle": 146,
-    "bowl": 44,
-}
+# Derived from the data by sage_reference; see its drift check.
+CLASS_SUPPORT = sage_reference.CLASS_SUPPORT
 
 # The three cross-validation regimes, in reporting order.
 # Result files are suffixed with the regime, except the

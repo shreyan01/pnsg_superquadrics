@@ -42,10 +42,10 @@ TASK2_RESULTS_DIR = (
 # evaluate_on_ycbv.py --predictions_out <this path>. If this file
 # doesn't exist, SAGE is simply skipped from the bootstrap/McNemar
 # sections below (same graceful skip every other model gets) --
-# the can-vs-bottle Fisher's exact test further down still works either
-# way via the separate SAGE_PER_CLASS reconstructed-rate path, since
-# that's a different, weaker requirement (rates only, not full
-# per-instance data).
+# the can-vs-bottle Fisher's exact test further down falls back to
+# sage_reference's recorded rates, which is a weaker requirement (rates
+# only, not full per-instance data) and labels itself as such in the
+# output.
 SAGE_RESULTS_DIR = (
     PROJECT_ROOT
     / "results"
@@ -93,39 +93,19 @@ MODEL_SPECS = [
 # SAGE reported per-class results
 # ---------------------------------------------------------
 
-# SAGE's own numbers on val_sample. We have no instance-level
-# SAGE predictions loaded into THIS script, only these rates
-# and the class supports, so the correct/incorrect counts
-# below are reconstructed by rounding rate * support to the
-# nearest integer. That is exact enough for a test whose
-# p-value lands many orders of magnitude from 0.05, but the
-# counts are reconstructed, not measured -- worth restating
-# if this ends up in a paper.
+# SAGE's per-class rates and the class supports both come from
+# sage_reference, which derives them from the instance-level predictions
+# on disk rather than trusting a literal. They were duplicated here and
+# in results_io.py -- three copies of the same numbers is three chances
+# for one to go stale unnoticed.
 #
-# NOTE: this no longer has to be true going forward. Task 3's SAGE
-# half (task3_sample_efficiency.py) now runs with --scoring ml by
-# default and saves REAL per-instance predictions to
-# results/task3/sage_predictions_n<N>_seed<S>.csv for every n it
-# evaluates. Once you have a full-size (n=max, i.e. not sample-
-# efficiency-limited) run of that, load its predictions.csv here
-# instead of reconstructing from a summary rate -- it'll give this
-# script's paired tests real per-instance power instead of an
-# approximation.
+# Run `python3 src/sage_reference.py` to see the drift check.
 SAGE_PER_CLASS = {
-    "box": 1.000,
-    "can": 1.000,
-    "mug": 0.517,
-    "bottle": 0.685,
-    "bowl": 0.364,
+    label: sage_reference.get()[f"{label}_accuracy"]
+    for label in sage_reference.CLASSES
 }
 
-CLASS_SUPPORT = {
-    "box": 475,
-    "can": 355,
-    "mug": 89,
-    "bottle": 146,
-    "bowl": 44,
-}
+CLASS_SUPPORT = sage_reference.CLASS_SUPPORT
 
 
 # ---------------------------------------------------------

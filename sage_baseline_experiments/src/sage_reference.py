@@ -35,13 +35,22 @@ RESULTS_DIR = PROJECT_ROOT / "results"
 CLASSES = ["box", "can", "mug", "bottle", "bowl"]
 
 # Per-class instance counts in val_sample (n = 1109).
-CLASS_SUPPORT = {
+#
+# RECORDED FALLBACK ONLY. class_support() below derives these from the
+# data whenever it can, because a hardcoded support silently goes wrong
+# the moment the split changes -- and every downstream proportion test
+# divides by it. Used only when neither the predictions nor the feature
+# export is on disk.
+CLASS_SUPPORT_RECORDED = {
     "box": 475,
     "can": 355,
     "mug": 89,
     "bottle": 146,
     "bowl": 44,
 }
+
+# CLASS_SUPPORT and its provenance are derived below, once SAGE_RUNS
+# exists -- see class_support().
 
 
 # ---------------------------------------------------------
@@ -98,6 +107,57 @@ SAGE_RUNS = {
 }
 
 HEADLINE = "ml_v2"
+
+
+# ---------------------------------------------------------
+# Class support, derived rather than trusted
+# ---------------------------------------------------------
+
+def class_support(run=HEADLINE):
+    """Per-class instance counts, derived from data where possible.
+
+    Every downstream proportion test divides by these, so a stale
+    hardcoded support silently corrupts p-values the moment the split
+    changes. Preference order matches the rest of this module:
+
+      1. the run's instance-level predictions
+      2. the exported feature file
+      3. CLASS_SUPPORT_RECORDED
+
+    Returns (counts, provenance).
+    """
+
+    relative = SAGE_RUNS.get(run, {}).get("predictions")
+
+    if relative:
+        path = RESULTS_DIR / relative
+        if path.exists():
+            counts = pd.read_csv(path)["true_label"].value_counts().to_dict()
+            return (
+                {label: int(counts.get(label, 0)) for label in CLASSES},
+                f"derived from results/{relative}",
+            )
+
+    try:
+        from data_utils import load_feature_data
+
+        _X, labels, _names = load_feature_data()
+        labels = np.asarray(labels)
+
+        return (
+            {label: int((labels == label).sum()) for label in CLASSES},
+            "derived from baseline_data/features_val_sample.npz",
+        )
+
+    except Exception:
+        return (
+            dict(CLASS_SUPPORT_RECORDED),
+            "recorded fallback -- no data on disk",
+        )
+
+
+# Module-level dict, data-derived at import, same shape as before.
+CLASS_SUPPORT, CLASS_SUPPORT_PROVENANCE = class_support()
 
 
 # ---------------------------------------------------------
@@ -212,6 +272,119 @@ def summary_row(run=HEADLINE, derive=True):
     return row
 
 
+def verify(tolerance=0.005):
+    """Check the recorded constants against what the data actually says.
+
+    A hardcoded number that has quietly gone stale is worse than no
+    number at all, because it looks authoritative. This compares every
+    recorded value against the derived one and returns the
+    discrepancies, so drift is loud rather than silent.
+
+    Returns a list of dicts; empty means everything agrees.
+    """
+
+    problems = []
+
+    for name, recorded in SAGE_RUNS.items():
+
+        frame = load_predictions(name)
+
+        if frame is None:
+            problems.append({
+                "run": name,
+                "field": "*",
+                "recorded": None,
+                "derived": None,
+                "issue": "no instance-level predictions on disk; "
+                         "values are unverifiable constants",
+            })
+            continue
+
+        derived = metrics_from_predictions(frame)
+
+        for field, derived_value in derived.items():
+
+            if field not in recorded:
+                continue
+
+            recorded_value = recorded[field]
+
+            if recorded_value is None or (
+                isinstance(recorded_value, float) and np.isnan(recorded_value)
+            ):
+                continue
+
+            if abs(float(recorded_value) - float(derived_value)) > tolerance:
+                problems.append({
+                    "run": name,
+                    "field": field,
+                    "recorded": float(recorded_value),
+                    "derived": float(derived_value),
+                    "issue": "recorded constant disagrees with the data",
+                })
+
+    # The support every proportion test divides by.
+    derived_support, provenance = class_support()
+
+    if "recorded fallback" not in provenance:
+        for label, count in CLASS_SUPPORT_RECORDED.items():
+            if derived_support.get(label) != count:
+                problems.append({
+                    "run": "class_support",
+                    "field": label,
+                    "recorded": count,
+                    "derived": derived_support.get(label),
+                    "issue": f"support disagrees ({provenance})",
+                })
+
+    return problems
+
+
+def write_csv(path=None):
+    """Write every SAGE run to a CSV, with provenance per row.
+
+    The point of the provenance column is that a reader can tell, per
+    row, whether a number came out of the pipeline or out of a constant
+    someone typed. Those are not the same kind of evidence and a table
+    that hides the difference is misleading.
+    """
+
+    path = Path(path) if path else (RESULTS_DIR / "sage" / "sage_reference.csv")
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    rows = []
+
+    for name in SAGE_RUNS:
+
+        entry = get(name)
+
+        row = {
+            "run": name,
+            "is_headline": name == HEADLINE,
+            "model": entry["model"],
+            "scoring": entry["scoring"],
+            "split": entry["split"],
+            "eval_protocol": entry["eval_protocol"],
+            "source_model": entry["source_model"],
+            "overall_accuracy": entry["overall_accuracy"],
+            "balanced_accuracy": entry["balanced_accuracy"],
+            "n_instances": entry.get("n_instances"),
+            "derived_from_data": "derived" in entry["provenance"],
+            "provenance": entry["provenance"],
+        }
+
+        for label in CLASSES:
+            row[f"{label}_accuracy"] = entry[f"{label}_accuracy"]
+            row[f"{label}_support"] = CLASS_SUPPORT.get(label)
+
+        rows.append(row)
+
+    frame = pd.DataFrame(rows)
+    frame.to_csv(path, index=False)
+
+    return path, frame
+
+
 def describe():
     """Human-readable listing of every recorded run."""
 
@@ -226,8 +399,34 @@ def describe():
             f"[{entry['provenance']}]{marker}"
         )
 
+    lines.append("")
+    lines.append(f"class support: {CLASS_SUPPORT}")
+    lines.append(f"               {CLASS_SUPPORT_PROVENANCE}")
+
     return "\n".join(lines)
 
 
 if __name__ == "__main__":
+
     print(describe())
+
+    print("\n" + "=" * 70)
+    print("DRIFT CHECK -- recorded constants vs the data")
+    print("=" * 70)
+
+    problems = verify()
+
+    if not problems:
+        print("\nNo discrepancies. Every recorded value matches the data.")
+    else:
+        for problem in problems:
+            print(
+                f"\n  {problem['run']}.{problem['field']}: "
+                f"{problem['issue']}"
+            )
+            if problem["recorded"] is not None:
+                print(f"    recorded {problem['recorded']}  "
+                      f"derived {problem['derived']}")
+
+    path, frame = write_csv()
+    print(f"\nWrote {len(frame)} rows -> {path}")

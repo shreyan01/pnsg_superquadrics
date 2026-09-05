@@ -12,6 +12,7 @@ from scipy.stats import fisher_exact
 
 from statsmodels.stats.contingency_tables import mcnemar
 
+import sage_reference
 from evaluation import LABEL_ORDER
 
 
@@ -690,15 +691,45 @@ def can_vs_bottle_from_predictions(
 
 def can_vs_bottle_for_sage(rng=None):
     """
-    Run the same comparison on SAGE's own reported rates.
+    Run the same comparison on SAGE's own result.
 
-    This is the version the guide actually asks about: it
-    tests whether SAGE's axisymmetric-fitting result on
-    cans really is better than its flexible-fitting result
-    on bottles, rather than a fluke of a modest held-out
-    set. Counts are reconstructed from the reported
-    percentages -- see SAGE_PER_CLASS.
+    This is the version the guide actually asks about: it tests whether
+    SAGE's axisymmetric-fitting result on cans really is better than its
+    flexible-fitting result on bottles, rather than a fluke of a modest
+    held-out set.
+
+    Uses the real per-instance predictions when they are on disk, and
+    only falls back to counts reconstructed from reported rates when
+    they are not. The returned `model` label says which was used, so a
+    table can never silently present a reconstruction as measured.
+
+    IMPORTANT caveat on interpretation: the fitting strategy is chosen
+    from the ground-truth label (see sage_reference), so 'can' is fitted
+    axisymmetrically *because it is a can*. Part of any can-vs-bottle
+    gap is therefore that leak rather than a property of the fitting
+    strategy. Re-run this after the item-2 fix before quoting it.
     """
+
+    frame = sage_reference.load_predictions()
+
+    if frame is not None:
+
+        correct = frame["true_label"] == frame["predicted_label"]
+
+        can = frame["true_label"] == "can"
+        bottle = frame["true_label"] == "bottle"
+
+        result = run_two_proportion_test(
+            n_correct_a=int(correct[can].sum()),
+            n_total_a=int(can.sum()),
+            n_correct_b=int(correct[bottle].sum()),
+            n_total_b=int(bottle.sum()),
+            rng=rng,
+        )
+
+        result["model"] = "SAGE (measured)"
+
+        return result
 
     result = run_two_proportion_test(
         n_correct_a=round(

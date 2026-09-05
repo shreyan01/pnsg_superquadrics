@@ -15,6 +15,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+import sage_reference
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RESULTS_DIR = PROJECT_ROOT / "results"
 
@@ -26,17 +28,12 @@ CLASS_ACCURACY_COLUMNS = [
 
 # SAGE's locked numbers from the co-author guide, plus the class supports.
 # Kept here so notebooks can build the comparison row without re-deriving it.
-SAGE = {
-    "model": "SAGE",
-    "split": "video_level",
-    "overall_accuracy": 0.784,
-    "balanced_accuracy": np.nan,
-    "box_accuracy": 0.947,
-    "can_accuracy": 0.949,
-    "mug_accuracy": 0.326,
-    "bottle_accuracy": 0.315,
-    "bowl_accuracy": 0.182,
-}
+# SAGE's numbers come from sage_reference (single source of truth,
+# derived from instance-level predictions where available). This dict
+# used to hold a stale 0.784 while task1 held 0.894, which is why the
+# notebooks and the task-1 table disagreed.
+SAGE = sage_reference.summary_row()
+SAGE["model"] = "SAGE"
 
 CLASS_SUPPORT = {
     "box": 475,

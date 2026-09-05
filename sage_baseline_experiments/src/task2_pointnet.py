@@ -5,6 +5,13 @@ from pathlib import Path
 # Allow these scripts to be launched from any working
 # directory (repo root or src/), not only from inside src/.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+# Repo root (two levels up from src/) -- where registry.py and
+# export_baseline_data.py live. Needed only by the optional SAGE
+# comparison at the end, which goes through evaluate_sage_robustness.py
+# and its flat `from registry import ...` imports.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
 import random
 
 import numpy as np
@@ -1182,34 +1189,94 @@ def create_combined_summary():
     return combined
 
 
+def check_sage_comparison_available(model_path):
+    """Preflight the SAGE comparison BEFORE training starts.
+
+    Training all three regimes takes ~36 minutes. Discovering a missing
+    model or a broken import after that is pure waste, so everything the
+    comparison needs is verified up front.
+
+    Returns (ok, reason).
+    """
+
+    try:
+        from evaluate_sage_robustness import evaluate_clouds  # noqa: F401
+    except ImportError as error:
+        return False, (
+            f"Cannot import evaluate_sage_robustness.evaluate_clouds "
+            f"({error}). It needs the parent SAGE repo importable "
+            f"(registry.py, export_baseline_data.py) and opencv-python."
+        )
+
+    resolved = Path(model_path).expanduser().resolve()
+    if not resolved.exists():
+        return False, (
+            f"SAGE model not found: {resolved}\n"
+            f"Pass --sage-model <path>, or --no-sage to skip."
+        )
+
+    try:
+        from registry import Registry
+        registry = Registry.load(str(resolved))
+    except Exception as error:
+        return False, f"Could not load {resolved}: {type(error).__name__}: {error}"
+
+    if getattr(registry, "_ml_classifier", None) is None:
+        # Registry.load() rebuilds the ExtraTrees from ml_raw_X/ml_raw_y;
+        # a model that never went through bake_ml_classifier.py has none,
+        # and every prediction would be degenerate.
+        return False, (
+            f"{resolved.name} has no ML classifier. Run it through "
+            f"bake_ml_classifier.py first, or pass --no-sage."
+        )
+
+    return True, f"SAGE model ready: {resolved.name}"
+
+
 def run_sage_comparison(clouds, labels, model_path, workers):
     """Evaluate the saved SAGE registry on the Task 2 point-cloud set."""
 
-    from registry import Registry
-    from task4_robustness import evaluate_sage_condition
+    from evaluate_sage_robustness import evaluate_clouds
 
     model_path = Path(model_path).expanduser().resolve()
-    if not model_path.exists():
-        raise FileNotFoundError(f"SAGE model not found: {model_path}")
 
     print(f"\nSAGE model: {model_path}")
-    metrics = evaluate_sage_condition(
-        Registry.load(str(model_path)),
-        clouds,
-        labels,
-        NUM_POINTS,
-        0.0,
-        workers,
+
+    metrics, rows = evaluate_clouds(
+        clouds=clouds,
+        labels=labels,
+        model_path=str(model_path),
+        workers=workers,
+        target_points=NUM_POINTS,
+        noise_sigma_m=0.0,
     )
+
     metrics["model"] = "SAGE (local model)"
     metrics["model_path"] = str(model_path)
+
+    # abstain_reasons is a dict; keep it out of the flat CSV row and
+    # report it on the console instead.
+    reasons = metrics.pop("abstain_reasons", {})
+
     output_path = RESULTS_DIR / "sage_metrics.csv"
     pd.DataFrame([metrics]).to_csv(output_path, index=False)
+
+    pd.DataFrame(rows).to_csv(
+        RESULTS_DIR / "sage_predictions.csv", index=False
+    )
+
     print(
         f"SAGE accuracy: {metrics['overall_accuracy'] * 100:.2f}% "
-        f"({metrics['n_evaluated'] if 'n_evaluated' in metrics else len(labels)} instances)"
+        f"on {metrics['n_evaluated']}/{metrics['n_input']} instances"
     )
+
+    if metrics["n_abstained"]:
+        print(
+            f"  abstained on {metrics['n_abstained']}: {reasons}"
+        )
+
     print(f"SAGE metrics saved: {output_path}")
+
     return metrics
 
 
@@ -1787,6 +1854,26 @@ def main():
 
     print()
     print("Regimes to run:", selected_modes)
+
+    # -----------------------------------------------------
+    # Preflight the SAGE comparison BEFORE the long training
+    # -----------------------------------------------------
+
+    # Training every regime takes ~36 minutes. The SAGE comparison runs
+    # after it, so anything wrong with the model or its imports has to
+    # surface now, not once the GPU/CPU time is already spent.
+    if sage_enabled:
+
+        sage_ok, sage_reason = check_sage_comparison_available(sage_model)
+
+        print(f"\nSAGE comparison: {sage_reason}")
+
+        if not sage_ok:
+            raise SystemExit(
+                "\nRefusing to start a ~36-minute training run that would "
+                "fail at the end.\nFix the above, or pass --no-sage to skip "
+                "the SAGE comparison."
+            )
 
     for split_mode in selected_modes:
 

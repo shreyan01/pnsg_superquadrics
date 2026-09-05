@@ -19,6 +19,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 
+import sage_reference
 from data_utils import (
     compute_object_groups,
     load_feature_data,
@@ -101,33 +102,12 @@ RESULTS_DIR = (
 # We do NOT have instance-level SAGE predictions here,
 # so they are not part of the cross-validation procedure.
 
-SAGE_REFERENCE = {
-    # UPDATED (see comment above) -- ExtraTreesClassifier scoring
-    # (--scoring ml), trained on the per-frame `train` split export
-    # (baseline_data/features_train.npz, 35178 examples) baked into
-    # trained_ycbv_ml_v2.json via bake_ml_classifier.py, evaluated on
-    # val_sample (1109 instances) via evaluate_on_ycbv.py. Train and
-    # eval come from disjoint YCB-Video splits, same as the original
-    # 0.784 number -- this is a fair, like-for-like replacement, not a
-    # leakier comparison.
-    #
-    # THIS IS A LIVING NUMBER, not a final one -- there's an open,
-    # unresolved investigation (see diagnose_confusions.py) into why
-    # bottle/mug/bowl still collapse toward box in a meaningful fraction
-    # of cases. Update again if that investigation changes the result.
-    #
-    # balanced_accuracy = simple mean of the 5 per-class accuracies
-    # below (was missing entirely before -- this is why the summary
-    # table printed NaN for the SAGE row's balanced_accuracy column).
-    "model": "SAGE",
-    "overall_accuracy": 0.894,
-    "balanced_accuracy": 0.7132,
-    "box_accuracy": 1.000,
-    "can_accuracy": 1.000,
-    "mug_accuracy": 0.517,
-    "bottle_accuracy": 0.685,
-    "bowl_accuracy": 0.364,
-}
+# SAGE's own numbers come from src/sage_reference.py, which is the
+# single source of truth and derives them from the instance-level
+# predictions on disk where those exist. Do not re-declare them here --
+# this file and results_io.py previously disagreed (0.894 vs 0.784),
+# which is why every notebook figure rendered the wrong one.
+SAGE_REFERENCE = sage_reference.summary_row()
 
 
 # ---------------------------------------------------------
@@ -373,30 +353,10 @@ def create_combined_summary():
     # Original SAGE result
     # -----------------------------------------------------
 
-    sage_row = {
-        "model": SAGE_REFERENCE["model"],
-        "overall_accuracy": (
-            SAGE_REFERENCE["overall_accuracy"]
-        ),
-        "balanced_accuracy": np.nan,
-        "box_accuracy": (
-            SAGE_REFERENCE["box_accuracy"]
-        ),
-        "can_accuracy": (
-            SAGE_REFERENCE["can_accuracy"]
-        ),
-        "mug_accuracy": (
-            SAGE_REFERENCE["mug_accuracy"]
-        ),
-        "bottle_accuracy": (
-            SAGE_REFERENCE["bottle_accuracy"]
-        ),
-        "bowl_accuracy": (
-            SAGE_REFERENCE["bowl_accuracy"]
-        ),
-    }
-
-    sage_row["split"] = "video_level"
+    # summary_row() already carries every column in the right shape,
+    # including balanced_accuracy -- which used to be hardcoded to NaN
+    # here even when the underlying run had a real value.
+    sage_row = dict(SAGE_REFERENCE)
 
     rows.append(sage_row)
 

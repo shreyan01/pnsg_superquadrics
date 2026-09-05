@@ -100,6 +100,102 @@ def _process_one_frame_degraded(args_tuple):
         return frame_key, [], str(e)
 
 
+def _process_one_cloud(args_tuple):
+    """Fit + classify ONE already-loaded cloud.
+
+    Same pipeline as _process_one_frame_degraded, but takes the cloud
+    directly instead of reading it from a frame. That lets callers that
+    already hold clouds in memory (task2_pointnet.py's exported
+    pointclouds_val_sample.npz set) reuse this without touching the
+    dataset.
+
+    Unlike the frame-based path, this NEVER silently drops an instance:
+    every input returns a row, with `reason` naming why it abstained.
+    That is what makes a fixed-population comparison possible.
+    """
+    cloud, vocab_word, target_points, noise_sigma_m, max_nfev, seed = args_tuple
+    rng = np.random.default_rng(seed)
+    try:
+        cloud = _degrade_cloud(np.asarray(cloud, dtype=np.float64),
+                                target_points, noise_sigma_m, rng)
+        if len(cloud) < 50:
+            return vocab_word, None, 'too_few_points'
+
+        # NOTE: fit_one_instance() picks its fitting strategy from
+        # vocab_word -- the ground-truth label. That is the leak the
+        # plan's item 2 replaces; kept here so this matches the current
+        # pipeline exactly until that lands.
+        f = fit_one_instance(cloud, vocab_word, max_nfev=max_nfev)
+        if f is None:
+            return vocab_word, None, 'implausible_fit'
+        if _worker_reg._ml_classifier is None:
+            return vocab_word, None, 'no_ml_classifier'
+
+        pred = _worker_reg._ml_classifier.predict(f.reshape(1, -1))[0]
+        return vocab_word, str(pred), None
+    except Exception as e:
+        return vocab_word, None, f'error: {type(e).__name__}: {e}'
+
+
+def evaluate_clouds(clouds, labels, model_path, workers, max_nfev=1500,
+                    target_points=None, noise_sigma_m=0.0, seed=0):
+    """Evaluate a trained SAGE registry on in-memory clouds.
+
+    Returns (metrics, per_instance_rows). `metrics` reports the
+    abstained population separately from accuracy rather than folding it
+    into the denominator, so `n_evaluated + n_abstained == len(labels)`
+    always holds.
+    """
+    model_path = os.path.abspath(str(model_path))
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"SAGE model not found: {model_path}")
+
+    work_items = [
+        (np.asarray(cloud), str(word), target_points, noise_sigma_m, max_nfev, seed)
+        for cloud, word in zip(clouds, labels)
+    ]
+
+    rows = []
+    with ProcessPoolExecutor(max_workers=workers,
+                              initializer=_init_robustness_worker,
+                              initargs=(model_path,)) as executor:
+        for instance_id, (true_word, pred_word, reason) in enumerate(
+                executor.map(_process_one_cloud, work_items)):
+            rows.append({'instance_id': instance_id, 'true_label': true_word,
+                         'predicted_label': pred_word,
+                         'abstained': int(pred_word is None),
+                         'reason': reason or ''})
+
+    scored = [r for r in rows if not r['abstained']]
+    n_total = len(scored)
+    n_correct = sum(r['true_label'] == r['predicted_label'] for r in scored)
+
+    per_class_total = collections.defaultdict(int)
+    per_class_correct = collections.defaultdict(int)
+    for r in scored:
+        per_class_total[r['true_label']] += 1
+        if r['true_label'] == r['predicted_label']:
+            per_class_correct[r['true_label']] += 1
+
+    per_class_acc = {w: per_class_correct[w] / per_class_total[w]
+                     for w in per_class_total if per_class_total[w] > 0}
+
+    reasons = collections.Counter(r['reason'] for r in rows if r['abstained'])
+
+    metrics = {
+        'overall_accuracy': n_correct / max(n_total, 1),
+        'balanced_accuracy': float(np.mean(list(per_class_acc.values()))) if per_class_acc else 0.0,
+        'n_evaluated': n_total,
+        'n_abstained': len(rows) - n_total,
+        'n_input': len(rows),
+        'abstain_reasons': dict(reasons),
+    }
+    for w, a in per_class_acc.items():
+        metrics[f'{w}_accuracy'] = a
+
+    return metrics, rows
+
+
 def run_sweep(dataset_root, split, model_path, sweep_kind, values, workers, max_nfev, seed):
     frame_keys = read_split_file(dataset_root, split)
     rows = []

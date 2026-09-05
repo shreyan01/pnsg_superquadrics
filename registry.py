@@ -123,6 +123,108 @@ def canonicalize(params, color_features=None, taper_features=None):
     return np.array([a1, a2, params['eps1'], params['eps2'], params['a3'], hue, sat,
                      profile[0], profile[1], profile[2], profile[3], profile[4], aspect_ratio])
 
+# ---------------------------------------------------------------------
+# Label-free paired feature vector
+# ---------------------------------------------------------------------
+# The 13D canonicalize() above is fed by a fit whose STRATEGY was chosen
+# from the ground-truth category (axisym = true_word in
+# AXISYMMETRIC_WORDS, in export_baseline_data.py, evaluate_on_ycbv.py
+# and train_registry_multiview.py). Since axisymmetric=True fixes
+# a2 = a1 and eps2 = 1.0, and only 'can' took that path, the resulting
+# vector identified 'can' outright: on features_val_sample.npz, a1 == a2
+# held for 100% of cans and 0% of everything else -- one bit, 100%
+# accuracy for can-vs-rest.
+#
+# canonicalize_pair() removes that by running BOTH fits for every object
+# and reporting both. The a1 == a2 signature then holds for 100% of
+# objects in the axisymmetric half and 0% in the flexible half:
+# constant across classes, carrying no label information. The leak
+# closes by construction, with no selection rule that could be wrong.
+#
+# (A residual-ratio selection rule WAS built and measured, and it picks
+# inversely on partial single-view clouds -- cans pay the HIGHEST cost
+# for the constraint, not the lowest, because one view sees only part of
+# a round object's circumference. See symmetry.py for the numbers.)
+#
+# Deliberately ADDITIVE: canonicalize() and the 13D Welford machinery
+# are untouched, so existing trained models keep working. The wider
+# vector is consumed by the ML path, which is already width-agnostic --
+# import_ml_training_data() accepts any (N, D).
+
+FEATURE_KEYS_PAIR = [
+    # constrained (axisymmetric) fit. a2 and eps2 are fixed by
+    # construction, so they carry no information and are omitted.
+    'ax_a1', 'ax_a3', 'ax_eps1', 'ax_aspect_ratio', 'ax_nrmse',
+    # free (flexible) fit
+    'fl_a1', 'fl_a2', 'fl_eps1', 'fl_eps2', 'fl_a3',
+    'fl_aspect_ratio', 'fl_nrmse',
+    # which fit the data prefers -- a feature, not a branch
+    'residual_ratio', 'angular_variation',
+    # colour, as before
+    'hue', 'saturation',
+    # radial profile, now computed for EVERY object rather than only for
+    # the one category that was permitted to have one
+    'r_10', 'r_30', 'r_50', 'r_70', 'r_90',
+]
+
+
+def canonicalize_pair(diagnostics, color_features=None, taper_features=None):
+    """Label-free paired feature vector, from symmetry.fit_both().
+
+    `diagnostics` is the dict fit_both() returns: both parameter sets,
+    both normalised residuals, and the two symmetry measures.
+
+    Returns an array ordered as FEATURE_KEYS_PAIR. Missing colour or
+    taper is zero-filled exactly as canonicalize() does, and masked out
+    at scoring time by the *_active_mask_pair helpers below.
+    """
+    ax = diagnostics['axisym']
+    fl = diagnostics['flexible']
+
+    hue, sat = color_features if color_features is not None else (0.0, 0.0)
+    profile = taper_features if taper_features is not None else (0.0,) * 5
+
+    # Sorted for the same reason canonicalize() sorts a1/a2: which one
+    # the optimiser happened to label "a1" is arbitrary and must not
+    # become signal.
+    fl_a1, fl_a2 = sorted([fl['a1'], fl['a2']], reverse=True)
+
+    def _finite(value):
+        return float(value) if value is not None and np.isfinite(value) else 0.0
+
+    return np.array([
+        ax['a1'], ax['a3'], ax['eps1'],
+        ax['a3'] / max(ax['a1'], 1e-6),
+        _finite(diagnostics.get('axisym_nrmse')),
+
+        fl_a1, fl_a2, fl['eps1'], fl['eps2'], fl['a3'],
+        fl['a3'] / max(fl_a1, 1e-6),
+        _finite(diagnostics.get('flexible_nrmse')),
+
+        _finite(diagnostics.get('residual_ratio')),
+        _finite(diagnostics.get('angular_variation')),
+
+        hue, sat,
+        profile[0], profile[1], profile[2], profile[3], profile[4],
+    ])
+
+
+def color_active_mask_pair(color_features):
+    mask = np.ones(len(FEATURE_KEYS_PAIR))
+    if color_features is None:
+        mask[FEATURE_KEYS_PAIR.index('hue')] = 0.0
+        mask[FEATURE_KEYS_PAIR.index('saturation')] = 0.0
+    return mask
+
+
+def taper_active_mask_pair(taper_features):
+    mask = np.ones(len(FEATURE_KEYS_PAIR))
+    if taper_features is None:
+        start = FEATURE_KEYS_PAIR.index('r_10')
+        mask[start:start + 5] = 0.0
+    return mask
+
+
 def color_active_mask(color_features):
     mask = np.ones(13)
     if color_features is None:

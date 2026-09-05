@@ -27,6 +27,16 @@ import argparse
 import collections
 import csv
 import os
+import sys
+from pathlib import Path
+
+# The repo root (two levels up from src/) holds registry.py,
+# export_baseline_data.py and ycbv_training/, which this module imports
+# flatly below. Without this the docstring's `python3
+# evaluate_sage_robustness.py ...` usage fails with
+# ModuleNotFoundError: No module named 'registry' -- it only worked when
+# imported by task2/task4, which add the root themselves.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 # MUST be set before numpy/scipy are imported -- see registry.py's
 # module docstring for the real incident this fix is for (a load

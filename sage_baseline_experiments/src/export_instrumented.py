@@ -231,6 +231,18 @@ def export(dataset_root, split, out_path, workers, max_nfev=1500,
     print(f'{len(rows)} rows from {len(frame_keys)} frames '
           f'in {time.time() - started:.0f}s')
 
+    return write_outputs(rows, out_path)
+
+
+def write_outputs(rows, out_path):
+    """Turn collected rows into the .npz + .csv pair.
+
+    Split out from export() so the write path and its round-trip with
+    load_instrumented() can be tested without a dataset -- a format
+    mismatch between what this writes and what the pipeline reads would
+    otherwise only surface hours into a real run.
+    """
+
     scored = [r for r in rows if not r['abstained']]
     n_abstained = len(rows) - len(scored)
 
@@ -239,12 +251,14 @@ def export(dataset_root, split, out_path, workers, max_nfev=1500,
 
     if n_abstained:
         import collections
-        reasons = collections.Counter(r['reason'].split(':')[0] for r in rows if r['abstained'])
+        reasons = collections.Counter(
+            r['reason'].split(':')[0] for r in rows if r['abstained']
+        )
         for reason, count in reasons.most_common():
             print(f'      {reason}: {count}')
 
-    # Feature matrix over the fitted rows only; the abstained rows keep
-    # their place in the metadata so the denominator reconciles.
+    # Feature matrix over the fitted rows only; abstained rows keep their
+    # place in the metadata CSV so the denominator still reconciles.
     X = np.array([r['features'] for r in scored], dtype=np.float64)
     y = np.array([r['true_label'] for r in scored], dtype=object)
     videos = np.array([r['video_id'] for r in scored], dtype=object)
@@ -265,7 +279,6 @@ def export(dataset_root, split, out_path, workers, max_nfev=1500,
 
     print(f'\nSaved {X.shape[0]} x {X.shape[1]} features -> {out_path}')
 
-    # Companion CSV with every row, abstentions included.
     import csv as csv_module
 
     csv_path = out_path.with_suffix('.csv')
@@ -282,6 +295,13 @@ def export(dataset_root, split, out_path, workers, max_nfev=1500,
 
     print(f'Saved per-instance metadata ({len(rows)} rows, '
           f'abstentions included) -> {csv_path}')
+
+    # YCB-Video ids are zero-padded ("0009"), and pandas will happily
+    # read that column as int64 and turn it into 9 -- which then fails to
+    # join against the string ids in the .npz. Say so at the point
+    # someone is most likely to read it.
+    print('      when reading that CSV: '
+          "pd.read_csv(path, dtype={'video_id': str, 'frame_id': str})")
 
     print(f'\nVideos covered: {len(set(videos))}')
     print('Denominator reconciles: '

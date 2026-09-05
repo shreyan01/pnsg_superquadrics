@@ -3,8 +3,8 @@
 > *Evaluate all noise levels on the same original samples and report
 > fitting failures/abstentions separately from recognition accuracy.*
 
-**Status: ~40%. The accounting exists; the fixed population does not.**
-Commit `fc6a53d`.
+**Status: code complete. Needs a dataset run.**
+Commits `fc6a53d`, and the `--fixed-population` default.
 
 ---
 
@@ -31,12 +31,12 @@ filtered population before any metric is computed.
 implausible against 1109 evaluated** — roughly a third of the population
 removed without appearing in any number.
 
-### Not solved: the population changes per noise level
+### Also solved: the population changed per noise level
 
-`evaluate_sage_robustness.run_sweep()` re-derives the evaluated set at
-**every** level (the loop at line ~212). A harsher noise level makes more
-fits implausible, so those instances silently leave the denominator —
-and accuracy is then computed over a **different, easier** population.
+`evaluate_sage_robustness.run_sweep()` used to re-derive the evaluated
+set at **every** level. A harsher noise level makes more fits
+implausible, so those instances silently left the denominator — and
+accuracy was then computed over a **different, easier** population.
 
 That makes the curve incomparable across levels in the worst possible
 way: it flatters robustness exactly where the method struggles most. A
@@ -71,25 +71,24 @@ abstentions become **rows** in the companion CSV, not skips.
 
 ## What is left
 
-### The `--fixed-population` flag
+### ~~The `--fixed-population` flag~~ — done
 
-**Where:** `sbe/src/evaluate_sage_robustness.py`, `run_sweep()`
+`run_sweep(..., fixed_population=True)` is now the **default**:
 
-**What to build:**
+1. `_process_one_frame_degraded` now returns `instance_id` per object
+   (format `"<video>/<frame>#<n>"`, matching `evaluate_on_ycbv.py`) and
+   reports unscored instances rather than skipping them.
+2. The first value in `values` — the undegraded condition — fixes the
+   population. Every later level scores that same set.
+3. An instance that stops fitting at a harsher level counts as an
+   **error**, not an absence.
+4. Each row now carries `n_lost_at_level`, `n_abstained` and
+   `fixed_population` alongside accuracy.
 
-1. Run the sweep once at the baseline condition (σ = 0, full points) and
-   record the set of `instance_id`s that fitted successfully.
-2. Score **that same set** at every subsequent level.
-3. Instances that fail at a harsher level count as **errors**, not as
-   absences — they are a failure of the method, not a smaller test set.
-4. Report two series per sweep: accuracy on the fixed population, and
-   abstention rate as its own curve.
+`--per-level-population` restores the old behaviour, for the comparison.
+`task4_robustness.py`'s 8-positional call is unaffected.
 
-The accounting from `evaluate_clouds` is what makes step 3 possible; it
-was built for exactly this.
-
-**Estimated work:** small — the machinery exists, this is bookkeeping
-plus a flag.
+**Still to do:** run it. See [`RUNBOOK.md`](RUNBOOK.md) step 4.
 
 ### Re-run task 4's head-to-head
 
@@ -109,8 +108,8 @@ hypothetical.
 
 ## What to do
 
-1. Add `--fixed-population` to `run_sweep`, defaulting to **on**. The
-   old behaviour should require opting in, not the other way round.
+1. ~~Add the flag~~ — done; fixed population is the default and the old
+   behaviour requires opting in via `--per-level-population`.
 2. Re-run both sweeps on the Linux box:
    ```bash
    python3 src/evaluate_sage_robustness.py \

@@ -1,5 +1,8 @@
 # Revision notes
 
+**Running this? Start with [`RUNBOOK.md`](RUNBOOK.md)** — the exact
+sequence, what to check at each step, and what to expect.
+
 One file per pre-submission item: what changed, where, why, and what is
 left to do.
 
@@ -11,7 +14,7 @@ Paths are relative to the repository root (`pnsg_superquadrics/`).
 | [`item0_p0_repairs.md`](item0_p0_repairs.md) | Repairs (not one of the seven) | **Done** | — |
 | [`item1_unified_protocol.md`](item1_unified_protocol.md) | Unified evaluation protocol | Code complete | Dataset run |
 | [`item2_fitting_constraint.md`](item2_fitting_constraint.md) | Remove label-conditioned fitting | Code complete | Dataset run + **retrain** |
-| [`item3_fixed_population_noise.md`](item3_fixed_population_noise.md) | Fixed-population noise | ~40% | One flag, then dataset run |
+| [`item3_fixed_population_noise.md`](item3_fixed_population_noise.md) | Fixed-population noise | Code complete | Dataset run |
 | [`item4_ablation.md`](item4_ablation.md) | Classifier × observation 2×2 | Not started | Shared folds from item 1 |
 | [`item5_grouped_statistics.md`](item5_grouped_statistics.md) | Grouped statistics | **Done** (improves further after item 1) | — |
 | [`item6_failure_diagnosis.md`](item6_failure_diagnosis.md) | Geometric failure diagnosis | Code complete | Dataset run |

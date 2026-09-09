@@ -1,11 +1,18 @@
 BASELINE COMPARISON DATA -- README
 
-features_train.npz
+features_val_sample.npz
 ------------------------
-Load with: data = numpy.load('features_train.npz', allow_pickle=True)
+Load with: data = numpy.load('features_val_sample.npz', allow_pickle=True)
   data['X']             -- (N, 13) float array, the feature vector
   data['y']              -- (N,) string array, true label
   data['feature_names']  -- (13,) string array, column names in order
+  data['video_id']        -- (N,) string array, REAL YCB-Video video id
+                             this instance came from (e.g. '0048'), same
+                             order as X/y. Use this (not
+                             data_utils.compute_object_groups' size-based
+                             proxy) as the `groups` argument to
+                             GroupKFold / StratifiedGroupKFold -- it's
+                             ground truth, not an approximation.
 
 Feature columns, in order:
   0: a1               -- primary radius/half-width (meters)
@@ -30,13 +37,13 @@ this matches exactly how our own registry treats missing features.
 
 Labels (y): 'box', 'mug', 'bowl', 'can', 'bottle'
 
-pointclouds_train.npz (only if --include_pointclouds was used)
+pointclouds_val_sample.npz (only if --include_pointclouds was used)
 ------------------------------------------------------------
-Load with: data = numpy.load('pointclouds_train.npz', allow_pickle=True)
+Load with: data = numpy.load('pointclouds_val_sample.npz', allow_pickle=True)
   data['clouds']  -- object array, each element is (Mi, 3) float32 array
                      of real depth-camera points for one object instance
   data['y']        -- (N,) string array, same order as clouds, same labels
 
-Both files use the SAME instance order and SAME split ('train') as
+Both files use the SAME instance order and SAME split ('val_sample') as
 our own reported evaluation results, so any baseline trained/tested on
 this data is directly, fairly comparable to our numbers.

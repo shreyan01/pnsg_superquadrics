@@ -56,11 +56,42 @@ def _init_worker():
     cv2.setNumThreads(1)
 
 
-def fit_one_instance(cloud, vocab_word, max_nfev=1500):
+def fit_one_instance(cloud, vocab_word, color_features=None, max_nfev=1500):
     """Returns the 13D feature vector, or None if the fit was
-    implausible -- same logic as the real training/eval scripts, so
-    the exported features exactly match what the registry itself is
-    trained/evaluated on."""
+    implausible.
+
+    REAL BUG FIXED HERE, found via a direct diff against
+    evaluate_on_ycbv.py's _eval_one_frame() on live data: this function
+    previously hardcoded color_features=None on both branches below,
+    silently discarding the real (hue, saturation) tuple that
+    iter_frame_objects() already yields per object -- while
+    evaluate_on_ycbv.py passes that real value through unchanged. Since
+    canonicalize() substitutes a constant (0.0, 0.0) placeholder when
+    color_features is None (see registry.py), every export produced by
+    the old version of this function had hue/saturation FIXED AT ZERO
+    for every instance, in both the exported training data and the
+    exported test data -- while the real evaluation pipeline, and the
+    real classifier's actual deployment behavior, use real per-instance
+    color. A classifier trained on this old export's zero-color data is
+    therefore evaluated, in real use, on a feature distribution it never
+    saw in training on 2 of its 13 dimensions -- a genuine train/test
+    mismatch, confirmed directly: on a real 75-instance sample,
+    diff_export_vs_eval_fitting.py found real color fed into a
+    color-blind-trained classifier flipped 6/75 predictions, net
+    harmful 4-to-2. This was silently inflating every baseline
+    comparison in sage_baseline_experiments (Task 1/Task 2) that used
+    the old features_<split>.npz files, since those used exactly this
+    zero-color export too -- not just the classifier/data-volume
+    confound experiment that surfaced it.
+
+    Passing real color_features through here, matching
+    evaluate_on_ycbv.py exactly, means anyone using this function's
+    output to TRAIN a classifier now trains it on the same feature
+    distribution it will actually be evaluated on -- closing the gap
+    rather than just documenting it. Re-export both splits after this
+    change; every previously-exported features_<split>.npz is now
+    stale and should not be reused for anything color-sensitive.
+    """
     axisym = vocab_word in AXISYMMETRIC_WORDS
     if axisym:
         fitted, _ = fit_superquadric(cloud, max_nfev=max_nfev, max_size_multiplier=4.0,
@@ -69,32 +100,40 @@ def fit_one_instance(cloud, vocab_word, max_nfev=1500):
         if not is_physically_plausible(fitted):
             return None
         taper = compute_radial_profile(cloud, fitted)
-        f = canonicalize(fitted, color_features=None, taper_features=taper)
+        f = canonicalize(fitted, color_features=color_features, taper_features=taper)
     else:
         params_a, params_b, assignment = iterative_two_part_segment(cloud, verbose=False, max_nfev=max_nfev)
         if not is_physically_plausible(params_a):
             return None
-        f = canonicalize(params_a, color_features=None, taper_features=None)
+        f = canonicalize(params_a, color_features=color_features, taper_features=None)
     return f
 
 
 def _process_one_frame(args_tuple):
     dataset_root, frame_key, include_pointclouds, max_nfev = args_tuple
     results = []
+    # frame_key is "video_id/frame_id" (see ycb_dataset_loader.load_frame).
+    # Splitting it here, once, means every caller downstream just gets a
+    # plain string instead of having to know the "video_id/frame_id"
+    # convention itself.
+    video_id = frame_key.split('/')[0]
     try:
         for true_word, cloud, color_features in iter_frame_objects(dataset_root, frame_key, class_id_to_vocab):
-            f = fit_one_instance(cloud, true_word, max_nfev=max_nfev)
+            # color_features is passed through here now -- see
+            # fit_one_instance()'s docstring for exactly what bug this
+            # fixes and how it was confirmed on real data.
+            f = fit_one_instance(cloud, true_word, color_features=color_features, max_nfev=max_nfev)
             if f is None:
                 continue
             cloud_out = cloud.astype(np.float32) if include_pointclouds else None
-            results.append((f, true_word, cloud_out))
+            results.append((f, true_word, cloud_out, video_id))
         return frame_key, results, None
     except Exception as e:
         return frame_key, [], str(e)
 
 
 def export_split(dataset_root, split_name, out_dir, include_pointclouds, workers, max_nfev=1500):
-    features, labels, clouds = [], [], []
+    features, labels, clouds, video_ids = [], [], [], []
 
     frame_keys = read_split_file(dataset_root, split_name)
     work_items = [(dataset_root, fk, include_pointclouds, max_nfev) for fk in frame_keys]
@@ -110,26 +149,43 @@ def export_split(dataset_root, split_name, out_dir, include_pointclouds, workers
                 msg = f'  [frame {frame_key}] skipped: {error}'
                 (iterator.write(msg) if HAVE_TQDM else print(msg))
                 continue
-            for f, true_word, cloud_out in results:
+            for f, true_word, cloud_out, video_id in results:
                 features.append(f)
                 labels.append(true_word)
+                video_ids.append(video_id)
                 if include_pointclouds:
                     clouds.append(cloud_out)
 
     features = np.array(features, dtype=np.float64)
     labels = np.array(labels, dtype=object)
+    # NEW: real physical-object grouping key, one per instance, same
+    # order as X/y. Previously this was computed in-loop above and then
+    # discarded -- every instance's true video_id was available right
+    # here and simply never reached disk. Without it, any leakage-safe
+    # split (GroupKFold, StratifiedGroupKFold) had to fall back to a
+    # proxy built from point-cloud size signatures (see
+    # sage_baseline_experiments/src/data_utils.compute_object_groups),
+    # which over/under-merges objects of similar size. This is the real
+    # thing: no approximation involved.
+    video_ids = np.array(video_ids, dtype=object)
 
     os.makedirs(out_dir, exist_ok=True)
     feat_path = os.path.join(out_dir, f'features_{split_name}.npz')
-    np.savez_compressed(feat_path, X=features, y=labels, feature_names=np.array(FEATURE_KEYS, dtype=object))
-    print(f'Saved {len(labels)} instances -> {feat_path}')
+    np.savez_compressed(
+        feat_path,
+        X=features,
+        y=labels,
+        feature_names=np.array(FEATURE_KEYS, dtype=object),
+        video_id=video_ids,
+    )
+    print(f'Saved {len(labels)} instances -> {feat_path} (now includes real video_id per instance)')
 
     if include_pointclouds:
         cloud_path = os.path.join(out_dir, f'pointclouds_{split_name}.npz')
         clouds_arr = np.empty(len(clouds), dtype=object)
         for i, c in enumerate(clouds):
             clouds_arr[i] = c
-        np.savez_compressed(cloud_path, clouds=clouds_arr, y=labels)
+        np.savez_compressed(cloud_path, clouds=clouds_arr, y=labels, video_id=video_ids)
         print(f'Saved {len(labels)} point clouds -> {cloud_path}')
 
 
@@ -159,6 +215,13 @@ Load with: data = numpy.load('features_{args.split}.npz', allow_pickle=True)
   data['X']             -- (N, 13) float array, the feature vector
   data['y']              -- (N,) string array, true label
   data['feature_names']  -- (13,) string array, column names in order
+  data['video_id']        -- (N,) string array, REAL YCB-Video video id
+                             this instance came from (e.g. '0048'), same
+                             order as X/y. Use this (not
+                             data_utils.compute_object_groups' size-based
+                             proxy) as the `groups` argument to
+                             GroupKFold / StratifiedGroupKFold -- it's
+                             ground truth, not an approximation.
 
 Feature columns, in order:
   0: a1               -- primary radius/half-width (meters)

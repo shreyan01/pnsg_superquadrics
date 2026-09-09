@@ -62,6 +62,15 @@ STEPS = [
 ]
 
 
+# Steps that accept --dataset_root, and what else they need alongside
+# it. Without this, the SAGE halves of tasks 3 and 4 are unreachable
+# through run_all.py -- it used to forward no arguments at all.
+DATASET_AWARE = {
+    "3": ["--dataset_root"],
+    "4": ["--dataset_root", "--sage_model"],
+}
+
+
 def main():
 
     arguments = sys.argv[1:]
@@ -71,18 +80,60 @@ def main():
         print("Available steps:\n")
 
         for key, script, description, runtime in STEPS:
+            marker = (
+                "  [accepts --dataset_root]"
+                if key in DATASET_AWARE
+                else ""
+            )
             print(
                 f"  {key}  {script:32s} "
-                f"{description}  ({runtime})"
+                f"{description}  ({runtime}){marker}"
             )
 
+        print(
+            "\nPass-through arguments:\n"
+            "  --dataset_root PATH   enable the SAGE halves of steps 3 and 4\n"
+            "  --sage_model PATH     trained registry, required by step 4\n"
+            "  --workers N           worker processes for those halves\n"
+            "\nExample:\n"
+            "  python run_all.py 3 4 --dataset_root ~/ycb_dataset \\\n"
+            "      --sage_model ../trained_ycbv_ml_v2.json\n"
+        )
+
         return 0
+
+    # Split step keys from pass-through arguments.
+    passthrough = {}
+    step_keys = []
+
+    index = 0
+    while index < len(arguments):
+        argument = arguments[index]
+
+        if argument.startswith("--"):
+            if index + 1 < len(arguments) and not arguments[index + 1].startswith("--"):
+                passthrough[argument] = arguments[index + 1]
+                index += 2
+            else:
+                passthrough[argument] = None
+                index += 1
+        else:
+            step_keys.append(argument)
+            index += 1
 
     selected = [
         step
         for step in STEPS
-        if not arguments or step[0] in arguments
+        if not step_keys or step[0] in step_keys
     ]
+
+    if passthrough and not any(
+        step[0] in DATASET_AWARE for step in selected
+    ):
+        print(
+            f"Warning: {sorted(passthrough)} only apply to steps "
+            f"{sorted(DATASET_AWARE)}, none of which were selected."
+        )
 
     if not selected:
         print(
@@ -102,8 +153,23 @@ def main():
 
         started = time.time()
 
+        # Forward only the flags this step actually understands, so a
+        # --sage_model meant for step 4 does not reach step 3 and abort
+        # it on an unrecognised argument.
+        step_arguments = []
+
+        for flag in DATASET_AWARE.get(key, []):
+            if flag in passthrough and passthrough[flag] is not None:
+                step_arguments += [flag, passthrough[flag]]
+
+        if step_arguments and "--workers" in passthrough:
+            step_arguments += ["--workers", passthrough["--workers"]]
+
+        if step_arguments:
+            print(f"  args: {' '.join(step_arguments)}")
+
         completed = subprocess.run(
-            [sys.executable, str(SRC_DIR / script)],
+            [sys.executable, str(SRC_DIR / script)] + step_arguments,
             cwd=SRC_DIR,
         )
 

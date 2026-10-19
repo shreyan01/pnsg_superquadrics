@@ -104,6 +104,7 @@ from evaluation import (
     calculate_per_class_accuracy,
 )
 import sage_pipeline
+import sage_reference
 
 
 # =========================================================
@@ -131,8 +132,9 @@ RESULTS_DIR = PROJECT_ROOT / "results" / "task3"
 FIGURES_DIR = RESULTS_DIR / "figures"
 MODEL_DIR = PROJECT_ROOT / "models" / "task3"
 
-# SAGE's locked full-training result, for a horizontal reference line.
-SAGE_FULL_ACCURACY = 0.784
+# SAGE's full-training result, for a horizontal reference line.
+# Single source of truth; see src/sage_reference.py.
+SAGE_FULL_ACCURACY = sage_reference.get()["overall_accuracy"]
 
 
 # =========================================================
